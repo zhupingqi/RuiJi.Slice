@@ -1,0 +1,32 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 2012
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RuiJi.Slicer.Core", "RuiJi.Slicer.Core\RuiJi.Slicer.Core.csproj", "{C4F10E0A-E12F-4B66-9F2A-C6441A286349}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RuiJi.Slice.Console", "RuiJi.Slice.Console\RuiJi.Slice.Console.csproj", "{71EB7E31-D6A5-41E6-B4F1-8CCB66F7CE80}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RuiJi.Slice.Windown", "RuiJi.Slice.Windown\RuiJi.Slice.Windown.csproj", "{7CD27988-ABEB-4185-A214-C641D4DA1725}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{C4F10E0A-E12F-4B66-9F2A-C6441A286349}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{C4F10E0A-E12F-4B66-9F2A-C6441A286349}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{C4F10E0A-E12F-4B66-9F2A-C6441A286349}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{C4F10E0A-E12F-4B66-9F2A-C6441A286349}.Release|Any CPU.Build.0 = Release|Any CPU
+		{71EB7E31-D6A5-41E6-B4F1-8CCB66F7CE80}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{71EB7E31-D6A5-41E6-B4F1-8CCB66F7CE80}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{71EB7E31-D6A5-41E6-B4F1-8CCB66F7CE80}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{71EB7E31-D6A5-41E6-B4F1-8CCB66F7CE80}.Release|Any CPU.Build.0 = Release|Any CPU
+		{7CD27988-ABEB-4185-A214-C641D4DA1725}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{7CD27988-ABEB-4185-A214-C641D4DA1725}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{7CD27988-ABEB-4185-A214-C641D4DA1725}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{7CD27988-ABEB-4185-A214-C641D4DA1725}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+EndGlobal
