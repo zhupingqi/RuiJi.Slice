@@ -6,13 +6,13 @@ using System.Threading.Tasks;
 
 namespace RuiJi.Slicer.Core.File
 {
-    public class STLSize
+    public class ModelSize
     {
         public float Length { get; set; }
         public float Width { get; set; }
         public float Height { get; set; }
 
-        public STLSize(float length,float width,float height)
+        public ModelSize(float length,float width,float height)
         {
             this.Length = length;
             this.Width = width;

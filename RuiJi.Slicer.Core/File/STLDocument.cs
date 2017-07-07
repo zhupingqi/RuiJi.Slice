@@ -15,7 +15,7 @@ namespace RuiJi.Slicer.Core.File
 
         public string Name { get; set; }
 
-        public STLSize Size { get; private set; }
+        public ModelSize Size { get; private set; }
 
         public Vector3 Center { get; private set; }
 
@@ -194,7 +194,7 @@ namespace RuiJi.Slicer.Core.File
             var maxY = Facets.Max(m => m.Vertices.Max(n => n.Y));
             var minZ = Facets.Min(m => m.Vertices.Min(n => n.Z));
             var maxZ = Facets.Max(m => m.Vertices.Max(n => n.Z));
-            Size = new STLSize(maxX - minX, maxY - minY, maxZ - minZ);
+            Size = new ModelSize(maxX - minX, maxY - minY, maxZ - minZ);
             Center = new Vector3(Size.Length / 2 + minX, Size.Width / 2 + minY, Size.Height / 2 + minZ);
         }
 

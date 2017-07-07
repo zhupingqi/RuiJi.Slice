@@ -1,7 +1,9 @@
 ﻿using RuiJi.Slicer.Core;
 using RuiJi.Slicer.Core.File;
+using RuiJi.Slicer.Core.ImageMould;
 using System;
 using System.Collections.Generic;
+using System.Drawing.Imaging;
 using System.Linq;
 using System.Numerics;
 using System.Text;
@@ -51,7 +53,26 @@ namespace ConsoleApplication1
             var prefix = 0;
             foreach (var key in results.Keys)
             {
-                SliceImage.ToImage(results[key], (int)doc.Size.Length, (int)doc.Size.Height, 128, 64, prefix.ToString());
+                var filename = AppDomain.CurrentDomain.BaseDirectory + prefix + "_frame.h";
+                System.IO.File.Delete(filename);
+
+                var code = "";
+                var frameTable = new List<string>();
+
+                var images = SliceImage.ToImage(results[key], (int)doc.Size.Length, (int)doc.Size.Height, 128, 64);
+                for (int i = 0; i < images.Count; i++)
+                {
+                    var bmp = images[i];
+                    bmp.Save(AppDomain.CurrentDomain.BaseDirectory + "/" + prefix + "_" + i + ".bmp", ImageFormat.Bmp);
+
+                    IImageMould im = new SSD1306();
+                    code += "static unsigned char " + prefix + "_frames_" + i + "[] = { " + im.GetMould(bmp) + "\n";
+                    frameTable.Add(prefix + "_frames_" + i);
+                }
+
+                code += "unsigned char* " + prefix + "_frames_table[] = { " + string.Join(",", frameTable.ToArray()) + " };";
+                System.IO.File.AppendAllText(filename, code);
+
                 prefix++;
             }
 

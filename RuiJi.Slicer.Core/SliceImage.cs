@@ -12,14 +12,10 @@ namespace RuiJi.Slicer.Core
 {
     public class SliceImage
     {
-        public static void ToImage(List<SlicedPlane> slicedPlane,int w,int h,int width,int height,string prefix)
+        public static List<Bitmap> ToImage(List<SlicedPlane> slicedPlane,int w,int h,int width,int height)
         {
-            var filename = AppDomain.CurrentDomain.BaseDirectory + prefix + "_frame.h";
-            System.IO.File.Delete(filename);
-
             var firstNormal = slicedPlane.First().Plane.Normal;
-            var frame = 0;
-            var code = "";
+            var images = new List<Bitmap>();
 
             foreach (var sp in slicedPlane)
             {
@@ -47,21 +43,14 @@ namespace RuiJi.Slicer.Core
                     });
                 }
 
-                code += ToImage(lines,frame++,w,h, width, height, prefix);
+                var img = ToImage(lines, w, h, width, height);
+                images.Add(img);
             }
 
-            var frameTable = new List<string>();
-
-            for (int i = 0; i < frame; i++)
-            {
-                frameTable.Add(prefix + "_frames_" + i);
-            }
-
-            code += "unsigned char* " + prefix + "_frames_table[] = { " + string.Join(",", frameTable.ToArray()) + " };";
-            System.IO.File.AppendAllText(filename, code);
+            return images;
         }
 
-        public static string ToImage(List<Vector2[]> lines,int frame,int w,int h,int width,int height,string prefix)
+        public static Bitmap ToImage(List<Vector2[]> lines,int w,int h,int width,int height)
         {
             var f1 = w / (float)width;
             var f2 = h / (float)height;
@@ -72,7 +61,7 @@ namespace RuiJi.Slicer.Core
             var ow = width / 2;
             var oh = height / 2;
 
-            var bmp = new Bitmap(width, height, PixelFormat.Format16bppRgb565);
+            var bmp = new Bitmap(width, height);
             var g = Graphics.FromImage(bmp);
             g.FillRectangle(new SolidBrush(Color.White), new Rectangle(0, 0, width, height));
 
@@ -91,58 +80,7 @@ namespace RuiJi.Slicer.Core
             }
 
             bmp.RotateFlip(RotateFlipType.Rotate180FlipX);
-
-            var buff = new List<string>();
-
-            for (int i = 0; i < height; i++)
-            {
-                for (int j = 0; j < width; j++)
-                {
-                    var p = bmp.GetPixel(j, i);
-                    if (p.Name != "ffffffff")
-                    {
-                        buff.Add("1");
-                    }
-                    else
-                    {
-                        buff.Add("0");
-                    }
-                }
-            }
-
-            g.Dispose();
-            bmp.Save(AppDomain.CurrentDomain.BaseDirectory + "/" + prefix + "_" + frame + ".bmp", ImageFormat.Bmp);
-            bmp.Dispose();
-
-            return MakeFrameBuff(frame, buff, width, prefix);
-        }
-
-        public static string MakeFrameBuff(int frame, List<string> buff, int width,string prefix = "", int pages = 8, int pageSize = 8)
-        {
-            var ps = new List<string>();
-            var p = new List<int>();
-
-            for (int i = 0; i < pages; i++)
-            {
-                for (int j = 0; j < width; j++)
-                {
-                    var by = new List<string>();
-                    for (int m = 0; m < pageSize; m++)
-                    {
-                        var pos = i * (128 * 8) + width * m + j;
-                        p.Add(pos);
-
-                        var v = buff.ElementAt(pos);
-                        by.Add(v);
-                    }
-
-                    by.Reverse();
-                    var s = string.Join("", by);
-                    ps.Add("0x" + string.Format("{0:X}", Convert.ToByte(s, 2)));
-                }
-            }
-
-            return "static unsigned char " + prefix + "_frames_" + frame + "[] = { " + string.Join(",", ps.ToArray()) + "};\n";
+            return bmp;
         }
 
         public static Vector2 To2D(Plane plane,Vector3 p)
