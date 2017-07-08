@@ -65,11 +65,11 @@ namespace ConsoleApplication1
                     bmp.Save(AppDomain.CurrentDomain.BaseDirectory + "/" + prefix + "_" + i + ".bmp", ImageFormat.Bmp);
 
                     IImageMould im = new SSD1306();
-                    code += "static unsigned char " + prefix + "_frames_" + i + "[] = { " + im.GetMould(bmp) + "\n";
-                    frameTable.Add(prefix + "_frames_" + i);
+                    code += "static unsigned char _" + prefix + "_frame_" + i + "[] = { " + im.GetMould(bmp) + " }; \n";
+                    frameTable.Add("_" + prefix + "_frame_" + i);
                 }
 
-                code += "unsigned char* " + prefix + "_frames_table[] = { " + string.Join(",", frameTable.ToArray()) + " };";
+                code += "unsigned char* _" + prefix + "_frames_table[] = { " + string.Join(",", frameTable.ToArray()) + " };";
                 System.IO.File.AppendAllText(filename, code);
 
                 prefix++;
