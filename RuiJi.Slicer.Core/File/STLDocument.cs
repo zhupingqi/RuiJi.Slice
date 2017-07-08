@@ -141,15 +141,19 @@ namespace RuiJi.Slicer.Core.File
 
         private static Facet FacetRead(StreamReader reader)
         {
-            reader.ReadLine();
-            reader.ReadLine();
+            var s1 = reader.ReadLine();
+            var s2 = reader.ReadLine();
+
+            if (string.IsNullOrEmpty(s1) || string.IsNullOrEmpty(s2))
+                return null;
 
             var vs = new List<Vector3>();
 
             for (int i = 0; i < 3; i++)
             {
-                var v = reader.ReadLine().Replace("vertex ", "");
-                var s = v.Split(new char[] { ' ' });
+                var line = reader.ReadLine();
+                var v = line.Replace("vertex ", "");
+                var s = v.Split(new char[] { ' ' },StringSplitOptions.RemoveEmptyEntries);
                 vs.Add(new Vector3(float.Parse(s[0]), float.Parse(s[1]), float.Parse(s[2])));
             }
 
