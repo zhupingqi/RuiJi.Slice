@@ -41,12 +41,11 @@ namespace ConsoleApplication1
         {
             //-0.03141076,0.9995066
             var p = new Plane(0, 1, 0, 8);
-            var d = new ArrayDefine(p, ArrayType.Circle, 8);
             var doc = STLDocument.Open(AppDomain.CurrentDomain.BaseDirectory + "bmwi8.stl");
             doc.MakeCenter();
 
             var results = Slicer.DoSlice(doc.Facets.ToArray(), new ArrayDefine[] {
-                new ArrayDefine(new Plane(0, 1, 0, 8), ArrayType.Circle, 8)
+                new ArrayDefine(new Plane(0, 1, 0, 8), ArrayType.Circle, 200)
                 //new ArrayDefine(new Plane(-0.03141076f, 0.9995066f, 0, 8), ArrayType.Circle, 8)
             });
 
@@ -81,8 +80,8 @@ namespace ConsoleApplication1
 
         static void TestTo2D()
         {
-            var p = SliceImage.To2D(new Plane(0,1,0,8),new Vector3(-1,8,1));
-            Console.WriteLine(p);
+            //var p = SliceImage.To2D(new Plane(0,1,0,8),new Vector3(-1,8,1));
+            //Console.WriteLine(p);
         }
     }
 }

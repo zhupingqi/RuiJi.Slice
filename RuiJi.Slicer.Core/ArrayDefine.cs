@@ -9,12 +9,18 @@ namespace RuiJi.Slicer.Core
 {
     public class ArrayDefine
     {
+        /// <summary>
+        /// 旋转面
+        /// </summary>
         public Plane Plane
         {
             get;
             set;
         }
 
+        /// <summary>
+        /// 旋转轴
+        /// </summary>
         public Vector3 Axis
         {
             get;
@@ -27,18 +33,27 @@ namespace RuiJi.Slicer.Core
             set;
         }
 
+        /// <summary>
+        /// 切片数量
+        /// </summary>
         public int Count
         {
             get;
             set;
         }
 
+        /// <summary>
+        /// 切片弧度
+        /// </summary>
         public float Angle
         {
             get;
             set;
         }
 
+        /// <summary>
+        /// 阵列类型
+        /// </summary>
         public ArrayType ArrayType
         {
             get;

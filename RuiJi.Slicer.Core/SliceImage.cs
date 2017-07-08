@@ -21,25 +21,25 @@ namespace RuiJi.Slicer.Core
             {
                 var lines = new List<Vector2[]>();
 
-                //var origin = new Vector3(0, 0, 0);
-                //if (sp.Plane.D != 0)
-                //    origin = firstNormal * sp.Plane.D;
+                var origin = new Vector3(0, 0, 0);
+                if (sp.Plane.D != 0)
+                    origin = firstNormal * sp.Plane.D;
 
-                //var a = -sp.Angle;
-                //var q = Matrix4x4.CreateFromAxisAngle(sp.Axis, a);
-                //q.Translation = -origin;
+                var a = -sp.Angle;
+                var q = Matrix4x4.CreateFromAxisAngle(sp.Axis, a);
+                q.Translation = -origin;
 
                 foreach (var line in sp.Lines)
                 {
-                    //var s = Vector3.Transform(line.Start, q);
-                    //var e = Vector3.Transform(line.End, q);
+                    var s = Vector3.Transform(line.Start, q);
+                    var e = Vector3.Transform(line.End, q);
 
-                    var s = To2D(sp.Plane,line.Start);
-                    var e = To2D(sp.Plane,line.End);
+                    //var s = To2D(sp,line.Start);
+                    //var e = To2D(sp,line.End);
 
                     lines.Add(new Vector2[] {
-                        new Vector2(s.X,s.Y),
-                        new Vector2(e.X,e.Y)
+                        new Vector2(s.X,s.Z),
+                        new Vector2(e.X,e.Z)
                     });
                 }
 
@@ -83,15 +83,17 @@ namespace RuiJi.Slicer.Core
             return bmp;
         }
 
-        public static Vector2 To2D(Plane plane,Vector3 p)
+        public static Vector2 To2D(SlicedPlane sp, Vector3 p)
         {
             var PO = new Vector3(0, 0, 0);
-            if (plane.D != 0)
-                PO = plane.Normal * plane.D;
+            if (sp.Plane.D != 0)
+                PO = sp.Plane.Normal * sp.Plane.D;
 
-            Vector3 vectorX = new Vector3(1, 0, 0);
-            Vector3 vectorY = new Vector3(0, 1, 0); // plane.Normal; 
-            Vector3 vectorZ = new Vector3(0, 0, 1);
+            var n = Vector3.Cross( sp.Axis , sp.Plane.Normal);
+
+            Vector3 vectorX = new Vector3(sp.Axis.X, 0, 0);
+            Vector3 vectorY = new Vector3(0, sp.Axis.Y, 0); // plane.Normal; 
+            Vector3 vectorZ = new Vector3(0, 0, sp.Axis.Z);
 
             var q = new Matrix4x4()
             {

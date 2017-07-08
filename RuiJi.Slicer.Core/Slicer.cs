@@ -13,12 +13,12 @@ namespace RuiJi.Slicer.Core
         {
             var results = new Dictionary<ArrayDefine,List<SlicedPlane>>();
 
-            foreach (var difine in defines)
+            foreach (var define in defines)
             {
                 var result = new List<SlicedPlane>();
 
                 var factory = new ArrayFactory();
-                var planes = factory.CreatePlane(difine);
+                var planes = factory.CreatePlane(define);
 
                 foreach (var p in planes)
                 {
@@ -34,7 +34,7 @@ namespace RuiJi.Slicer.Core
                     }
                 }
 
-                results.Add(difine,result);
+                results.Add(define,result);
             }
 
             return results;

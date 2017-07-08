@@ -21,6 +21,9 @@ namespace RuiJi.Slicer.Core
             private set;
         }
 
+        /// <summary>
+        /// 原始旋转轴
+        /// </summary>
         public Vector3 Axis
         {
             get;
