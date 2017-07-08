@@ -45,7 +45,7 @@ namespace ConsoleApplication1
             doc.MakeCenter();
 
             var results = Slicer.DoSlice(doc.Facets.ToArray(), new ArrayDefine[] {
-                new ArrayDefine(new Plane(0, 1, 0, 8), ArrayType.Circle, 200)
+                new ArrayDefine(new Plane(0, 1, 0, 6), ArrayType.Circle, 200)
                 //new ArrayDefine(new Plane(-0.03141076f, 0.9995066f, 0, 8), ArrayType.Circle, 8)
             });
 
@@ -62,7 +62,7 @@ namespace ConsoleApplication1
                 for (int i = 0; i < images.Count; i++)
                 {
                     var bmp = images[i];
-                    bmp.Save(AppDomain.CurrentDomain.BaseDirectory + "/" + prefix + "_" + i + ".bmp", ImageFormat.Bmp);
+                    //bmp.Save(AppDomain.CurrentDomain.BaseDirectory + "/" + prefix + "_" + i + ".bmp", ImageFormat.Bmp);
 
                     IImageMould im = new SSD1306();
                     code += "static unsigned char _" + prefix + "_frame_" + i + "[] = { " + im.GetMould(bmp) + " }; \n";
