@@ -40,12 +40,11 @@ namespace ConsoleApplication1
         static void TestSlicer()
         {
             //-0.03141076,0.9995066
-            var p = new Plane(0, 1, 0, 8);
-            var doc = STLDocument.Open(AppDomain.CurrentDomain.BaseDirectory + "c.stl");
+            var doc = STLDocument.Open(AppDomain.CurrentDomain.BaseDirectory + "bmwi8.stl");
             doc.MakeCenter();
 
             var results = Slicer.DoSlice(doc.Facets.ToArray(), new ArrayDefine[] {
-                new ArrayDefine(new Plane(0, 1, 0, 6), ArrayType.Circle, 200)
+                new ArrayDefine(new Plane(0, 1, 0, 19.4f), ArrayType.Circle, 200)
                 //new ArrayDefine(new Plane(-0.03141076f, 0.9995066f, 0, 8), ArrayType.Circle, 8)
             });
 
