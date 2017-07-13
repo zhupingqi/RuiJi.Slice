@@ -44,7 +44,7 @@ namespace ConsoleApplication1
             doc.MakeCenter();
 
             var results = Slicer.DoSlice(doc.Facets.ToArray(), new ArrayDefine[] {
-                new ArrayDefine(new Plane(0, 1, 0, 19.4f), ArrayType.Circle, 200)
+                new ArrayDefine(new Plane(0, 1, 0, 0), ArrayType.Circle, 50,180)
                 //new ArrayDefine(new Plane(-0.03141076f, 0.9995066f, 0, 8), ArrayType.Circle, 8)
             });
 
