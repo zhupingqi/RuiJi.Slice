@@ -12,7 +12,7 @@ namespace RuiJi.Slicer.Core
 {
     public class SliceImage
     {
-        public static List<Bitmap> ToImage(List<SlicedPlane> slicedPlane,int w,int h,int width,int height)
+        public static List<Bitmap> ToImage(List<SlicedPlane> slicedPlane,int w,int h,int width,int height,int ox = 0,int oy = 0)
         {
             var firstNormal = slicedPlane.First().Plane.Normal;
             var images = new List<Bitmap>();
@@ -43,14 +43,14 @@ namespace RuiJi.Slicer.Core
                     });
                 }
 
-                var img = ToImage(lines, w, h, width, height);
+                var img = ToImage(lines, w, h, width, height,ox,oy);
                 images.Add(img);
             }
 
             return images;
         }
 
-        public static Bitmap ToImage(List<Vector2[]> lines,int w,int h,int width,int height)
+        public static Bitmap ToImage(List<Vector2[]> lines,int w,int h,int width,int height, int ox = 0, int oy = 0)
         {
             var f1 = w / (float)width;
             var f2 = h / (float)height;
@@ -58,8 +58,8 @@ namespace RuiJi.Slicer.Core
             if (f > 1)
                 f = 1;
 
-            var ow = width / 2;
-            var oh = height / 2;
+            var ow = width / 2 + ox;
+            var oh = height / 2+ oy;
 
             var bmp = new Bitmap(width, height);
             var g = Graphics.FromImage(bmp);

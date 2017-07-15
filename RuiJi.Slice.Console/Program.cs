@@ -57,7 +57,7 @@ namespace ConsoleApplication1
                 var code = "";
                 var frameTable = new List<string>();
 
-                var images = SliceImage.ToImage(results[key], (int)doc.Size.Length, (int)doc.Size.Height, 128, 64);
+                var images = SliceImage.ToImage(results[key], (int)doc.Size.Length, (int)doc.Size.Height, 128, 64, 0, 15);
                 for (int i = 0; i < images.Count; i++)
                 {
                     var bmp = images[i];
