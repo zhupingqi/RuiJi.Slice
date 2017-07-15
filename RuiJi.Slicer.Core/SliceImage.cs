@@ -52,11 +52,29 @@ namespace RuiJi.Slicer.Core
 
         public static Bitmap ToImage(List<Vector2[]> lines,int w,int h,int width,int height, int ox = 0, int oy = 0)
         {
-            var f1 = w / (float)width;
-            var f2 = h / (float)height;
-            var f = Math.Min(f1, f2);
-            if (f > 1)
-                f = 1;
+            //对角线不应超出宽度
+            //var f0 = (float)Math.Sqrt( w * w + h * h);
+            //var f1 = (float)Math.Sqrt(width * width + height * height);
+            //var fz = f1 / f0;
+
+            var fw = 1f;
+            var fh = 1f;
+
+            if (w > width)
+                fw = width / (float)w;
+            if (h > height)
+                fh = height / (float)h;
+            var f = Math.Min(fw,fh) * 0.7f;
+
+            //var f0 = Math.Min(w,h);
+            //var f = f0 / (float)width;
+            //if (f0 == h)
+            //    f = f0 / (float)height;
+            //var f1 = w / (float)width;
+            //var f2 = h / (float)height;
+            //var f = Math.Min(f1, f2);
+            //if (f > 1)
+            //    f = 1;
 
             var ow = width / 2 + ox;
             var oh = height / 2+ oy;
@@ -78,7 +96,7 @@ namespace RuiJi.Slicer.Core
 
                 g.DrawLine(new Pen(new SolidBrush(Color.Red)), p1, p2);
             }
-
+            
             bmp.RotateFlip(RotateFlipType.Rotate180FlipX);
             return bmp;
         }
