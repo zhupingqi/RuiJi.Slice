@@ -1,4 +1,4 @@
-﻿namespace RuiJi.Slice.Windown
+﻿namespace RuiJi.Slice.Window
 {
     partial class Form1
     {

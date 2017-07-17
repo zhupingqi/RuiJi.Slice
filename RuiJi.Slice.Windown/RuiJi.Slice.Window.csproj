@@ -6,8 +6,8 @@
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
     <ProjectGuid>{7CD27988-ABEB-4185-A214-C641D4DA1725}</ProjectGuid>
     <OutputType>WinExe</OutputType>
-    <RootNamespace>RuiJi.Slice.Windown</RootNamespace>
-    <AssemblyName>RuiJi.Slice.Windown</AssemblyName>
+    <RootNamespace>RuiJi.Slice.Window</RootNamespace>
+    <AssemblyName>RuiJi.Slice.Window</AssemblyName>
     <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>

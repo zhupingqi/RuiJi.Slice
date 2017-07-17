@@ -8,7 +8,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 
-namespace RuiJi.Slice.Windown
+namespace RuiJi.Slice.Window
 {
     public partial class Form1 : Form
     {

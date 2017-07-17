@@ -8,7 +8,7 @@
 // </auto-generated>
 //------------------------------------------------------------------------------
 
-namespace RuiJi.Slice.Windown.Properties {
+namespace RuiJi.Slice.Window.Properties {
     
     
     [global::System.Runtime.CompilerServices.CompilerGeneratedAttribute()]
