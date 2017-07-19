@@ -30,12 +30,23 @@ using System.Numerics;
 using System.Drawing.Imaging;
 using System.Drawing;
 using System.IO;
+using RuiJi.Slicer.Core.File;
 
 namespace RuiJi.Slicer.Core
 {
     public class SliceImage
     {
-        public static List<Bitmap> ToImage(List<SlicedPlane> slicedPlane,int w,int h,int width,int height,int ox = 0,int oy = 0)
+        /// <summary>
+        /// 切片转图片
+        /// </summary>
+        /// <param name="slicedPlane">切片集合</param>
+        /// <param name="size">模型尺寸</param>
+        /// <param name="imageWidth">图片宽度</param>
+        /// <param name="imageHeight">图片高度</param>
+        /// <param name="offsetX">x偏移量</param>
+        /// <param name="offsetY">y偏移量</param>
+        /// <returns></returns>
+        public static List<Bitmap> ToImage(List<SlicedPlane> slicedPlane, ModelSize size, int imageWidth, int imageHeight, int offsetX = 0, int offsetY = 0)
         {
             var firstNormal = slicedPlane.First().Plane.Normal;
             var images = new List<Bitmap>();
@@ -66,60 +77,63 @@ namespace RuiJi.Slicer.Core
                     });
                 }
 
-                var img = ToImage(lines, w, h, width, height,ox,oy);
+                var img = ToImage(lines, size, imageWidth, imageHeight, offsetX, offsetY);
                 images.Add(img);
             }
 
             return images;
         }
 
-        public static Bitmap ToImage(List<Vector2[]> lines,int w,int h,int width,int height, int ox = 0, int oy = 0)
+        /// <summary>
+        /// 使用线段绘图
+        /// </summary>
+        /// <param name="lines">线段集合</param>
+        /// <param name="size">模型尺寸</param>
+        /// <param name="imageWidth">图片宽度</param>
+        /// <param name="imageHeight">图片高度</param>
+        /// <param name="offsetX">x偏移量</param>
+        /// <param name="offsetY">y偏移量</param>
+        /// <returns></returns>
+        public static Bitmap ToImage(List<Vector2[]> lines, ModelSize size, int imageWidth, int imageHeight, int offsetX = 0, int offsetY = 0)
         {
             //对角线不应超出宽度
-            //var f0 = (float)Math.Sqrt( w * w + h * h);
-            //var f1 = (float)Math.Sqrt(width * width + height * height);
-            //var fz = f1 / f0;
+            var fd = 1f;
+            var diagonal = (float)Math.Sqrt(size.Width * size.Width + size.Length * size.Length);
+            if (diagonal > imageWidth)
+            {
+                fd = imageWidth / diagonal;
+            }
 
             var fw = 1f;
             var fh = 1f;
 
-            if (w > width)
-                fw = width / (float)w;
-            if (h > height)
-                fh = height / (float)h;
-            var f = Math.Min(fw,fh) * 0.7f;
+            if (size.Length > imageWidth)
+                fw = imageWidth / (float)size.Length;
+            if (size.Height > imageHeight)
+                fh = imageHeight / (float)size.Height;
+            var f = Math.Min(fd, Math.Min(fw, fh));
 
-            //var f0 = Math.Min(w,h);
-            //var f = f0 / (float)width;
-            //if (f0 == h)
-            //    f = f0 / (float)height;
-            //var f1 = w / (float)width;
-            //var f2 = h / (float)height;
-            //var f = Math.Min(f1, f2);
-            //if (f > 1)
-            //    f = 1;
+            var ow = imageWidth / 2f + offsetX;
+            var oh = imageHeight / 2f + offsetY;
 
-            var ow = width / 2 + ox;
-            var oh = height / 2+ oy;
-
-            var bmp = new Bitmap(width, height);
+            var bmp = new Bitmap(imageWidth, imageHeight);
             var g = Graphics.FromImage(bmp);
-            g.FillRectangle(new SolidBrush(Color.White), new Rectangle(0, 0, width, height));
+            g.FillRectangle(new SolidBrush(Color.White), new Rectangle(0, 0, imageWidth, imageHeight));
 
             foreach (var line in lines)
             {
-                int x1 = (int)(line[0].X * f) + ow;
-                int y1 = (int)(line[0].Y * f) + oh;
+                int x1 = Convert.ToInt32((line[0].X * f) + ow);
+                int y1 = Convert.ToInt32((line[0].Y * f) + oh);
 
-                int x2 = (int)(line[1].X * f) + ow;
-                int y2 = (int)(line[1].Y * f) + oh;
+                int x2 = Convert.ToInt32((line[1].X * f) + ow);
+                int y2 = Convert.ToInt32((line[1].Y * f) + oh);
 
                 Point p1 = new Point(x1, y1);
                 Point p2 = new Point(x2, y2);
 
                 g.DrawLine(new Pen(new SolidBrush(Color.Red)), p1, p2);
             }
-            
+
             bmp.RotateFlip(RotateFlipType.Rotate180FlipX);
             return bmp;
         }
@@ -130,7 +144,7 @@ namespace RuiJi.Slicer.Core
             if (sp.Plane.D != 0)
                 PO = sp.Plane.Normal * sp.Plane.D;
 
-            var n = Vector3.Cross( sp.Axis , sp.Plane.Normal);
+            var n = Vector3.Cross(sp.Axis, sp.Plane.Normal);
 
             Vector3 vectorX = new Vector3(sp.Axis.X, 0, 0);
             Vector3 vectorY = new Vector3(0, sp.Axis.Y, 0); // plane.Normal; 
@@ -159,9 +173,9 @@ namespace RuiJi.Slicer.Core
             var qq = Quaternion.CreateFromRotationMatrix(q);
 
             var np = Vector3.Transform(p, qq);
-            
 
-            return new Vector2(np.X,np.Z);
+
+            return new Vector2(np.X, np.Z);
         }
     }
 }

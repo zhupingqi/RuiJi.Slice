@@ -30,6 +30,9 @@ using System.Numerics;
 
 namespace RuiJi.Slicer.Core
 {
+    /// <summary>
+    /// 阵列定义
+    /// </summary>
     public class ArrayDefine
     {
         /// <summary>
@@ -83,6 +86,24 @@ namespace RuiJi.Slicer.Core
             set;
         }
 
+        /// <summary>
+        /// 初始面X坐标轴
+        /// </summary>
+        public Vector3 PlaneAxisX
+        {
+            get;
+            private set;
+        }
+
+        /// <summary>
+        /// 初始面Y坐标轴
+        /// </summary>
+        public Vector3 PlaneAxisY
+        {
+            get;
+            private set;
+        }
+
         public ArrayDefine(Plane plane, ArrayType sliceType = ArrayType.Circle , int count = 50, float angle = 360f)
         {
             this.Plane = plane;
@@ -90,6 +111,8 @@ namespace RuiJi.Slicer.Core
             this.Count = count;
             this.Angle = angle;
             this.Axis = new Vector3(0, 0, 1);
+
+            //需添加初始面x,y轴方向
         }
     }
 }

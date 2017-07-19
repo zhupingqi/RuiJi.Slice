@@ -60,7 +60,7 @@ namespace RuiJi.Slicer.Core
         }
 
         /// <summary>
-        /// 初始面X坐标轴
+        /// 面X坐标轴
         /// </summary>
         public Vector3 PlaneAxisX
         {
@@ -69,7 +69,7 @@ namespace RuiJi.Slicer.Core
         }
 
         /// <summary>
-        /// 初始面Y坐标轴
+        /// 面Y坐标轴
         /// </summary>
         public Vector3 PlaneAxisY
         {
