@@ -1,9 +1,11 @@
-﻿using RuiJi.Slicer.Core;
+﻿using RuiJi.Slice.ConsoleTool;
+using RuiJi.Slicer.Core;
 using RuiJi.Slicer.Core.File;
 using RuiJi.Slicer.Core.ImageMould;
 using System;
 using System.Collections.Generic;
 using System.Drawing.Imaging;
+using System.IO;
 using System.Linq;
 using System.Numerics;
 using System.Text;
@@ -15,16 +17,15 @@ namespace ConsoleApplication1
     {
         static void Main(string[] args)
         {
-            TestSlicer();
-            //TestTo2D();
-            Console.ReadLine();
+            //TestSlicer();
+            ////TestTo2D();
+            //Console.ReadLine();
+            ConsoleSliceTool.ConsoleSlicer();
         }
-
-
 
         static void TestArrayCreate()
         {
-            var p = new Plane(0,1,0,1);
+            var p = new Plane(0, 1, 0, 1);
             var d = new ArrayDefine(p, ArrayType.Circle, 8);
             var c = new CircleArrayCreater();
             var ps = c.CreateArrayPlane(d);
