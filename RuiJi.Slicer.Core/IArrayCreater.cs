@@ -30,9 +30,18 @@ namespace RuiJi.Slicer.Core
         SlicePanelInfo[] CreateArrayPlane(ArrayDefine define);
     }
 
+    /// <summary>
+    /// 阵列类型
+    /// </summary>
     public enum ArrayType
     {
+        /// <summary>
+        /// 圆周阵列
+        /// </summary>
         Circle,
+        /// <summary>
+        /// 线性阵列
+        /// </summary>
         Line
     }
 }

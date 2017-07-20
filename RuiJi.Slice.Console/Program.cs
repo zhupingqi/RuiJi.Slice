@@ -40,7 +40,7 @@ namespace ConsoleApplication1
         static void TestSlicer()
         {
             //-0.03141076,0.9995066
-            var doc = STLDocument.Open(AppDomain.CurrentDomain.BaseDirectory + @"/stl/Mount_Fuji.stl");
+            var doc = STLDocument.Open(AppDomain.CurrentDomain.BaseDirectory + @"/stl/bmwi8.stl");
             doc.MakeCenter();
 
             var results = Slicer.DoSlice(doc.Facets.ToArray(), new ArrayDefine[] {
@@ -57,7 +57,7 @@ namespace ConsoleApplication1
                 var code = "";
                 var frameTable = new List<string>();
 
-                var images = SliceImage.ToImage(results[key], (int)doc.Size.Length, (int)doc.Size.Height, 128, 64, 0, 0);
+                var images = SliceImage.ToImage(results[key], doc.Size, 128, 64, 0, 0);
                 for (int i = 0; i < images.Count; i++)
                 {
                     var bmp = images[i];
