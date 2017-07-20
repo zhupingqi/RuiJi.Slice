@@ -35,7 +35,7 @@ namespace RuiJi.Slicer.Core
 {
     public class SliceImage
     {
-        public static List<Bitmap> ToImage(List<SlicedPlane> slicedPlane, int w, int h, int width, int height, int ox = 0, int oy = 0)
+        public static List<Bitmap> ToImage(List<SlicedPlane> slicedPlane,int w,int h,int width,int height,int ox = 0,int oy = 0)
         {
             var firstNormal = slicedPlane.First().Plane.Normal;
             var images = new List<Bitmap>();
@@ -66,25 +66,14 @@ namespace RuiJi.Slicer.Core
                     });
                 }
 
-                var img = ToImage(lines, w, h, width, height, ox, oy);
+                var img = ToImage(lines, w, h, width, height,ox,oy);
                 images.Add(img);
             }
 
             return images;
         }
 
-        /// <summary>
-        /// 切片转2维图
-        /// </summary>
-        /// <param name="lines"></param>
-        /// <param name="w"></param>
-        /// <param name="h"></param>
-        /// <param name="width"></param>
-        /// <param name="height"></param>
-        /// <param name="ox"></param>
-        /// <param name="oy"></param>
-        /// <returns></returns>
-        public static Bitmap ToImage(List<Vector2[]> lines, int w, int h, int width, int height, int ox = 0, int oy = 0)
+        public static Bitmap ToImage(List<Vector2[]> lines,int w,int h,int width,int height, int ox = 0, int oy = 0)
         {
             //对角线不应超出宽度
             //var f0 = (float)Math.Sqrt( w * w + h * h);
@@ -93,18 +82,12 @@ namespace RuiJi.Slicer.Core
 
             var fw = 1f;
             var fh = 1f;
-            var fz = 1f;
+
             if (w > width)
                 fw = width / (float)w;
             if (h > height)
                 fh = height / (float)h;
-
-            var diagonal = (float)Math.Sqrt(Math.Pow(w, 2) + Math.Pow(h, 2));
-            if (diagonal > width)
-            {
-                fz = width / diagonal;
-            }
-            var f = Math.Min(Math.Min(fw, fh), fz);
+            var f = Math.Min(fw,fh) * 0.7f;
 
             //var f0 = Math.Min(w,h);
             //var f = f0 / (float)width;
@@ -117,7 +100,7 @@ namespace RuiJi.Slicer.Core
             //    f = 1;
 
             var ow = width / 2 + ox;
-            var oh = height / 2 + oy;
+            var oh = height / 2+ oy;
 
             var bmp = new Bitmap(width, height);
             var g = Graphics.FromImage(bmp);
@@ -136,7 +119,7 @@ namespace RuiJi.Slicer.Core
 
                 g.DrawLine(new Pen(new SolidBrush(Color.Red)), p1, p2);
             }
-
+            
             bmp.RotateFlip(RotateFlipType.Rotate180FlipX);
             return bmp;
         }
@@ -147,7 +130,7 @@ namespace RuiJi.Slicer.Core
             if (sp.Plane.D != 0)
                 PO = sp.Plane.Normal * sp.Plane.D;
 
-            var n = Vector3.Cross(sp.Axis, sp.Plane.Normal);
+            var n = Vector3.Cross( sp.Axis , sp.Plane.Normal);
 
             Vector3 vectorX = new Vector3(sp.Axis.X, 0, 0);
             Vector3 vectorY = new Vector3(0, sp.Axis.Y, 0); // plane.Normal; 
@@ -176,9 +159,9 @@ namespace RuiJi.Slicer.Core
             var qq = Quaternion.CreateFromRotationMatrix(q);
 
             var np = Vector3.Transform(p, qq);
+            
 
-
-            return new Vector2(np.X, np.Z);
+            return new Vector2(np.X,np.Z);
         }
     }
 }

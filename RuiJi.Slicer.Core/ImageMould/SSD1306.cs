@@ -50,11 +50,6 @@ namespace RuiJi.Slicer.Core.ImageMould
             PageSize = 8;
         }
 
-        /// <summary>
-        /// 根据图像获取机器显示代码
-        /// </summary>
-        /// <param name="bmp"></param>
-        /// <returns></returns>
         public string GetMould(Bitmap bmp)
         {
             int width = bmp.Width;
