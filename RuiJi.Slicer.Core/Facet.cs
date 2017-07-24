@@ -44,6 +44,9 @@ namespace RuiJi.Slicer.Core
             internal set;
         }
 
+        /// <summary>
+        /// 法线
+        /// </summary>
         public Vector3 Normal
         {
             get

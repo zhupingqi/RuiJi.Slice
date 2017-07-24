@@ -32,20 +32,41 @@ using System.Numerics;
 
 namespace RuiJi.Slicer.Core.File
 {
+    /// <summary>
+    ///  3D模型文件
+    /// </summary>
     public class STLDocument
     {
+        /// <summary>
+        /// 面集合
+        /// </summary>
         public IList<Facet> Facets { get; private set; }
 
+        /// <summary>
+        /// 名称
+        /// </summary>
         public string Name { get; set; }
 
+        /// <summary>
+        /// 模型大小
+        /// </summary>
         public ModelSize Size { get; private set; }
 
+        /// <summary>
+        /// 模型中心点
+        /// </summary>
         public Vector3 Center { get; private set; }
 
         public STLDocument()
         {
             Facets = new List<Facet>();
         }
+
+        /// <summary>
+        /// 打开并生成文件
+        /// </summary>
+        /// <param name="path">文件绝对路径</param>
+        /// <returns>模型文件</returns>
         public static STLDocument Open(string path)
         {
             if (string.IsNullOrEmpty(path))
@@ -60,6 +81,12 @@ namespace RuiJi.Slicer.Core.File
             }
         }
 
+        /// <summary>
+        /// 读取文件
+        /// </summary>
+        /// <param name="stream">数据流</param>
+        /// <param name="tryBinaryIfTextFailed">文本文档读取失败尝试二进制</param>
+        /// <returns>模型文件</returns>
         public static STLDocument Read(Stream stream, bool tryBinaryIfTextFailed = false)
         {
             //Determine if the stream contains a text-based or binary-based <see cref="STLDocument"/>, and then read it.
@@ -86,6 +113,11 @@ namespace RuiJi.Slicer.Core.File
             }
         }
 
+        /// <summary>
+        /// 验证文本文档
+        /// </summary>
+        /// <param name="stream">数据流</param>
+        /// <returns>是否为文档数据</returns>
         public static bool IsText(Stream stream)
         {
             const string solid = "solid";
@@ -104,11 +136,21 @@ namespace RuiJi.Slicer.Core.File
             return solid.Equals(header, StringComparison.InvariantCultureIgnoreCase);
         }
 
+        /// <summary>
+        /// 验证二进制
+        /// </summary>
+        /// <param name="stream">数据流</param>
+        /// <returns>是否为二进制</returns>
         public static bool IsBinary(Stream stream)
         {
             return !IsText(stream);
         }
 
+        /// <summary>
+        /// 根据文本文档流读取文件
+        /// </summary>
+        /// <param name="reader">文本文档读取器</param>
+        /// <returns>模型文件</returns>
         public static STLDocument Read(StreamReader reader)
         {
             const string regexSolid = @"solid\s+(?<Name>[^\r\n]+)?";
@@ -139,6 +181,11 @@ namespace RuiJi.Slicer.Core.File
             return stl;
         }
 
+        /// <summary>
+        /// 根据二进制读取文件
+        /// </summary>
+        /// <param name="reader">二进制读取器</param>
+        /// <returns>模型文件</returns>
         public static STLDocument Read(BinaryReader reader)
         {
             if (reader == null)
@@ -162,6 +209,11 @@ namespace RuiJi.Slicer.Core.File
             return stl;
         }
 
+        /// <summary>
+        /// 根据文本文档读取模型面
+        /// </summary>
+        /// <param name="reader">文本文档读取器</param>
+        /// <returns>面</returns>
         private static Facet FacetRead(StreamReader reader)
         {
             var s1 = reader.ReadLine();
@@ -176,11 +228,11 @@ namespace RuiJi.Slicer.Core.File
             {
                 var line = reader.ReadLine();
                 var v = line.Replace("vertex ", "");
-                var s = v.Split(new char[] { ' ' },StringSplitOptions.RemoveEmptyEntries);
+                var s = v.Split(new char[] { ' ' }, StringSplitOptions.RemoveEmptyEntries);
                 vs.Add(new Vector3(float.Parse(s[0]), float.Parse(s[1]), float.Parse(s[2])));
             }
 
-            Facet facet = new Facet(vs[0],vs[1],vs[2]);
+            Facet facet = new Facet(vs[0], vs[1], vs[2]);
 
             reader.ReadLine();
             reader.ReadLine();
@@ -188,6 +240,11 @@ namespace RuiJi.Slicer.Core.File
             return facet;
         }
 
+        /// <summary>
+        /// 根据二进制读取模型面
+        /// </summary>
+        /// <param name="reader">二进制读取器</param>
+        /// <returns>面</returns>
         private static Facet FacetRead(BinaryReader reader)
         {
             Vector3Read(reader);
@@ -197,6 +254,11 @@ namespace RuiJi.Slicer.Core.File
             return facet;
         }
 
+        /// <summary>
+        /// 根据二进制读取面的三维点
+        /// </summary>
+        /// <param name="reader">二进制读取器</param>
+        /// <returns>三维向量</returns>
         public static Vector3 Vector3Read(BinaryReader reader)
         {
             const int floatSize = sizeof(float);
@@ -213,6 +275,9 @@ namespace RuiJi.Slicer.Core.File
             };
         }
 
+        /// <summary>
+        /// 计算模型大小及中心点
+        /// </summary>
         private void CaclSize()
         {
             var minX = Facets.Min(m => m.Vertices.Min(n => n.X));
@@ -225,6 +290,9 @@ namespace RuiJi.Slicer.Core.File
             Center = new Vector3(Size.Length / 2 + minX, Size.Width / 2 + minY, Size.Height / 2 + minZ);
         }
 
+        /// <summary>
+        /// 按中心位置重新计算每个面的位置
+        /// </summary>
         public void MakeCenter()
         {
             for (int i = 0; i < Facets.Count; i++)
