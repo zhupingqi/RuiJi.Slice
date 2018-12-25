@@ -41,7 +41,7 @@ namespace ConsoleApplication1
         static void TestSlicer()
         {
             //-0.03141076,0.9995066
-            var doc = STLDocument.Open(AppDomain.CurrentDomain.BaseDirectory + @"/stl/bmwi8.stl");
+            var doc = STLDocument.Open(AppDomain.CurrentDomain.BaseDirectory + @"/stl/Z-11.stl");
             doc.MakeCenter();
 
             var results = Slicer.DoSlice(doc.Facets.ToArray(), new ArrayDefine[] {
@@ -58,13 +58,13 @@ namespace ConsoleApplication1
                 var code = "";
                 var frameTable = new List<string>();
 
-                var images = SliceImage.ToImage(results[key], doc.Size, 128, 64, 0, 15);
+                var images = SliceImage.ToImage(results[key], doc.Size, 64, 32, 0, 0);
                 for (int i = 0; i < images.Count; i++)
                 {
                     var bmp = images[i];
                     bmp.Save(AppDomain.CurrentDomain.BaseDirectory + "/" + prefix + "_" + i + ".bmp", ImageFormat.Bmp);
 
-                    IImageMould im = new SSD1306();
+                    IImageMould im = new LED6432();
                     code += "static unsigned char _" + prefix + "_frame_" + i + "[] = { " + im.GetMould(bmp) + " }; \n";
                     frameTable.Add("_" + prefix + "_frame_" + i);
                 }

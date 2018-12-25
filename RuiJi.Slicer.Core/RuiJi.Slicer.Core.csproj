@@ -50,6 +50,7 @@
     <Compile Include="File\ModelSize.cs" />
     <Compile Include="ImageMould\IImageMould.cs" />
     <Compile Include="IArrayCreater.cs" />
+    <Compile Include="ImageMould\LED6432.cs" />
     <Compile Include="ImageMould\SSD1306.cs" />
     <Compile Include="LineSegment.cs" />
     <Compile Include="ArrayDefine.cs" />
