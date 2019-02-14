@@ -41,15 +41,17 @@ namespace ConsoleApplication1
         static void TestSlicer()
         {
             //-0.03141076,0.9995066
-            var doc = STLDocument.Open(AppDomain.CurrentDomain.BaseDirectory + @"/stl/Z-11.stl");
+            var doc = STLDocument.Open(AppDomain.CurrentDomain.BaseDirectory + @"/stl/bmwi8.stl");
             doc.MakeCenter();
 
             var results = Slicer.DoSlice(doc.Facets.ToArray(), new ArrayDefine[] {
-                new ArrayDefine(new Plane(0, 1, 0, 0), ArrayType.Circle, 150,180)
+                new ArrayDefine(new Plane(0, 1, 0, 0), ArrayType.Circle, 201,360)
                 //new ArrayDefine(new Plane(-0.03141076f, 0.9995066f, 0, 8), ArrayType.Circle, 8)
             });
 
             var prefix = 0;
+            IImageMould im = new LED6432();
+
             foreach (var key in results.Keys)
             {
                 var filename = AppDomain.CurrentDomain.BaseDirectory + prefix + "_frame.h";
@@ -58,18 +60,17 @@ namespace ConsoleApplication1
                 var code = "";
                 var frameTable = new List<string>();
 
-                var images = SliceImage.ToImage(results[key], doc.Size, 64, 32, 0, 0);
+                var images = SliceImage.ToImage(results[key], doc.Size, 64, 16, 0, 0);
                 for (int i = 0; i < images.Count; i++)
                 {
                     var bmp = images[i];
                     bmp.Save(AppDomain.CurrentDomain.BaseDirectory + "/" + prefix + "_" + i + ".bmp", ImageFormat.Bmp);
 
-                    IImageMould im = new LED6432();
-                    code += "static unsigned char _" + prefix + "_frame_" + i + "[] = { " + im.GetMould(bmp) + " }; \n";
+                    code += im.GetFrameCode(prefix,i,bmp) ;
                     frameTable.Add("_" + prefix + "_frame_" + i);
                 }
 
-                code += "unsigned char* _" + prefix + "_frames_table[] = { " + string.Join(",", frameTable.ToArray()) + " };";
+                code += im.GetFramesCode(prefix,frameTable);
                 System.IO.File.AppendAllText(filename, code);
 
                 prefix++;

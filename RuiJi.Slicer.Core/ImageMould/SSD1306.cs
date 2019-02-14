@@ -103,5 +103,15 @@ namespace RuiJi.Slicer.Core.ImageMould
 
             return string.Join(",", ps.ToArray());
         }
+
+        public string GetFrameCode(int prefix, int frameIndex, Bitmap bmp)
+        {
+            return "static unsigned char _" + prefix + "_frame_" + frameIndex + "[] = { " + GetMould(bmp) + " }; \n";
+        }
+
+        public string GetFramesCode(int prefix, List<string> frameTable)
+        {
+            return "unsigned char* _" + prefix + "_frames_table[] = { " + string.Join(",", frameTable.ToArray()) + " };";
+        }
     }
 }

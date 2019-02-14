@@ -38,29 +38,41 @@ namespace RuiJi.Slicer.Core.ImageMould
         private string MakeBuff(List<string> buff, int width)
         {
             var ps = new List<string>();
-            var p = new List<int>();
+            var tmp = new List<string>();
+            var s = "";
 
-            for (int i = 0; i < Pages; i++)
+            for (int i = 0; i < buff.Count; i++)
             {
-                for (int j = 0; j < width; j++)
+                var b = buff.ElementAt(i);
+
+                if (tmp.Count == 8)
                 {
-                    var by = new List<string>();
-                    for (int m = 0; m < PageSize; m++)
-                    {
-                        var pos = i * (128 * 8) + width * m + j;
-                        p.Add(pos);
-
-                        var v = buff.ElementAt(pos);
-                        by.Add(v);
-                    }
-
-                    by.Reverse();
-                    var s = string.Join("", by);
+                    //tmp.Reverse();
+                    tmp.Reverse();
+                    s = string.Join("", tmp);
                     ps.Add("0x" + string.Format("{0:X}", Convert.ToByte(s, 2)));
+
+                    tmp.Clear();
                 }
+
+                tmp.Add(b);                
             }
 
+            tmp.Reverse();
+            s = string.Join("", tmp);
+            ps.Add("0x" + string.Format("{0:X}", Convert.ToByte(s, 2)));
+
             return string.Join(",", ps.ToArray());
+        }
+
+        public string GetFrameCode(int prefix,int frameIndex,Bitmap bmp)
+        {
+            return "uint8_t _" + prefix + "_frame_" + frameIndex + "[] = { " + GetMould(bmp) + " }; \n";
+        }
+
+        public string GetFramesCode(int prefix, List<string> frameTable)
+        {
+            return "uint8_t *frames_table[] = { " + string.Join(",", frameTable.ToArray()) + " };";
         }
     }
 }
