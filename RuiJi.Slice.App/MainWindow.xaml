@@ -1,0 +1,71 @@
+﻿<Window x:Class="RuiJi.Slice.App.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:tool3d="clr-namespace:_3DTools;assembly=3DTools"
+        xmlns:local="clr-namespace:RuiJi.Slice.App"
+        mc:Ignorable="d"
+        Title="切片工具" Width="1000" Height="800">
+    <DockPanel Name="main_panel" LastChildFill="True">
+        <!--Background="Sienna"-->
+        <StackPanel DockPanel.Dock="Left" Width="200" Background="#ccc" RenderTransformOrigin="0.468,0.497">
+            <Control Height="30" />
+            <StackPanel Orientation="Horizontal">
+                <TextBox Width="130" Margin="5" IsReadOnly="True" Name="path" ></TextBox>
+                <Button Click="ButtonOpenStlFile_Click" Height="20" Content="打开文件"/>
+            </StackPanel>
+            <Control Height="10" />
+
+            <GroupBox Margin="4" Header="基础" Name="base_panel" Visibility="Hidden">
+                <Grid>
+                    <!--定义行,3行-->
+                    <Grid.RowDefinitions>
+                        <!--自动行高-->
+                        <RowDefinition Height="30"></RowDefinition>
+                        <!--按比例行高-->
+                        <RowDefinition Height="30"></RowDefinition>
+                    </Grid.RowDefinitions>
+                    <!--定义列，2列-->
+                    <Grid.ColumnDefinitions>
+                        <!--按比例列宽-->
+                        <ColumnDefinition Width="50"></ColumnDefinition>
+                        <!--固定列宽-->
+                        <ColumnDefinition Width="*"></ColumnDefinition>
+                    </Grid.ColumnDefinitions>
+                    <!--定义元素，并指定单元格-->
+                    <TextBlock Grid.Row="0" Grid.Column="0" Margin="0,8,0,5" HorizontalAlignment="Right">分辨率</TextBlock>
+                    <TextBlock Grid.Row="1" Grid.Column="0" Margin="0,8,0,5" HorizontalAlignment="Right">文件格式</TextBlock>
+                    <ComboBox MinWidth="125" MaxHeight="20" Margin="3" Grid.Row="0" Grid.Column="1">
+                        <ComboBoxItem Content="128*64"/>
+                        <ComboBoxItem Content="64*64"/>
+                        <ComboBoxItem IsSelected="True" Content="64*32"/>
+                    </ComboBox>
+                    <ComboBox MinWidth="125" MaxHeight="20" Margin="3" Grid.Row="1" Grid.Column="1" >
+                        <ComboBoxItem IsSelected="True" Content=".h"/>
+                    </ComboBox>
+                </Grid>
+            </GroupBox>
+            <Control Height="10" />
+            <GroupBox Margin="4" Header="蓝牙传输列表" Name="bt_panel" Visibility="Hidden">
+                <ListBox>
+                    <ListBoxItem  Background="#ccc">
+                        <RadioButton GroupName="bt" >a1</RadioButton>
+                    </ListBoxItem>
+                    <ListBoxItem  Background="#ccc">
+                        <RadioButton GroupName="bt" >a2</RadioButton>
+                    </ListBoxItem>
+                    <ListBoxItem  Background="#ccc">
+                        <RadioButton GroupName="bt" >a3</RadioButton>
+                    </ListBoxItem>
+                </ListBox>
+            </GroupBox>
+            <Control Height="10" />
+            <Button Name="btn_send" Margin="130,0,10,0" Visibility="Hidden">生成发送</Button>
+        </StackPanel>
+        <tool3d:TrackballDecorator Name="trackBallDec" Visibility="Visible">
+            <Viewport3D Name="myViewport3D" >
+            </Viewport3D>
+        </tool3d:TrackballDecorator>
+    </DockPanel>
+</Window>
