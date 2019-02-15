@@ -45,12 +45,12 @@ namespace ConsoleApplication1
             doc.MakeCenter();
 
             var results = Slicer.DoSlice(doc.Facets.ToArray(), new ArrayDefine[] {
-                new ArrayDefine(new Plane(0, 1, 0, 0), ArrayType.Circle, 201,360)
+                new ArrayDefine(new Plane(0, 1, 0, 0), ArrayType.Circle, 200,360)
                 //new ArrayDefine(new Plane(-0.03141076f, 0.9995066f, 0, 8), ArrayType.Circle, 8)
             });
 
             var prefix = 0;
-            IImageMould im = new LED6432();
+            IImageMould im = new LED6432P();
 
             foreach (var key in results.Keys)
             {
@@ -60,7 +60,7 @@ namespace ConsoleApplication1
                 var code = "";
                 var frameTable = new List<string>();
 
-                var images = SliceImage.ToImage(results[key], doc.Size, 64, 16, 0, 0);
+                var images = SliceImage.ToImage(results[key], doc.Size, 64, 32, 0, 0);
                 for (int i = 0; i < images.Count; i++)
                 {
                     var bmp = images[i];
