@@ -17,10 +17,10 @@ namespace ConsoleApplication1
     {
         static void Main(string[] args)
         {
-            //TestSlicer();
+            TestSlicer();
             ////TestTo2D();
             //Console.ReadLine();
-            ConsoleSliceTool.ConsoleSlicer();
+            //ConsoleSliceTool.ConsoleSlicer();
         }
 
         static void TestArrayCreate()
@@ -45,11 +45,13 @@ namespace ConsoleApplication1
             doc.MakeCenter();
 
             var results = Slicer.DoSlice(doc.Facets.ToArray(), new ArrayDefine[] {
-                new ArrayDefine(new Plane(0, 1, 0, 0), ArrayType.Circle, 50,180)
+                new ArrayDefine(new Plane(0, 1, 0, 0), ArrayType.Circle, 200,360)
                 //new ArrayDefine(new Plane(-0.03141076f, 0.9995066f, 0, 8), ArrayType.Circle, 8)
             });
 
             var prefix = 0;
+            IImageMould im = new LED6432P();
+
             foreach (var key in results.Keys)
             {
                 var filename = AppDomain.CurrentDomain.BaseDirectory + prefix + "_frame.h";
@@ -58,18 +60,17 @@ namespace ConsoleApplication1
                 var code = "";
                 var frameTable = new List<string>();
 
-                var images = SliceImage.ToImage(results[key], doc.Size, 128, 64, 0, 0);
+                var images = SliceImage.ToImage(results[key], doc.Size, 64, 32, 0, 0);
                 for (int i = 0; i < images.Count; i++)
                 {
                     var bmp = images[i];
                     bmp.Save(AppDomain.CurrentDomain.BaseDirectory + "/" + prefix + "_" + i + ".bmp", ImageFormat.Bmp);
 
-                    IImageMould im = new SSD1306();
-                    code += "static unsigned char _" + prefix + "_frame_" + i + "[] = { " + im.GetMould(bmp) + " }; \n";
+                    code += im.GetFrameCode(prefix,i,bmp) ;
                     frameTable.Add("_" + prefix + "_frame_" + i);
                 }
 
-                code += "unsigned char* _" + prefix + "_frames_table[] = { " + string.Join(",", frameTable.ToArray()) + " };";
+                code += im.GetFramesCode(prefix,frameTable);
                 System.IO.File.AppendAllText(filename, code);
 
                 prefix++;

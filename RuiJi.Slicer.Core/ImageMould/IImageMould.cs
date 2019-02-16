@@ -33,5 +33,9 @@ namespace RuiJi.Slicer.Core.ImageMould
     public interface IImageMould
     {
         string GetMould(Bitmap bmp);
+
+        string GetFrameCode(int prefix, int frameIndex, Bitmap bmp);
+
+        string GetFramesCode(int prefix, List<string> frameTable);
     }
 }
