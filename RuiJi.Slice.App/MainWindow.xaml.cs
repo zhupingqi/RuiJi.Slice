@@ -80,7 +80,7 @@ namespace RuiJi.Slice.App
             var deviceName = btn.Content.ToString();
             BluetoothAddress address = deviceAddresses[deviceName];
             var point = new BluetoothEndPoint(address, BluetoothService.Handsfree);
-            client.SetPin(address, "0000");
+            //client.SetPin(address, "0000");
             client.BeginConnect(point, RemoteDeviceConnect, deviceName);
 
             //client.Connect(DeviceAddress, BluetoothService.SerialPort);
