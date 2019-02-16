@@ -1,4 +1,7 @@
-﻿using System;
+﻿using InTheHand.Net;
+using InTheHand.Net.Bluetooth;
+using InTheHand.Net.Sockets;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -15,6 +18,7 @@ using System.Windows.Media.Media3D;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
 
+
 namespace RuiJi.Slice.App
 {
     /// <summary>
@@ -27,12 +31,93 @@ namespace RuiJi.Slice.App
         private int middleSpeed = 10;     //滚轮的速度
         private bool m_worldArrow;        //是否存在世界坐标
 
+        BluetoothClient client = new BluetoothClient();
+        Dictionary<string, BluetoothAddress> deviceAddresses = new Dictionary<string, BluetoothAddress>();
+
         public MainWindow()
         {
             InitializeComponent();
         }
 
+        #region 蓝牙
+        private void ButtonSearchBt_Click(object sender, RoutedEventArgs e)
+        {
+            btn_searchBt.Content = "...";
+            btn_searchBt.IsEnabled = false;
+            Task.Run(new Action(() =>
+            {
+                BluetoothRadio BuleRadio = BluetoothRadio.PrimaryRadio;
+                BuleRadio.Mode = RadioMode.Connectable;
+                BluetoothDeviceInfo[] Devices = client.DiscoverDevices();
 
+                Dispatcher.Invoke(new Action(() =>
+                {
+                    deviceAddresses.Clear();
+                    lb_bt.Items.Clear();
+                    BrushConverter brushConverter = new BrushConverter();
+                    foreach (BluetoothDeviceInfo device in Devices)
+                    {
+                        deviceAddresses[device.DeviceName] = device.DeviceAddress;
+                        var radio = new RadioButton();
+                        radio.GroupName = "bt";
+                        radio.Content = device.DeviceName;
+                        radio.Checked += ButtonCheckBt_Click;
+
+                        var item = new ListBoxItem();
+                        Brush brush = (Brush)brushConverter.ConvertFromString("#cccccc");
+                        item.Background = brush;
+                        item.Content = radio;
+                        lb_bt.Items.Add(item);
+                    }
+                    btn_searchBt.Content = "搜索蓝牙";
+                    btn_searchBt.IsEnabled = true;
+                }));
+            }));
+        }
+        private void ButtonCheckBt_Click(object sender, RoutedEventArgs e)
+        {
+            var btn = sender as RadioButton;
+            var deviceName = btn.Content.ToString();
+            BluetoothAddress address = deviceAddresses[deviceName];
+            var point = new BluetoothEndPoint(address, BluetoothService.Handsfree);
+            client.SetPin(address, "0000");
+            client.BeginConnect(point, RemoteDeviceConnect, deviceName);
+
+            //client.Connect(DeviceAddress, BluetoothService.SerialPort);
+            //MessageBox.Show("已连接" + deviceName);
+        }
+
+        private void RemoteDeviceConnect(IAsyncResult result)// 异步连接完成
+        {
+            try
+            {
+                if (client.Client.Connected)
+                {
+                    MessageBox.Show("链接" + result.AsyncState.ToString() + "成功");
+                }
+            }
+            catch { }
+        }
+
+        private void ButtonSend_Click(object sender, RoutedEventArgs e)
+        {
+            if (!client.Client.Connected)
+            {
+                MessageBox.Show("请先链接一个蓝牙设备");
+                return;
+            }
+
+            var code = "";//生成文件
+            byte[] dataBuffer = UTF8Encoding.UTF8.GetBytes(code);
+            //client.Client.Send(dataBuffer, System.Net.Sockets.SocketFlags.None);
+
+            var stream = client.GetStream();
+            stream.Write(dataBuffer, 0, dataBuffer.Length);
+            stream.Close();
+            
+
+        }
+        #endregion
         /*
          * 打开文件对话框按钮
          * 返回值：所选的文件的路径
@@ -61,7 +146,7 @@ namespace RuiJi.Slice.App
                       loading.MinHeight = 150;
                       main_panel.Children.Insert(main_panel.Children.Count - 1, loading);
                       main_panel.RegisterName("stl_loading", loading);
-                      
+
                   }));
                   Thread.Sleep(2000);
                   Task.Run(new Action(() =>
@@ -71,6 +156,7 @@ namespace RuiJi.Slice.App
                               if (fileDlg.FileName != null && fileDlg.FileName.ToLower().EndsWith(".stl"))
                               {
                                   base_panel.Visibility = Visibility.Visible;
+                                  btn_searchBt.Visibility = Visibility.Visible;
                                   bt_panel.Visibility = Visibility.Visible;
                                   btn_send.Visibility = Visibility.Visible;
                                   ShowSTLModel();
