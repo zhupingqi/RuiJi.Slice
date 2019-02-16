@@ -81,7 +81,23 @@ namespace RuiJi.Slice.App
             BluetoothAddress address = deviceAddresses[deviceName];
             var point = new BluetoothEndPoint(address, BluetoothService.Handsfree);
             //client.SetPin(address, "0000");
-            client.BeginConnect(point, RemoteDeviceConnect, deviceName);
+            int count = 0;
+            int max = 5;
+
+            while ((!(BluetoothSecurity.PairRequest(address, "0000"))) && count < max)
+            {
+                Thread.Sleep(100);
+            }
+
+            if (count == max)
+            {
+                MessageBox.Show("配对错误");
+            }
+            else
+            {
+                client.BeginConnect(point, RemoteDeviceConnect, deviceName);
+            }
+           
 
             //client.Connect(DeviceAddress, BluetoothService.SerialPort);
             //MessageBox.Show("已连接" + deviceName);
