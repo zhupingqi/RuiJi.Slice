@@ -7,6 +7,9 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using InTheHand.Net;
+using InTheHand.Net.Sockets;
+using InTheHand.Net.Bluetooth;
 
 namespace RuiJi.Slice.Window
 {
@@ -24,6 +27,12 @@ namespace RuiJi.Slice.Window
             {
                 textBox1.Text = dlg.FileName;
             }
+        }
+
+        private void btn_search_Click(object sender, EventArgs e)
+        {
+            BluetoothClient client = new BluetoothClient();
+            BluetoothRadio radio = BluetoothRadio.Primary
         }
     }
 }

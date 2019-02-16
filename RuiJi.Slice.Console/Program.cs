@@ -41,7 +41,7 @@ namespace ConsoleApplication1
         static void TestSlicer()
         {
             //-0.03141076,0.9995066
-            var doc = STLDocument.Open(AppDomain.CurrentDomain.BaseDirectory + @"/stl/bmwi8.stl");
+            var doc = STLDocument.Open(AppDomain.CurrentDomain.BaseDirectory + @"/stl/squirtle__repaired_.stl");
             doc.MakeCenter();
 
             var results = Slicer.DoSlice(doc.Facets.ToArray(), new ArrayDefine[] {
