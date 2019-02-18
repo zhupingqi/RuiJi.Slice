@@ -1,4 +1,5 @@
-﻿using System;
+﻿using InTheHand.Devices.Enumeration;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data;
@@ -7,9 +8,6 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
-using InTheHand.Net;
-using InTheHand.Net.Sockets;
-using InTheHand.Net.Bluetooth;
 
 namespace RuiJi.Slice.Window
 {
@@ -31,8 +29,13 @@ namespace RuiJi.Slice.Window
 
         private void btn_search_Click(object sender, EventArgs e)
         {
-            BluetoothClient client = new BluetoothClient();
-            BluetoothRadio radio = BluetoothRadio.Primary
+            var info = DeviceInformation.FindAll("");
+            listBox1.Items.Clear();
+
+            foreach (var inf in info)
+            {
+                listBox1.Items.Add(inf.Name);
+            }
         }
     }
 }
