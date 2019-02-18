@@ -47,21 +47,13 @@
                 </Grid>
             </GroupBox>
             <Control Height="10" />
-            <GroupBox Margin="4" Header="蓝牙传输列表" Name="bt_panel" Visibility="Hidden">
-                <ListBox>
-                    <ListBoxItem  Background="#ccc">
-                        <RadioButton GroupName="bt" >a1</RadioButton>
-                    </ListBoxItem>
-                    <ListBoxItem  Background="#ccc">
-                        <RadioButton GroupName="bt" >a2</RadioButton>
-                    </ListBoxItem>
-                    <ListBoxItem  Background="#ccc">
-                        <RadioButton GroupName="bt" >a3</RadioButton>
-                    </ListBoxItem>
+            <Button Name="btn_searchBt" Click="ButtonSearchBt_Click" Height="20" Content="搜索蓝牙" Visibility="Hidden"/>
+            <GroupBox Margin="4" Header="蓝牙列表" Name="bt_panel"  Visibility="Hidden">
+                <ListBox Name="lb_bt">
                 </ListBox>
             </GroupBox>
             <Control Height="10" />
-            <Button Name="btn_send" Margin="130,0,10,0" Visibility="Hidden">生成发送</Button>
+            <Button Name="btn_send" Click="ButtonSend_Click" Margin="130,0,10,0" Visibility="Hidden">生成发送</Button>
         </StackPanel>
         <tool3d:TrackballDecorator Name="trackBallDec" Visibility="Visible">
             <Viewport3D Name="myViewport3D" >
