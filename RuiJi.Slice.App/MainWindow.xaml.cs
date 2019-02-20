@@ -145,10 +145,13 @@ namespace RuiJi.Slice.App
 
             var stream = client.GetStream();
 
-            var rb = "00C800000000000000000000000000000000000000000000000000000000000000000000";
-            stream.Write(Encoding.ASCII.GetBytes(rb), 0, rb.Length);
+            //reset led
+            var rb = new byte[36];
+            rb[1] = 0xC8;
+            stream.Write(rb, 0, rb.Length);
             Thread.Sleep(20);
 
+            //transmit frame data
             for (byte i = 0; i < 200; i++)
             {
                 cmd[1] = i;
