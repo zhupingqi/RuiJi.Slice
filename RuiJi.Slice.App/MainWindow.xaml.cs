@@ -144,6 +144,11 @@ namespace RuiJi.Slice.App
             var buff = GetFrameCode();//生成文件
 
             var stream = client.GetStream();
+
+            var rb = "00C800000000000000000000000000000000000000000000000000000000000000000000";
+            stream.Write(Encoding.ASCII.GetBytes(rb), 0, rb.Length);
+            Thread.Sleep(20);
+
             for (byte i = 0; i < 200; i++)
             {
                 cmd[1] = i;
@@ -151,13 +156,15 @@ namespace RuiJi.Slice.App
                 for (byte j = 0; j < 10; j++)
                 {
                     cmd[2] = j;
-                    var str = string.Join("", cmd.Concat(buff.Skip(i * 320 + j * 32).Take(32)).Select(m => string.Format("{0:X2}", m)).ToArray());
-                    var b = Encoding.ASCII.GetBytes(str);
+                    //var str = string.Join("", cmd.Concat(buff.Skip(i * 320 + j * 32).Take(32)).Select(m => string.Format("{0:X2}", m)).ToArray());
+                    //var b = Encoding.ASCII.GetBytes(str);
+
+                    var b = cmd.Concat(buff.Skip(i * 320 + j * 32).Take(32)).ToArray();
 
                     try
                     {
                         stream.Write(b, 0, b.Length);
-                        Thread.Sleep(100);
+                        Thread.Sleep(20);
                     }
                     catch (Exception ex) {
                         MessageBox.Show(ex.Message);
