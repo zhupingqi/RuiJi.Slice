@@ -1,9 +1,14 @@
 ﻿using InTheHand.Net;
 using InTheHand.Net.Bluetooth;
 using InTheHand.Net.Sockets;
+using RuiJi.Slicer.Core;
+using RuiJi.Slicer.Core.File;
+using RuiJi.Slicer.Core.ImageMould;
 using System;
 using System.Collections.Generic;
+using System.Drawing.Imaging;
 using System.Linq;
+using System.Numerics;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
@@ -27,16 +32,21 @@ namespace RuiJi.Slice.App
     public partial class MainWindow : Window
     {
         private ShowSTL3D stlModel = null;
+        System.Windows.Forms.OpenFileDialog fileDlg = new System.Windows.Forms.OpenFileDialog();
 
         private int middleSpeed = 10;     //滚轮的速度
         private bool m_worldArrow;        //是否存在世界坐标
 
         BluetoothClient client = new BluetoothClient();
         Dictionary<string, BluetoothAddress> deviceAddresses = new Dictionary<string, BluetoothAddress>();
+        IAsyncResult connectResult = null;
 
         public MainWindow()
         {
             InitializeComponent();
+            //fileDlg.InitialDirectory = "D:\\";
+            fileDlg.Filter = "STL file(*.stl)|*.stl|All files(*.*)|*.*";
+            fileDlg.FilterIndex = 0;
         }
 
         #region 蓝牙
@@ -74,33 +84,39 @@ namespace RuiJi.Slice.App
                 }));
             }));
         }
+
         private void ButtonCheckBt_Click(object sender, RoutedEventArgs e)
         {
+            if (connectResult != null)
+            {
+                client.EndConnect(connectResult);
+            }
             var btn = sender as RadioButton;
             var deviceName = btn.Content.ToString();
             BluetoothAddress address = deviceAddresses[deviceName];
-            var point = new BluetoothEndPoint(address, BluetoothService.Handsfree);
-            //client.SetPin(address, "0000");
+            var point = new BluetoothEndPoint(address, BluetoothService.SerialPort);
+
             int count = 0;
             int max = 5;
 
-            while ((!(BluetoothSecurity.PairRequest(address, "0000"))) && count < max)
-            {
-                Thread.Sleep(100);
-            }
+            //while ((!(BluetoothSecurity.PairRequest(address, "1234"))) && count < max)
+            //{
+            //    Thread.Sleep(100);
+            //}
 
-            if (count == max)
-            {
-                MessageBox.Show("配对错误");
-            }
-            else
-            {
-                client.BeginConnect(point, RemoteDeviceConnect, deviceName);
-            }
-           
+            //if (count == max)
+            //{
+            //    MessageBox.Show("配对错误");
+            //}
+            //else
+            //{
+            client.SetPin(address, "1234");
+            connectResult = client.BeginConnect(point, RemoteDeviceConnect, deviceName);
+            //}
 
-            //client.Connect(DeviceAddress, BluetoothService.SerialPort);
-            //MessageBox.Show("已连接" + deviceName);
+
+            //client.Connect(address, BluetoothService.SerialPort);
+            // MessageBox.Show("已连接" + deviceName);
         }
 
         private void RemoteDeviceConnect(IAsyncResult result)// 异步连接完成
@@ -123,28 +139,72 @@ namespace RuiJi.Slice.App
                 return;
             }
 
-            var code = "";//生成文件
-            byte[] dataBuffer = UTF8Encoding.UTF8.GetBytes(code);
-            //client.Client.Send(dataBuffer, System.Net.Sockets.SocketFlags.None);
+            var cmd = new byte[4];
+            cmd[0] = 1;
+            var buff = GetFrameCode();//生成文件
 
             var stream = client.GetStream();
-            stream.Write(dataBuffer, 0, dataBuffer.Length);
-            stream.Close();
-            
+            for (byte i = 0; i < 200; i++)
+            {
+                cmd[1] = i;
 
+                for (byte j = 0; j < 10; j++)
+                {
+                    cmd[2] = j;
+                    var str = string.Join("", cmd.Concat(buff.Skip(i * 320 + j * 32).Take(32)).Select(m => string.Format("{0:X2}", m)).ToArray());
+                    var b = Encoding.ASCII.GetBytes(str);
+
+                    try
+                    {
+                        stream.Write(b, 0, b.Length);
+                        Thread.Sleep(100);
+                    }
+                    catch (Exception ex) {
+                        MessageBox.Show(ex.Message);
+                        i = 200;
+                        break;
+                    }
+                }
+            }
+
+            //client.Client.Send(dataBuffer, System.Net.Sockets.SocketFlags.None);
+            //stream.Close();
+
+            MessageBox.Show("发送完成");
         }
         #endregion
+
+        private byte[] GetFrameCode()
+        {
+            var frame = ",";
+            var doc = STLDocument.Open(fileDlg.FileName);
+            doc.MakeCenter();
+
+            var results = RuiJi.Slicer.Core.Slicer.DoSlice(doc.Facets.ToArray(), new ArrayDefine[] {
+                new ArrayDefine(new Plane(0, 1, 0, 0), ArrayType.Circle, 200,360)
+            });
+
+            IImageMould im = new LED6432P();
+
+            foreach (var key in results.Keys)
+            {
+                var images = SliceImage.ToImage(results[key], doc.Size, 64, 32, 0, 0);
+                for (int i = 0; i < images.Count; i++)
+                {
+                    var bmp = images[i];
+                    frame += "," + im.GetMould(bmp);
+                }
+            }
+
+            frame = frame.TrimStart(',');
+            return frame.Split(',').Select(m => Byte.Parse(m.Replace("0x", ""), System.Globalization.NumberStyles.AllowHexSpecifier)).ToArray();
+        }
         /*
          * 打开文件对话框按钮
          * 返回值：所选的文件的路径
          */
         private void ButtonOpenStlFile_Click(object sender, RoutedEventArgs e)
         {
-            System.Windows.Forms.OpenFileDialog fileDlg = new System.Windows.Forms.OpenFileDialog();
-            fileDlg.InitialDirectory = "D:\\";
-            fileDlg.Filter = "STL file(*.stl)|*.stl|All files(*.*)|*.*";
-            fileDlg.FilterIndex = 0;
-
             fileDlg.ShowDialog();
 
             if (!string.IsNullOrEmpty(fileDlg.FileName))
@@ -182,13 +242,9 @@ namespace RuiJi.Slice.App
                               main_panel.UnregisterName("stl_loading");
                           }));
                       }));
-
-
-
               }));
             }
         }
-
 
         /*
          * 生成Gcode按钮

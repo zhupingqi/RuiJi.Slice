@@ -58,46 +58,6 @@ namespace RuiJi.Slicer.Core.ImageMould
             return c;
         }
 
-        private string MakeBuff(List<string> buff, int width)
-        {
-            var ps = new List<string>();
-            var tmp = new List<string>();
-            var s = "";
-
-            for (int b  = 0; b < 8; b++)
-            {
-                int offsetX = b;
-                int offsetY = b;
-
-                for (int row = 0; row < 8; row++)
-                {
-
-                }
-            }
-
-            for (int i = 0; i < buff.Count; i++)
-            {
-                var b = buff.ElementAt(i);
-
-                if (tmp.Count == 8)
-                {
-                    tmp.Reverse();
-                    s = string.Join("", tmp);
-                    ps.Add("0x" + string.Format("{0:X}", Convert.ToByte(s, 2)));
-
-                    tmp.Clear();
-                }
-
-                tmp.Add(b);
-            }
-
-            tmp.Reverse();
-            s = string.Join("", tmp);
-            ps.Add("0x" + string.Format("{0:X}", Convert.ToByte(s, 2)));
-
-            return string.Join(",", ps.ToArray());
-        }
-
         private string MakeBuff2(Dictionary<int, List<string>> buff)
         {
             var ps = new List<string>();
@@ -117,7 +77,7 @@ namespace RuiJi.Slicer.Core.ImageMould
                     for (int r = 0; r < 8; r++)
                     {
                         if (r == row) {
-                            t.Add("0x0");
+                            t.Add("0x00");
                         } else{
                             t.Add("0xFF");
                         }
@@ -127,7 +87,7 @@ namespace RuiJi.Slicer.Core.ImageMould
                     ps.AddRange(t);
                 }
 
-                ps.Add("0x" + string.Format("{0:X}", Convert.ToByte(s, 2)));
+                ps.Add("0x" + string.Format("{0:X2}", Convert.ToByte(s, 2)));
             }
 
             return string.Join(",", ps.ToArray());
