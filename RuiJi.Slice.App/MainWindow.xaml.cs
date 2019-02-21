@@ -159,9 +159,6 @@ namespace RuiJi.Slice.App
                 for (byte j = 0; j < 10; j++)
                 {
                     cmd[2] = j;
-                    //var str = string.Join("", cmd.Concat(buff.Skip(i * 320 + j * 32).Take(32)).Select(m => string.Format("{0:X2}", m)).ToArray());
-                    //var b = Encoding.ASCII.GetBytes(str);
-
                     var b = cmd.Concat(buff.Skip(i * 320 + j * 32).Take(32)).ToArray();
 
                     try
@@ -198,7 +195,7 @@ namespace RuiJi.Slice.App
 
             foreach (var key in results.Keys)
             {
-                var images = SliceImage.ToImage(results[key], doc.Size, 64, 32, 0, 0);
+                var images = SliceImage.ToImage(results[key], doc.Size, 64, 32, 0, 11);
                 for (int i = 0; i < images.Count; i++)
                 {
                     var bmp = images[i];
