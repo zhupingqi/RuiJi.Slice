@@ -32,10 +32,8 @@ namespace RuiJi.Slice.App
     public partial class MainWindow : Window
     {
         private ShowSTL3D stlModel = null;
-        System.Windows.Forms.OpenFileDialog fileDlg = new System.Windows.Forms.OpenFileDialog();
 
         private int middleSpeed = 10;     //滚轮的速度
-        private bool m_worldArrow;        //是否存在世界坐标
 
         BluetoothClient client = new BluetoothClient();
         Dictionary<string, BluetoothAddress> deviceAddresses = new Dictionary<string, BluetoothAddress>();
@@ -45,8 +43,7 @@ namespace RuiJi.Slice.App
         {
             InitializeComponent();
             //fileDlg.InitialDirectory = "D:\\";
-            fileDlg.Filter = "STL file(*.stl)|*.stl|All files(*.*)|*.*";
-            fileDlg.FilterIndex = 0;
+
         }
 
         #region 蓝牙
@@ -96,8 +93,6 @@ namespace RuiJi.Slice.App
             BluetoothAddress address = deviceAddresses[deviceName];
             var point = new BluetoothEndPoint(address, BluetoothService.SerialPort);
 
-            int count = 0;
-            int max = 5;
 
             //while ((!(BluetoothSecurity.PairRequest(address, "1234"))) && count < max)
             //{
@@ -133,11 +128,11 @@ namespace RuiJi.Slice.App
 
         private void ButtonSend_Click(object sender, RoutedEventArgs e)
         {
-            if (!client.Client.Connected)
-            {
-                MessageBox.Show("请先链接一个蓝牙设备");
-                return;
-            }
+            //if (!client.Client.Connected)
+            //{
+            //    MessageBox.Show("请先链接一个蓝牙设备");
+            //    return;
+            //}
 
             var cmd = new byte[4];
             cmd[0] = 1;
@@ -169,7 +164,8 @@ namespace RuiJi.Slice.App
                         stream.Write(b, 0, b.Length);
                         Thread.Sleep(20);
                     }
-                    catch (Exception ex) {
+                    catch (Exception ex)
+                    {
                         MessageBox.Show(ex.Message);
                         i = 200;
                         break;
@@ -187,7 +183,7 @@ namespace RuiJi.Slice.App
         private byte[] GetFrameCode()
         {
             var frame = ",";
-            var doc = STLDocument.Open(fileDlg.FileName);
+            var doc = STLDocument.Open(path.Text);
             doc.MakeCenter();
 
             var results = RuiJi.Slicer.Core.Slicer.DoSlice(doc.Facets.ToArray(), new ArrayDefine[] {
@@ -215,11 +211,14 @@ namespace RuiJi.Slice.App
          */
         private void ButtonOpenStlFile_Click(object sender, RoutedEventArgs e)
         {
+
+            System.Windows.Forms.OpenFileDialog fileDlg = new System.Windows.Forms.OpenFileDialog();
+            fileDlg.Filter = "STL file(*.stl)|*.stl|All files(*.*)|*.*";
+            fileDlg.FilterIndex = 0;
             fileDlg.ShowDialog();
 
             if (!string.IsNullOrEmpty(fileDlg.FileName))
             {
-
                 Task.Run(new Action(() =>
               {
                   Dispatcher.Invoke(new Action(() =>
@@ -233,6 +232,8 @@ namespace RuiJi.Slice.App
                       main_panel.Children.Insert(main_panel.Children.Count - 1, loading);
                       main_panel.RegisterName("stl_loading", loading);
 
+
+
                   }));
                   Thread.Sleep(2000);
                   Task.Run(new Action(() =>
@@ -245,6 +246,24 @@ namespace RuiJi.Slice.App
                                   btn_searchBt.Visibility = Visibility.Visible;
                                   bt_panel.Visibility = Visibility.Visible;
                                   btn_send.Visibility = Visibility.Visible;
+
+                                  var findviewer = FindName("trackBallDec") as _3DTools.TrackballDecorator;
+                                  main_panel.Children.Remove(findviewer);
+                                  main_panel.UnregisterName("trackBallDec");
+
+                                  var myviewer = FindName("myViewport3D") as Viewport3D;
+                                  main_panel.Children.Remove(myviewer);
+                                  main_panel.UnregisterName("myViewport3D");
+
+                                  var viewer = new _3DTools.TrackballDecorator();
+                                  viewer.Name = "trackBallDec";
+                                  viewer.Visibility = Visibility.Visible;
+                                  var view = new Viewport3D();
+                                  view.Name = "myViewport3D";
+                                  viewer.Content = view;
+                                  main_panel.Children.Insert(main_panel.Children.Count - 1, viewer);
+                                  main_panel.RegisterName("trackBallDec", viewer);
+                                  main_panel.RegisterName("myViewport3D", view);
                                   ShowSTLModel();
                               }
                               var findloading = FindName("stl_loading") as Loading;
@@ -282,12 +301,14 @@ namespace RuiJi.Slice.App
         public void ShowSTLModel()
         {
             stlModel = new ShowSTL3D(path.Text);
+            var myviewer = FindName("myViewport3D") as Viewport3D;
+            myviewer.Children.Clear();
+            myviewer.Children.Add(stlModel.GetMyModelVisual3D());
+            myviewer.Children.Add(stlModel.myModelVisual3D());
 
-            myViewport3D.Children.Clear();
-            myViewport3D.Children.Add(stlModel.GetMyModelVisual3D());
-            myViewport3D.Children.Add(stlModel.myModelVisual3D());
-            //myViewport3D.Children.Add(stlModel.myModelVisual3D2());//加第二个光源
-            myViewport3D.Camera = stlModel.MyCamera();
+            myviewer.Children.Add(stlModel.DrawWroldLine());
+
+            myviewer.Camera = stlModel.MyCamera();
         }
 
         //滚轮事件
@@ -297,7 +318,8 @@ namespace RuiJi.Slice.App
 
             if (stlModel != null && e.LeftButton == MouseButtonState.Released)  //放大缩小
             {
-                myViewport3D.Camera = stlModel.nearerCamera(e.Delta / 120 * middleSpeed * (-1));
+                var myviewer = FindName("myViewport3D") as Viewport3D;
+                myviewer.Camera = stlModel.nearerCamera(e.Delta / 120 * middleSpeed * (-1));
             }
         }
 
@@ -306,9 +328,11 @@ namespace RuiJi.Slice.App
             base.OnMouseMove(e);
             if (e.LeftButton == MouseButtonState.Pressed && stlModel != null)
             {
-                Transform3D transfrom3D = trackBallDec.Transform;
-                myViewport3D.Children.Remove(stlModel.GetModelVisual3D());
-                myViewport3D.Children.Add(stlModel.TransModelVisual3D(transfrom3D));
+                var myviewer = FindName("myViewport3D") as Viewport3D;
+                var findviewer = FindName("trackBallDec") as _3DTools.TrackballDecorator;
+                Transform3D transfrom3D = findviewer.Transform;
+                myviewer.Children.Remove(stlModel.GetModelVisual3D());
+                myviewer.Children.Add(stlModel.TransModelVisual3D(transfrom3D));
             }
         }
 
@@ -325,21 +349,21 @@ namespace RuiJi.Slice.App
             }
         }
 
-        private void btn_world_Click(object sender, RoutedEventArgs e)
-        {
-            if (stlModel != null)
-            {
-                if (!m_worldArrow)
-                {
-                    myViewport3D.Children.Add(stlModel.DrawWroldLine());
-                }
-                //                 else
-                //                 {
-                //                     int index = myViewport3D.Children.IndexOf(stlModel.GetWorldLine());
-                //                     myViewport3D.Children.RemoveAt(index);
-                //                 }
-                m_worldArrow = !m_worldArrow;
-            }
-        }
+        //private void btn_world_Click(object sender, RoutedEventArgs e)
+        //{
+        //    if (stlModel != null)
+        //    {
+        //        if (!m_worldArrow)
+        //        {
+        //            myViewport3D.Children.Add(stlModel.DrawWroldLine());
+        //        }
+        //        //                 else
+        //        //                 {
+        //        //                     int index = myViewport3D.Children.IndexOf(stlModel.GetWorldLine());
+        //        //                     myViewport3D.Children.RemoveAt(index);
+        //        //                 }
+        //        m_worldArrow = !m_worldArrow;
+        //    }
+        //}
     }
 }

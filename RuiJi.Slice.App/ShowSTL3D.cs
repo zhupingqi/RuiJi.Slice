@@ -11,17 +11,17 @@ using _3DTools;
 
 namespace RuiJi.Slice.App
 {
-    class ShowSTL3D 
+    class ShowSTL3D
     {
         private string filePath;
         private PerspectiveCamera myCamera;  //摄像机
         public double lookx = 0;            //摄像机初始位置 X 坐标
         public double looky = 0;            //摄像机初始位置 Y 坐标
         public double lookz = 1000;         //摄像机初始位置 Z 坐标
-        public double tmpNear=0;            //记录上一次缩放的大小
+        public double tmpNear = 0;            //记录上一次缩放的大小
 
-        public double lengthyz=0;           //左右旋转的轴
-        public double lengthxz=0;           //上下旋转的轴
+        public double lengthyz = 0;           //左右旋转的轴
+        public double lengthxz = 0;           //上下旋转的轴
 
         private Point ModelPos;
         private ModelVisual3D myModel;      //模型
@@ -34,8 +34,9 @@ namespace RuiJi.Slice.App
         Vector3D preCameraDirection;        //相机旋转前的位置
         Vector3D preVisualDirection;        //光源旋转前的方向
 
+        private int worldLineLength = 80;
         ScreenSpaceLines3D _worldLine;      //世界坐标
-
+        
         private GeometryModel3D myGeomentryMode1;
 
         /*
@@ -60,56 +61,69 @@ namespace RuiJi.Slice.App
         public ScreenSpaceLines3D DrawWroldLine()
         {
             Point3DCollection collection = new Point3DCollection();
-            int lentgh = 80;
 
             //X轴
-            collection.Add(new Point3D(-lentgh, 0, 0));
-            collection.Add(new Point3D(lentgh, 0, 0));
+            collection.Add(new Point3D(-worldLineLength, -worldLineLength, -worldLineLength));
+            collection.Add(new Point3D(worldLineLength, -worldLineLength, -worldLineLength));
             //X轴箭头
-            collection.Add(new Point3D(lentgh, 0, 0));
-            collection.Add(new Point3D(lentgh- 3, 3, 0));
-            collection.Add(new Point3D(lentgh, 0, 0));
-            collection.Add(new Point3D(lentgh - 3, -3, 0));
-            //X标志
-            collection.Add(new Point3D(lentgh, -5, 0));
-            collection.Add(new Point3D(lentgh + 3, -8, 0));
-            collection.Add(new Point3D(lentgh + 3, -5, 0));
-            collection.Add(new Point3D(lentgh, -8, 0));
+            collection.Add(new Point3D(worldLineLength, 0 - worldLineLength, 0 - worldLineLength));
+            collection.Add(new Point3D(worldLineLength - 3, 3 - worldLineLength, 0 - worldLineLength));
+            collection.Add(new Point3D(worldLineLength, 0 - worldLineLength, 0 - worldLineLength));
+            collection.Add(new Point3D(worldLineLength - 3, -3 - worldLineLength, 0 - worldLineLength));
+            ////X标志
+            collection.Add(new Point3D(worldLineLength, -worldLineLength - 5, -worldLineLength));
+            collection.Add(new Point3D(worldLineLength + 3, -worldLineLength - 8, -worldLineLength));
+            collection.Add(new Point3D(worldLineLength + 3, -worldLineLength - 5, -worldLineLength));
+            collection.Add(new Point3D(worldLineLength, -worldLineLength - 8, -worldLineLength));
 
             //Y轴
-            collection.Add(new Point3D(0, lentgh, 0));
-            collection.Add(new Point3D(0, -lentgh, 0));
+            collection.Add(new Point3D(-worldLineLength, worldLineLength, -worldLineLength));
+            collection.Add(new Point3D(-worldLineLength, -worldLineLength, -worldLineLength));
 
-            collection.Add(new Point3D(0, lentgh, 0));
-            collection.Add(new Point3D(3, lentgh - 3, 0));
-            collection.Add(new Point3D(0, lentgh, 0));
-            collection.Add(new Point3D(-3, lentgh - 3, 0));
+            collection.Add(new Point3D(0 - worldLineLength, worldLineLength, 0 - worldLineLength));
+            collection.Add(new Point3D(3 - worldLineLength, worldLineLength - 3, 0 - worldLineLength));
+            collection.Add(new Point3D(0 - worldLineLength, worldLineLength, 0 - worldLineLength));
+            collection.Add(new Point3D(-3 - worldLineLength, worldLineLength - 3, 0 - worldLineLength));
 
-            collection.Add(new Point3D(4, lentgh, 0));
-            collection.Add(new Point3D(6, lentgh - 2, 0));
-            collection.Add(new Point3D(8, lentgh, 0));
-            collection.Add(new Point3D(6, lentgh - 2, 0));
-            collection.Add(new Point3D(6, lentgh - 2, 0));
-            collection.Add(new Point3D(6, lentgh - 5, 0));
+            collection.Add(new Point3D(-11 - worldLineLength, worldLineLength, 0 - worldLineLength));
+            collection.Add(new Point3D(-9 - worldLineLength, worldLineLength - 2, 0 - worldLineLength));
+            collection.Add(new Point3D(-7 - worldLineLength, worldLineLength, 0 - worldLineLength));
+            collection.Add(new Point3D(-9 - worldLineLength, worldLineLength - 2, 0 - worldLineLength));
+            collection.Add(new Point3D(-9 - worldLineLength, worldLineLength - 2, 0 - worldLineLength));
+            collection.Add(new Point3D(-9 - worldLineLength, worldLineLength - 5, 0 - worldLineLength));
 
             //Z轴
-            collection.Add(new Point3D(0, 0, lentgh));
-            collection.Add(new Point3D(0, 0, -lentgh));
+            collection.Add(new Point3D(-worldLineLength, -worldLineLength, worldLineLength));
+            collection.Add(new Point3D(-worldLineLength, -worldLineLength, -worldLineLength));
 
-            collection.Add(new Point3D(0, 0, lentgh));
-            collection.Add(new Point3D(0, -3, lentgh - 3));
-            collection.Add(new Point3D(0, 0, lentgh));
-            collection.Add(new Point3D(0, 3, lentgh - 3));
+            collection.Add(new Point3D(0 - worldLineLength, 0 - worldLineLength, worldLineLength));
+            collection.Add(new Point3D(0 - worldLineLength, -3 - worldLineLength, worldLineLength - 3));
+            collection.Add(new Point3D(0 - worldLineLength, 0 - worldLineLength, worldLineLength));
+            collection.Add(new Point3D(0 - worldLineLength, 3 - worldLineLength, worldLineLength - 3));
 
-            collection.Add(new Point3D(0, -4, lentgh));
-            collection.Add(new Point3D(0, -4, lentgh - 2));
-            collection.Add(new Point3D(0, -4, lentgh - 2));
-            collection.Add(new Point3D(0, -6, lentgh));
-            collection.Add(new Point3D(0, -6, lentgh));
-            collection.Add(new Point3D(0, -6, lentgh - 2));
+            collection.Add(new Point3D(10 - worldLineLength, 0 - worldLineLength, worldLineLength));
+            collection.Add(new Point3D(5 - worldLineLength, 0 - worldLineLength, worldLineLength));
+            collection.Add(new Point3D(5 - worldLineLength, 0 - worldLineLength, worldLineLength));
+            collection.Add(new Point3D(10 - worldLineLength, 0 - worldLineLength, worldLineLength - 4));
+            collection.Add(new Point3D(10 - worldLineLength, 0 - worldLineLength, worldLineLength - 4));
+            collection.Add(new Point3D(5 - worldLineLength, 0 - worldLineLength, worldLineLength - 4));
+
+
+            //平面
+            var tempLength = 5;
+            while (tempLength < worldLineLength * 2)
+            {
+                collection.Add(new Point3D(-worldLineLength + tempLength, -worldLineLength, -worldLineLength));
+                collection.Add(new Point3D(-worldLineLength + tempLength, worldLineLength, -worldLineLength));
+
+                collection.Add(new Point3D(-worldLineLength, -worldLineLength + tempLength, -worldLineLength));
+                collection.Add(new Point3D(worldLineLength, -worldLineLength + tempLength, -worldLineLength));
+                tempLength += 5;
+            }
+
 
             _worldLine.Points = collection;
-            _worldLine.Color = Colors.Black;
+            _worldLine.Color = Colors.LightSlateGray;
             _worldLine.Thickness = 2;
             return _worldLine;
         }
@@ -135,11 +149,11 @@ namespace RuiJi.Slice.App
             binaryReader.Read(numArray, 0, 4);
             int num = BitConverter.ToInt32(numArray, 0);
 
-            if ((num*50+84)==fileLong)
+            if ((num * 50 + 84) == fileLong)
             {
                 return ReadBinary();
             }
-            return ReadAscii();          
+            return ReadAscii();
         }
 
         /*
@@ -165,7 +179,7 @@ namespace RuiJi.Slice.App
                     //点
                     line = sr.ReadLine();
 
-                    for (int i = 0; i < 3; i++ )
+                    for (int i = 0; i < 3; i++)
                     {
                         line = sr.ReadLine();
                         split = line.TrimStart().Split(' ');
@@ -211,7 +225,7 @@ namespace RuiJi.Slice.App
         {
             MeshGeometry3D movedMesh = new MeshGeometry3D();
 
-            foreach(Point3D point3D in m_listPoint3D)
+            foreach (Point3D point3D in m_listPoint3D)
             {
                 Vector3D newPoint3D = new Vector3D();
                 newPoint3D = point3D - _center;
@@ -256,10 +270,12 @@ namespace RuiJi.Slice.App
             Point3D position = _center;
             position.Z += radius * 2;
             position.X = position.Z;
-            position.Y = 0;
+            position.Y = position.Z;
 
             myCamera.Position = position;
-            myCamera.LookDirection = new Point3D(0,0,0) - position;
+            myCamera.FieldOfView = 60;
+            myCamera.UpDirection = new Point3D(0, 0, 10) - new Point3D(0, 0, 0);
+            myCamera.LookDirection = new Point3D(0, 0, 0) - position;
             myCamera.NearPlaneDistance = radius / 100;
             myCamera.FarPlaneDistance = radius * 100;
 
@@ -292,18 +308,18 @@ namespace RuiJi.Slice.App
         }
         /*
          * 获取光源,旋转的时候，消除原来的光源，消除内存过大
-         */ 
+         */
         public ModelVisual3D GetModelVisual3D()
         {
             return myModelLight;
         }
         /*
          * 根据模型的变换轨迹，变换光源的位置
-         */ 
+         */
         public ModelVisual3D TransModelVisual3D(Transform3D transfrom3D)
         {
             myModelLight.Transform = transfrom3D;
-           // _worldLine.Transform = transfrom3D;
+            _worldLine.Transform = transfrom3D;
             return myModelLight;
         }
 
@@ -322,7 +338,7 @@ namespace RuiJi.Slice.App
             myMaterial = new SpecularMaterial(new SolidColorBrush(Colors.White), 10);
             materialGroup.Children.Add(myMaterial);
             //myMaterial = new EmissiveMaterial(new SolidColorBrush(Colors.LightGray));
-            myMaterial = new DiffuseMaterial(new LinearGradientBrush(Colors.Blue,Colors.Gray,10));//自发光-渐变色画刷
+            myMaterial = new DiffuseMaterial(new LinearGradientBrush(Colors.Blue, Colors.Gray, 10));//自发光-渐变色画刷
             materialGroup.Children.Add(myMaterial);
 
             return materialGroup;
@@ -349,6 +365,15 @@ namespace RuiJi.Slice.App
             _center = new Point3D((rect3D.X + rect3D.SizeX / 2), (rect3D.Y + rect3D.SizeY / 2),
                                  (rect3D.Z + rect3D.SizeZ / 2));
 
+            var maxLenght = rect3D.SizeX;
+            if (maxLenght < rect3D.SizeY)
+                maxLenght = rect3D.SizeY;
+
+            if (maxLenght < rect3D.SizeZ)
+                maxLenght = rect3D.SizeZ;
+
+            worldLineLength = Convert.ToInt32(Math.Ceiling(maxLenght / 2 + 20));
+
             ModelVisual3D model = new ModelVisual3D();
             Model3DGroup modelGroup = new Model3DGroup();//允许使用多个 三维 模型作为一个单元。
 
@@ -368,7 +393,7 @@ namespace RuiJi.Slice.App
         public PerspectiveCamera nearerCamera(double distance)
         {
             Point3D cameraPos = myCamera.Position;
-            Vector3D centerVec = new Vector3D(0,0, 0);
+            Vector3D centerVec = new Vector3D(0, 0, 0);
             Vector3D preCameraVec = new Vector3D(cameraPos.X, cameraPos.Y, cameraPos.Z) - centerVec;
 
             Vector3D newCameraVec = ((preCameraVec.Length + distance) / preCameraVec.Length) * preCameraVec + centerVec;
