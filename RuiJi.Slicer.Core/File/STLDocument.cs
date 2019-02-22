@@ -74,7 +74,7 @@ namespace RuiJi.Slicer.Core.File
 
             using (Stream stream = System.IO.File.OpenRead(path))
             {
-                var doc = Read(stream);
+                var doc = Read(stream,true);
                 doc.CaclSize();
 
                 return doc;
@@ -134,6 +134,22 @@ namespace RuiJi.Slicer.Core.File
             header = Encoding.ASCII.GetString(buffer);
 
             return solid.Equals(header, StringComparison.InvariantCultureIgnoreCase);
+
+            //long fileLong = 0;
+            //fileLong = new FileInfo(filePath).Length;//获取文件长度
+
+            //FileStream fs = new FileStream(filePath, FileMode.Open, FileAccess.Read);
+            //BinaryReader binaryReader = new BinaryReader(fs);
+            //binaryReader.ReadBytes(80);
+            //byte[] numArray = new byte[4];
+            //binaryReader.Read(numArray, 0, 4);
+            //int num = BitConverter.ToInt32(numArray, 0);
+
+            //if ((num * 50 + 84) == fileLong)
+            //{
+            //    return ReadBinary();
+            //}
+            //return ReadAscii();
         }
 
         /// <summary>

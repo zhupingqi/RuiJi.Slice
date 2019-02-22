@@ -35,7 +35,7 @@ namespace RuiJi.Slice.App
 
         private int middleSpeed = 10;     //滚轮的速度
 
-        BluetoothClient client = new BluetoothClient();
+        BluetoothClient client;
         Dictionary<string, BluetoothAddress> deviceAddresses = new Dictionary<string, BluetoothAddress>();
         IAsyncResult connectResult = null;
 
@@ -49,25 +49,39 @@ namespace RuiJi.Slice.App
         #region 蓝牙
         private void ButtonSearchBt_Click(object sender, RoutedEventArgs e)
         {
-            if (connectResult != null)
+            if (client != null)
             {
-                client.EndConnect(connectResult);
+                if (client.Client.Connected)
+                {
+                    client.Client.Disconnect(true);
+                    client.EndConnect(connectResult);
+                }
+
+                client = null;
             }
+
+            client = new BluetoothClient();
 
             btn_searchBt.Content = "...";
             btn_searchBt.IsEnabled = false;
+
+            sendMsg.Content = "正在搜索...";
             Task.Run(new Action(() =>
             {
                 BluetoothRadio BuleRadio = BluetoothRadio.PrimaryRadio;
                 BuleRadio.Mode = RadioMode.Connectable;
                 BluetoothDeviceInfo[] Devices = client.DiscoverDevices();
 
+
+                deviceAddresses.Clear();
                 Dispatcher.Invoke(new Action(() =>
                 {
-                    deviceAddresses.Clear();
                     lb_bt.Items.Clear();
-                    BrushConverter brushConverter = new BrushConverter();
-                    foreach (BluetoothDeviceInfo device in Devices)
+                }));
+                BrushConverter brushConverter = new BrushConverter();
+                foreach (BluetoothDeviceInfo device in Devices)
+                {
+                    Dispatcher.Invoke(new Action(() =>
                     {
                         deviceAddresses[device.DeviceName] = device.DeviceAddress;
                         var radio = new RadioButton();
@@ -79,20 +93,21 @@ namespace RuiJi.Slice.App
                         Brush brush = (Brush)brushConverter.ConvertFromString("#cccccc");
                         item.Background = brush;
                         item.Content = radio;
+
                         lb_bt.Items.Add(item);
-                    }
+                    }));
+                }
+                Dispatcher.Invoke(new Action(() =>
+                {
                     btn_searchBt.Content = "搜索蓝牙";
                     btn_searchBt.IsEnabled = true;
+                    sendMsg.Content = "搜索完成,请选择";
                 }));
             }));
         }
 
         private void ButtonCheckBt_Click(object sender, RoutedEventArgs e)
         {
-            if (connectResult != null)
-            {
-                client.EndConnect(connectResult);
-            }
             var btn = sender as RadioButton;
             var deviceName = btn.Content.ToString();
             BluetoothAddress address = deviceAddresses[deviceName];
@@ -111,6 +126,7 @@ namespace RuiJi.Slice.App
             //else
             //{
             client.SetPin(address, "1234");
+            sendMsg.Content = "正在链接...";
             connectResult = client.BeginConnect(point, RemoteDeviceConnect, deviceName);
             //}
 
@@ -125,7 +141,19 @@ namespace RuiJi.Slice.App
             {
                 if (client.Client.Connected)
                 {
-                    MessageBox.Show("链接" + result.AsyncState.ToString() + "成功");
+                    Dispatcher.Invoke(new Action(() =>
+                    {
+                        sendMsg.Content = "链接" + result.AsyncState.ToString() + "成功";
+                        btn_send.Visibility = Visibility.Visible;
+                    }));
+                }
+                else
+                {
+                    Dispatcher.Invoke(new Action(() =>
+                    {
+                        sendMsg.Content = "链接" + result.AsyncState.ToString() + "失败";
+                    }));
+
                 }
             }
             catch { }
@@ -133,70 +161,96 @@ namespace RuiJi.Slice.App
 
         private void ButtonSend_Click(object sender, RoutedEventArgs e)
         {
-            //if (!client.Client.Connected)
-            //{
-            //    MessageBox.Show("请先链接一个蓝牙设备");
-            //    return;
-            //}
-
-            var cmd = new byte[4];
-            cmd[0] = 1;
-            var buff = GetFrameCode();//生成文件
-
-            var stream = client.GetStream();
-
-            //reset led
-            var rb = new byte[36];
-            rb[1] = 0xC8;
-            stream.Write(rb, 0, rb.Length);
-            Thread.Sleep(20);
-
-            //transmit frame data
-            for (byte i = 0; i < 200; i++)
+            if (!client.Client.Connected)
             {
-                cmd[1] = i;
-
-                for (byte j = 0; j < 10; j++)
+                MessageBox.Show("请先链接一个蓝牙设备");
+                return;
+            }
+            sendMsg.Content = "启动切片";
+            Task.Run(new Action(() =>
+            {
+                var cmd = new byte[4];
+                cmd[0] = 1;
+                Dispatcher.Invoke(new Action(() =>
                 {
-                    cmd[2] = j;
-                    var b = cmd.Concat(buff.Skip(i * 320 + j * 32).Take(32)).ToArray();
+                    sendMsg.Content = "正在切片...";
+                }));
+                var buff = GetFrameCode();//生成文件
+                Dispatcher.Invoke(new Action(() =>
+                {
+                    sendMsg.Content = "切片完成，开始发送";
+                }));
+                var stream = client.GetStream();
 
-                    try
+                //reset led
+                //var rb = new byte[36];
+                //rb[1] = 0xC8;
+                //stream.Write(rb, 0, rb.Length);
+                //Thread.Sleep(20);
+                var process = 0;
+                var sum = 200 * 10;
+                //transmit frame data
+                for (byte i = 0; i < 200; i++)
+                {
+                    cmd[1] = i;
+
+                    for (byte j = 0; j < 10; j++)
                     {
-                        stream.Write(b, 0, b.Length);
-                        Thread.Sleep(20);
-                    }
-                    catch (Exception ex)
-                    {
-                        MessageBox.Show(ex.Message);
-                        i = 200;
-                        break;
+                        cmd[2] = j;
+                        var b = cmd.Concat(buff.Skip(i * 320 + j * 32).Take(32)).ToArray();
+
+                        try
+                        {
+
+                            stream.Write(b, 0, b.Length);
+                            process++;
+                            Dispatcher.Invoke(new Action(() =>
+                            {
+                                sendMsg.Content = "发送进度:" + (process * 100f / sum) + "%";
+                            }));
+                            Thread.Sleep(20);
+                        }
+                        catch (Exception ex)
+                        {
+                            MessageBox.Show(ex.Message);
+                            i = 200;
+                            break;
+                        }
                     }
                 }
-            }
+                Dispatcher.Invoke(new Action(() =>
+                {
+                    sendMsg.Content = "发送完成";
+                }));
+            }));
 
             //client.Client.Send(dataBuffer, System.Net.Sockets.SocketFlags.None);
             //stream.Close();
 
-            MessageBox.Show("发送完成");
+            //MessageBox.Show("发送完成");
         }
         #endregion
 
         private byte[] GetFrameCode()
         {
+            string stlpath = "";
             var frame = ",";
-            var doc = STLDocument.Open(path.Text);
+            Dispatcher.Invoke(new Action(() =>
+            {
+                stlpath = path.Text;
+            }));
+            var doc = STLDocument.Open(stlpath);
             doc.MakeCenter();
 
             var results = RuiJi.Slicer.Core.Slicer.DoSlice(doc.Facets.ToArray(), new ArrayDefine[] {
-                new ArrayDefine(new Plane(0, 1, 0, 0), ArrayType.Circle, 200,360)
+                new ArrayDefine(new Plane(0, 1, 0.2f, 0), ArrayType.Circle, 200,360)
             });
 
             IImageMould im = new LED6432P();
 
             foreach (var key in results.Keys)
             {
-                var images = SliceImage.ToImage(results[key], doc.Size, 64, 32, 0, 11);
+                var images = SliceImage.ToImage(results[key], doc.Size, 64, 32, 0, 0);
                 for (int i = 0; i < images.Count; i++)
                 {
                     var bmp = images[i];
@@ -226,53 +280,53 @@ namespace RuiJi.Slice.App
                   Dispatcher.Invoke(new Action(() =>
                   {
                       path.Text = fileDlg.FileName;
-
+                  }));
+                  Dispatcher.Invoke(new Action(() =>
+                  {
                       var loading = new Loading();
                       loading.VerticalAlignment = VerticalAlignment.Center;
                       loading.MinWidth = 800;
                       loading.MinHeight = 150;
                       main_panel.Children.Insert(main_panel.Children.Count - 1, loading);
                       main_panel.RegisterName("stl_loading", loading);
-
-
-
                   }));
-                  Thread.Sleep(2000);
-                  Task.Run(new Action(() =>
+                  //Thread.Sleep(2000);
+
+                  if (fileDlg.FileName != null && fileDlg.FileName.ToLower().EndsWith(".stl"))
+                  {
+                      Dispatcher.Invoke(new Action(() =>
                       {
-                          Dispatcher.Invoke(new Action(() =>
-                          {
-                              if (fileDlg.FileName != null && fileDlg.FileName.ToLower().EndsWith(".stl"))
-                              {
-                                  base_panel.Visibility = Visibility.Visible;
-                                  btn_searchBt.Visibility = Visibility.Visible;
-                                  bt_panel.Visibility = Visibility.Visible;
-                                  btn_send.Visibility = Visibility.Visible;
+                          base_panel.Visibility = Visibility.Visible;
+                          btn_searchBt.Visibility = Visibility.Visible;
+                          bt_panel.Visibility = Visibility.Visible;
 
-                                  var findviewer = FindName("trackBallDec") as _3DTools.TrackballDecorator;
-                                  main_panel.Children.Remove(findviewer);
-                                  main_panel.UnregisterName("trackBallDec");
+                          var findviewer = FindName("trackBallDec") as _3DTools.TrackballDecorator;
+                          main_panel.Children.Remove(findviewer);
+                          main_panel.UnregisterName("trackBallDec");
 
-                                  var myviewer = FindName("myViewport3D") as Viewport3D;
-                                  main_panel.Children.Remove(myviewer);
-                                  main_panel.UnregisterName("myViewport3D");
+                          var myviewer = FindName("myViewport3D") as Viewport3D;
+                          main_panel.Children.Remove(myviewer);
+                          main_panel.UnregisterName("myViewport3D");
 
-                                  var viewer = new _3DTools.TrackballDecorator();
-                                  viewer.Name = "trackBallDec";
-                                  viewer.Visibility = Visibility.Visible;
-                                  var view = new Viewport3D();
-                                  view.Name = "myViewport3D";
-                                  viewer.Content = view;
-                                  main_panel.Children.Insert(main_panel.Children.Count - 1, viewer);
-                                  main_panel.RegisterName("trackBallDec", viewer);
-                                  main_panel.RegisterName("myViewport3D", view);
-                                  ShowSTLModel();
-                              }
-                              var findloading = FindName("stl_loading") as Loading;
-                              main_panel.Children.Remove(findloading);
-                              main_panel.UnregisterName("stl_loading");
-                          }));
+                          var viewer = new _3DTools.TrackballDecorator();
+                          viewer.Name = "trackBallDec";
+                          viewer.Visibility = Visibility.Visible;
+                          var view = new Viewport3D();
+                          view.Name = "myViewport3D";
+                          viewer.Content = view;
+                          main_panel.Children.Insert(main_panel.Children.Count - 1, viewer);
+                          main_panel.RegisterName("trackBallDec", viewer);
+                          main_panel.RegisterName("myViewport3D", view);
+                          ShowSTLModel();
                       }));
+                  }
+                  Dispatcher.Invoke(new Action(() =>
+                  {
+                      var findloading = FindName("stl_loading") as Loading;
+                      main_panel.Children.Remove(findloading);
+                      main_panel.UnregisterName("stl_loading");
+                  }));
+
               }));
             }
         }
@@ -328,26 +382,35 @@ namespace RuiJi.Slice.App
         protected override void OnMouseMove(MouseEventArgs e)
         {
             base.OnMouseMove(e);
-            if (e.LeftButton == MouseButtonState.Pressed && stlModel != null)
+        }
+
+        protected override void OnMouseDown(MouseButtonEventArgs e)
+        {
+            base.OnMouseDown(e);
+            //if (e.MiddleButton == MouseButtonState.Pressed)
+            //{
+            //    middleSpeed += 5;
+            //    if (middleSpeed > 20)
+            //    {
+            //        middleSpeed = 10;
+            //    }
+            //}
+            if (e.RightButton == MouseButtonState.Pressed && e.LeftButton == MouseButtonState.Pressed && stlModel != null)
+            {
+                var myviewer = FindName("myViewport3D") as Viewport3D;
+                var findviewer = FindName("trackBallDec") as _3DTools.TrackballDecorator;
+                Transform3D transfrom3D = findviewer.Transform;
+                myviewer.Children.Remove(stlModel.GetModelVisual3D());
+                myviewer.Children.Add(stlModel.TransModelVisual3DWithoutWorld(transfrom3D));
+                
+            }
+            else if (e.LeftButton == MouseButtonState.Pressed && e.RightButton != MouseButtonState.Pressed && stlModel != null)
             {
                 var myviewer = FindName("myViewport3D") as Viewport3D;
                 var findviewer = FindName("trackBallDec") as _3DTools.TrackballDecorator;
                 Transform3D transfrom3D = findviewer.Transform;
                 myviewer.Children.Remove(stlModel.GetModelVisual3D());
                 myviewer.Children.Add(stlModel.TransModelVisual3D(transfrom3D));
-            }
-        }
-
-        protected override void OnMouseDown(MouseButtonEventArgs e)
-        {
-            base.OnMouseDown(e);
-            if (e.MiddleButton == MouseButtonState.Pressed)
-            {
-                middleSpeed += 5;
-                if (middleSpeed > 20)
-                {
-                    middleSpeed = 10;
-                }
             }
         }
 

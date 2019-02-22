@@ -36,7 +36,8 @@ namespace RuiJi.Slice.App
 
         private int worldLineLength = 80;
         ScreenSpaceLines3D _worldLine;      //世界坐标
-        
+        Transform3D LockWorldLineTrans = null;
+
         private GeometryModel3D myGeomentryMode1;
 
         /*
@@ -319,7 +320,17 @@ namespace RuiJi.Slice.App
         public ModelVisual3D TransModelVisual3D(Transform3D transfrom3D)
         {
             myModelLight.Transform = transfrom3D;
-            _worldLine.Transform = transfrom3D;
+            //_worldLine.Transform = myGeomentryMode1.Transform;
+            return myModelLight;
+        }
+        public ModelVisual3D TransModelVisual3DWithoutWorld(Transform3D transfrom3D)
+        {
+            myModelLight.Transform = transfrom3D;
+            if (LockWorldLineTrans == null)
+            {
+                LockWorldLineTrans = _worldLine.Transform;
+            }
+            _worldLine.Transform = LockWorldLineTrans;
             return myModelLight;
         }
 
