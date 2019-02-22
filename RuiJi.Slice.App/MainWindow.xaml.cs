@@ -183,10 +183,11 @@ namespace RuiJi.Slice.App
                 var stream = client.GetStream();
 
                 //reset led
-                //var rb = new byte[36];
-                //rb[1] = 0xC8;
-                //stream.Write(rb, 0, rb.Length);
-                //Thread.Sleep(20);
+                var rb = new byte[36];
+                rb[1] = 0xC8;
+                stream.Write(rb, 0, rb.Length);
+                stream.Read(rb, 0, 2);
+
                 var process = 0;
                 var sum = 200 * 10;
                 //transmit frame data
@@ -201,14 +202,15 @@ namespace RuiJi.Slice.App
 
                         try
                         {
-
                             stream.Write(b, 0, b.Length);
+                            stream.Read(rb, 0, 2);
+
                             process++;
                             Dispatcher.Invoke(new Action(() =>
                             {
                                 sendMsg.Content = "发送进度:" + (process * 100f / sum) + "%";
                             }));
-                            Thread.Sleep(20);
+                            //Thread.Sleep(20);
                         }
                         catch (Exception ex)
                         {
@@ -218,6 +220,12 @@ namespace RuiJi.Slice.App
                         }
                     }
                 }
+
+                rb[0] = 2;
+                rb[1] = 0;
+                stream.Write(rb, 0, rb.Length);
+                stream.Read(rb, 0, 2);
+
                 Dispatcher.Invoke(new Action(() =>
                 {
                     sendMsg.Content = "发送完成";
@@ -243,7 +251,7 @@ namespace RuiJi.Slice.App
             doc.MakeCenter();
 
             var results = RuiJi.Slicer.Core.Slicer.DoSlice(doc.Facets.ToArray(), new ArrayDefine[] {
-                new ArrayDefine(new Plane(0, 1, 0.2f, 0), ArrayType.Circle, 200,360)
+                new ArrayDefine(new Plane(0, 1, 0, 0), ArrayType.Circle, 200,360)
             });
 
             IImageMould im = new LED6432P();
