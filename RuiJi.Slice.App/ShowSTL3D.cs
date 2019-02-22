@@ -270,12 +270,12 @@ namespace RuiJi.Slice.App
 
             Point3D position = _center;
             position.Z += radius * 2;
-            position.X = -position.Z;
-            position.Y = -position.Z;
+            position.X = 0;
+            position.Y -= radius * 2;
 
             myCamera.Position = position;
             myCamera.FieldOfView = 60;
-            myCamera.UpDirection = new Point3D(0, 0, 10) - new Point3D(0, 0, 0);
+            //myCamera.UpDirection = new Point3D(0, 0, 10) - new Point3D(0, 0, 0);
             myCamera.LookDirection = new Point3D(0, 0, 0) - position;
             myCamera.NearPlaneDistance = radius / 100;
             myCamera.FarPlaneDistance = radius * 100;
