@@ -269,8 +269,8 @@ namespace RuiJi.Slice.App
 
             Point3D position = _center;
             position.Z += radius * 2;
-            position.X = position.Z;
-            position.Y = position.Z;
+            position.X = -position.Z;
+            position.Y = -position.Z;
 
             myCamera.Position = position;
             myCamera.FieldOfView = 60;

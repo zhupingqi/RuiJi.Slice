@@ -49,6 +49,11 @@ namespace RuiJi.Slice.App
         #region 蓝牙
         private void ButtonSearchBt_Click(object sender, RoutedEventArgs e)
         {
+            if (connectResult != null)
+            {
+                client.EndConnect(connectResult);
+            }
+
             btn_searchBt.Content = "...";
             btn_searchBt.IsEnabled = false;
             Task.Run(new Action(() =>
