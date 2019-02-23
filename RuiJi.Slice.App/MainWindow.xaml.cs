@@ -8,6 +8,7 @@ using System;
 using System.Collections.Generic;
 using System.Drawing.Imaging;
 using System.Linq;
+using System.Net.Sockets;
 using System.Numerics;
 using System.Text;
 using System.Threading;
@@ -169,8 +170,6 @@ namespace RuiJi.Slice.App
             sendMsg.Content = "启动切片";
             Task.Run(new Action(() =>
             {
-                var cmd = new byte[4];
-                cmd[0] = 1;
                 Dispatcher.Invoke(new Action(() =>
                 {
                     sendMsg.Content = "正在切片...";
@@ -182,14 +181,19 @@ namespace RuiJi.Slice.App
                 }));
                 var stream = client.GetStream();
 
-                //reset led
-                var rb = new byte[36];
-                rb[1] = 0xC8;
-                stream.Write(rb, 0, rb.Length);
-                stream.Read(rb, 0, 2);
-
+                var cmd = new byte[4];
                 var process = 0;
                 var sum = 200 * 10;
+
+                //reset led
+                var wb = ConcatCMD(cmd);
+                wb[0] = 1;
+                wb[1] = 0xC8;
+                stream.Write(wb, 0, wb.Length);
+                WaitResposne(stream);
+
+                cmd[0] = 2;
+
                 //transmit frame data
                 for (byte i = 0; i < 200; i++)
                 {
@@ -198,19 +202,19 @@ namespace RuiJi.Slice.App
                     for (byte j = 0; j < 10; j++)
                     {
                         cmd[2] = j;
-                        var b = cmd.Concat(buff.Skip(i * 320 + j * 32).Take(32)).ToArray();
+                        var data = buff.Skip(i * 320 + j * 32).Take(32).ToArray();
+                        wb = ConcatCMD(cmd,data).ToArray();
 
                         try
                         {
-                            stream.Write(b, 0, b.Length);
-                            stream.Read(rb, 0, 2);
+                            stream.Write(wb, 0, wb.Length);
+                            WaitResposne(stream);
 
                             process++;
                             Dispatcher.Invoke(new Action(() =>
                             {
                                 sendMsg.Content = "发送进度:" + (process * 100f / sum) + "%";
                             }));
-                            //Thread.Sleep(20);
                         }
                         catch (Exception ex)
                         {
@@ -221,10 +225,10 @@ namespace RuiJi.Slice.App
                     }
                 }
 
-                rb[0] = 2;
-                rb[1] = 0;
-                stream.Write(rb, 0, rb.Length);
-                stream.Read(rb, 0, 2);
+                wb[0] = 3;
+                wb[1] = 0;
+                stream.Write(wb, 0, wb.Length);
+                WaitResposne(stream);
 
                 Dispatcher.Invoke(new Action(() =>
                 {
@@ -236,6 +240,28 @@ namespace RuiJi.Slice.App
             //stream.Close();
 
             //MessageBox.Show("发送完成");
+        }
+
+        private byte[] ConcatCMD(byte[] cmd,byte[] data = null)
+        {
+            if (data != null)
+                return cmd.Concat(data).ToArray();
+            else
+                return cmd.Concat(new byte[32]).ToArray();
+        }
+
+        private void WaitResposne(NetworkStream stream)
+        {
+            var rb = new byte[2];
+
+            while (true)
+            {
+                stream.Read(rb, 0, 2);
+                if (rb[0] == 79 && rb[1] == 75)
+                    break;
+
+                Thread.Sleep(10);
+            }
         }
         #endregion
 
