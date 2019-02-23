@@ -120,36 +120,24 @@ namespace RuiJi.Slicer.Core.File
         /// <returns>是否为文档数据</returns>
         public static bool IsText(Stream stream)
         {
-            const string solid = "solid";
+            var fileLong = stream.Length;
 
-            byte[] buffer = new byte[5];
-            string header = null;
+            byte[] buffer = new byte[4];
 
             //Reset the stream to tbe beginning and read the first few bytes, then reset the stream to the beginning again.
             stream.Seek(0, SeekOrigin.Begin);
+            stream.Seek(80, SeekOrigin.Current);
             stream.Read(buffer, 0, buffer.Length);
             stream.Seek(0, SeekOrigin.Begin);
 
-            //Read the header as ASCII.
-            header = Encoding.ASCII.GetString(buffer);
+            int num = BitConverter.ToInt32(buffer, 0);
 
-            return solid.Equals(header, StringComparison.InvariantCultureIgnoreCase);
+            if ((num * 50 + 84) == fileLong)
+            {
+                return false;
+            }
 
-            //long fileLong = 0;
-            //fileLong = new FileInfo(filePath).Length;//获取文件长度
-
-            //FileStream fs = new FileStream(filePath, FileMode.Open, FileAccess.Read);
-            //BinaryReader binaryReader = new BinaryReader(fs);
-            //binaryReader.ReadBytes(80);
-            //byte[] numArray = new byte[4];
-            //binaryReader.Read(numArray, 0, 4);
-            //int num = BitConverter.ToInt32(numArray, 0);
-
-            //if ((num * 50 + 84) == fileLong)
-            //{
-            //    return ReadBinary();
-            //}
-            //return ReadAscii();
+            return true;
         }
 
         /// <summary>
