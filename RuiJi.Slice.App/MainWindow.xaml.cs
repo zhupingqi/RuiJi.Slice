@@ -199,29 +199,25 @@ namespace RuiJi.Slice.App
                 {
                     cmd[1] = i;
 
-                    for (byte j = 0; j < 10; j++)
+                    var data = buff.Skip(i * 320).Take(320).ToArray();
+                    wb = ConcatCMD(cmd, data).ToArray();
+
+                    try
                     {
-                        cmd[2] = j;
-                        var data = buff.Skip(i * 320 + j * 32).Take(32).ToArray();
-                        wb = ConcatCMD(cmd,data).ToArray();
+                        stream.Write(wb, 0, wb.Length);
+                        WaitResposne(stream);
 
-                        try
+                        process++;
+                        Dispatcher.Invoke(new Action(() =>
                         {
-                            stream.Write(wb, 0, wb.Length);
-                            WaitResposne(stream);
-
-                            process++;
-                            Dispatcher.Invoke(new Action(() =>
-                            {
-                                sendMsg.Content = "发送进度:" + (process * 100f / sum) + "%";
-                            }));
-                        }
-                        catch (Exception ex)
-                        {
-                            MessageBox.Show(ex.Message);
-                            i = 200;
-                            break;
-                        }
+                            sendMsg.Content = "发送进度:" + (i * 100f / 200) + "%";
+                        }));
+                    }
+                    catch (Exception ex)
+                    {
+                        MessageBox.Show(ex.Message);
+                        i = 200;
+                        break;
                     }
                 }
 
@@ -247,7 +243,7 @@ namespace RuiJi.Slice.App
             if (data != null)
                 return cmd.Concat(data).ToArray();
             else
-                return cmd.Concat(new byte[32]).ToArray();
+                return cmd.Concat(new byte[320]).ToArray();
         }
 
         private void WaitResposne(NetworkStream stream)
