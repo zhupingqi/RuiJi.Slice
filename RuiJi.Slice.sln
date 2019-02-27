@@ -11,6 +11,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RuiJi.Slice.Window", "RuiJi
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RuiJi.Slice.App", "RuiJi.Slice.App\RuiJi.Slice.App.csproj", "{2C9846AD-4863-4DC0-8C01-A85C5746CCC4}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "3DTools", "3DTools\3DTools.csproj", "{5F603892-DE40-4246-A969-1C6717AFE35D}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -33,6 +35,10 @@ Global
 		{2C9846AD-4863-4DC0-8C01-A85C5746CCC4}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{2C9846AD-4863-4DC0-8C01-A85C5746CCC4}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{2C9846AD-4863-4DC0-8C01-A85C5746CCC4}.Release|Any CPU.Build.0 = Release|Any CPU
+		{5F603892-DE40-4246-A969-1C6717AFE35D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{5F603892-DE40-4246-A969-1C6717AFE35D}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{5F603892-DE40-4246-A969-1C6717AFE35D}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{5F603892-DE40-4246-A969-1C6717AFE35D}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

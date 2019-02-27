@@ -35,10 +35,6 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="3DTools, Version=1.0.2614.20437, Culture=neutral, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>Lib\3DTools.dll</HintPath>
-    </Reference>
     <Reference Include="InTheHand.Net.Personal, Version=3.5.605.0, Culture=neutral, PublicKeyToken=ea38caa273134499, processorArchitecture=MSIL">
       <HintPath>..\..\..\..\Cache\Nuget\packages\32feet.NET.3.5.0.0\lib\net\InTheHand.Net.Personal.dll</HintPath>
     </Reference>
@@ -114,9 +110,10 @@
     <None Include="App.config" />
   </ItemGroup>
   <ItemGroup>
-    <Content Include="Lib\3DTools.dll" />
-  </ItemGroup>
-  <ItemGroup>
+    <ProjectReference Include="..\3DTools\3DTools.csproj">
+      <Project>{5f603892-de40-4246-a969-1c6717afe35d}</Project>
+      <Name>3DTools</Name>
+    </ProjectReference>
     <ProjectReference Include="..\RuiJi.Slicer.Core\RuiJi.Slicer.Core.csproj">
       <Project>{c4f10e0a-e12f-4b66-9f2a-c6441a286349}</Project>
       <Name>RuiJi.Slicer.Core</Name>

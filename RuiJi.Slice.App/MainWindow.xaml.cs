@@ -238,7 +238,7 @@ namespace RuiJi.Slice.App
             //MessageBox.Show("发送完成");
         }
 
-        private byte[] ConcatCMD(byte[] cmd,byte[] data = null)
+        private byte[] ConcatCMD(byte[] cmd, byte[] data = null)
         {
             if (data != null)
                 return cmd.Concat(data).ToArray();
@@ -425,22 +425,25 @@ namespace RuiJi.Slice.App
             //        middleSpeed = 10;
             //    }
             //}
-            if (e.RightButton == MouseButtonState.Pressed && e.LeftButton == MouseButtonState.Pressed && stlModel != null)
+            if (e.RightButton == MouseButtonState.Pressed && stlModel != null)
             {
                 var myviewer = FindName("myViewport3D") as Viewport3D;
                 var findviewer = FindName("trackBallDec") as _3DTools.TrackballDecorator;
                 Transform3D transfrom3D = findviewer.Transform;
-                myviewer.Children.Remove(stlModel.GetModelVisual3D());
-                myviewer.Children.Add(stlModel.TransModelVisual3DWithoutWorld(transfrom3D));
                 
-            }
-            else if (e.LeftButton == MouseButtonState.Pressed && e.RightButton != MouseButtonState.Pressed && stlModel != null)
-            {
-                var myviewer = FindName("myViewport3D") as Viewport3D;
-                var findviewer = FindName("trackBallDec") as _3DTools.TrackballDecorator;
-                Transform3D transfrom3D = findviewer.Transform;
                 myviewer.Children.Remove(stlModel.GetModelVisual3D());
                 myviewer.Children.Add(stlModel.TransModelVisual3D(transfrom3D));
+
+            }
+            else if (e.LeftButton == MouseButtonState.Pressed && stlModel != null)
+            {
+                var myviewer = FindName("myViewport3D") as Viewport3D;
+                var findviewer = FindName("trackBallDec") as _3DTools.TrackballDecorator;
+
+                Transform3D transfrom3D = findviewer.Transform;
+                myviewer.Children.Remove(stlModel.GetModelVisual3D());
+
+                myviewer.Children.Add(stlModel.TransModelVisual3DWithoutWorld(transfrom3D));
             }
         }
 
