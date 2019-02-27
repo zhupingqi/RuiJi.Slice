@@ -427,23 +427,23 @@ namespace RuiJi.Slice.App
             //}
             if (e.RightButton == MouseButtonState.Pressed && stlModel != null)
             {
-                var myviewer = FindName("myViewport3D") as Viewport3D;
-                var findviewer = FindName("trackBallDec") as _3DTools.TrackballDecorator;
-                Transform3D transfrom3D = findviewer.Transform;
+                //var myviewer = FindName("myViewport3D") as Viewport3D;
+                //var findviewer = FindName("trackBallDec") as _3DTools.TrackballDecorator;
+                //Transform3D transfrom3D = findviewer.Transform;
                 
-                myviewer.Children.Remove(stlModel.GetModelVisual3D());
-                myviewer.Children.Add(stlModel.TransModelVisual3D(transfrom3D));
+                //myviewer.Children.Remove(stlModel.GetModelVisual3D());
+                //myviewer.Children.Add(stlModel.TransModelVisual3D(transfrom3D));
 
             }
             else if (e.LeftButton == MouseButtonState.Pressed && stlModel != null)
             {
-                var myviewer = FindName("myViewport3D") as Viewport3D;
-                var findviewer = FindName("trackBallDec") as _3DTools.TrackballDecorator;
+                //var myviewer = FindName("myViewport3D") as Viewport3D;
+                //var findviewer = FindName("trackBallDec") as _3DTools.TrackballDecorator;
 
-                Transform3D transfrom3D = findviewer.Transform;
-                myviewer.Children.Remove(stlModel.GetModelVisual3D());
+                //Transform3D transfrom3D = findviewer.Transform;
+                //myviewer.Children.Remove(stlModel.GetModelVisual3D());
 
-                myviewer.Children.Add(stlModel.TransModelVisual3DWithoutWorld(transfrom3D));
+                //myviewer.Children.Add(stlModel.TransModelVisual3DWithoutWorld(transfrom3D));
             }
         }
 

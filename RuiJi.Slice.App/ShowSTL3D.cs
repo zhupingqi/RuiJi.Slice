@@ -320,14 +320,12 @@ namespace RuiJi.Slice.App
         public ModelVisual3D TransModelVisual3D(Transform3D transfrom3D)
         {
             myModelLight.Transform = transfrom3D;
-            _worldLine.Transform = _worldLine.Transform.CloneCurrentValue();
-            LockWorldLineTrans = _worldLine.Transform.CloneCurrentValue();
             return myModelLight;
         }
         public ModelVisual3D TransModelVisual3DWithoutWorld(Transform3D transfrom3D)
         {
-            myModelLight.Transform = transfrom3D;
-            _worldLine.Transform = transfrom3D;
+            //myModelLight.Transform = transfrom3D;
+            //_worldLine.Transform = transfrom3D;
             return myModelLight;
         }
 

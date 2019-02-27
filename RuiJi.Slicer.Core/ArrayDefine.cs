@@ -110,7 +110,7 @@ namespace RuiJi.Slicer.Core
             this.ArrayType = sliceType;
             this.Count = count;
             this.Angle = angle;
-            this.Axis = new Vector3(0, -0.2f, 1);
+            this.Axis = new Vector3(0, 0, 1);
 
             //需添加初始面x,y轴方向
         }

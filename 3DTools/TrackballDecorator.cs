@@ -97,34 +97,47 @@ namespace _3DTools
                 // avoid any zero axis conditions
                 if (currentPosition == _previousPosition2D) return;
 
+
+                Track(currentPosition);
+
+                _previousPosition2D = currentPosition;
                 // Prefer tracking to zooming if both buttons are pressed.
                 if (e.LeftButton == MouseButtonState.Pressed)
                 {
-                    Track(currentPosition);
-                }
-                else if (e.RightButton == MouseButtonState.Pressed)
-                {
-                    Track(currentPosition);
-                }
-
-                _previousPosition2D = currentPosition;
-
-                Viewport3D viewport3D = this.Viewport3D;
-                if (viewport3D != null)
-                {
-                    if (viewport3D.Camera != null)
+                    Viewport3D viewport3D = this.Viewport3D;
+                    if (viewport3D != null)
                     {
-                        if (viewport3D.Camera.IsFrozen)
+                        if (viewport3D.Children[0] != null)
                         {
-                            viewport3D.Camera = viewport3D.Camera.Clone();
-                        }
-
-                        if (viewport3D.Camera.Transform != _transform)
-                        {
-                            viewport3D.Camera.Transform = _transform;
+                            viewport3D.Children[0].Transform = _transform.CloneCurrentValue();
+                            //viewport3D.Camera.Transform = viewport3D.Camera.Transform.CloneCurrentValue();
                         }
                     }
                 }
+                else if (e.RightButton == MouseButtonState.Pressed)
+                {
+                    Viewport3D viewport3D = this.Viewport3D;
+                    if (viewport3D != null)
+                    {
+                        if (viewport3D.Camera != null)
+                        {
+                            if (viewport3D.Camera.IsFrozen)
+                            {
+                                viewport3D.Camera = viewport3D.Camera.Clone();
+                            }
+
+                            if (viewport3D.Camera.Transform != _transform)
+                            {
+                                viewport3D.Camera.Transform = _transform.CloneCurrentValue() ;
+                            }
+                        }
+                    }
+
+                }
+
+
+
+
             }
         }
 
