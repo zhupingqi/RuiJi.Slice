@@ -1,0 +1,7 @@
+﻿fixture AnimLayerTest
+test FbxAnimLayer_Create_HasNamespacePrefix
+    given
+    FbxAnimLayer obj = new("asdf")
+
+    then
+    AssertEqual("AnimLayer:\:", obj.GetNameSpacePrefix())

@@ -1,0 +1,209 @@
+fixture PropertyTest
+test SurfacePhong_FindProperty_FindsProperty
+    given
+    FbxSurfacePhong surf = new("")
+
+    when
+    Property! prop = surf.FindProperty("SpecularColor")
+
+    then
+#cs AssertNotNull(&prop)
+    AssertTrue(prop&.IsValid())
+
+//test SurfacePhong_SearchForPropertyWithWrongType_DoesntFindProperty
+//test SurfacePhong_SearchForMissingProperty_DoesntFindProperty
+//    given
+//test SurfacePhong_AddNewProperty_AddsNewProperty
+//    given
+//test SurfacePhong_AddNewPropertyWithconflictingName_AddsNewProperty
+
+test SurfacePhongDiffuseColor_ConnectSrcObject_ConnectsSrcObject
+    given
+    FbxSurfacePhong surf = new("")
+    FbxTexture tex = new("")
+
+    when
+    bool result = surf.Diffuse&.ConnectSrcObject(tex)
+
+    then
+    AssertTrue(result)
+    AssertEqual(1, surf.Diffuse&.GetSrcObjectCount())
+    FbxObject obj = surf.Diffuse&.GetSrcObject(0)
+    AssertNotNull(obj)
+#cs AssertAreSame(tex, obj)
+#cpp AssertEqual(tex, obj)
+
+test SurfacePhongDiffuseColor_ConnectSrcObject_ConnectsDstProperty
+    given
+    FbxSurfacePhong surf = new("")
+    FbxTexture tex = new("")
+
+    when
+    bool result = surf.Diffuse&.ConnectSrcObject(tex)
+
+    then
+    AssertTrue(result)
+    AssertEqual(1, tex.GetDstPropertyCount())
+    Property! prop = tex.GetDstProperty(0)
+#cs AssertNotNull(&prop)
+    AssertTrue(prop&.IsValid())
+    AssertEqual("DiffuseColor", prop&.GetName())
+
+test Property_AttachCurveNode_IsAnimated
+    given
+    FbxNode node = new("node")
+    FbxAnimCurveNode acn = new("acn")
+    FbxAnimCurve x = new("x")
+    FbxScene scene = new("scene")
+    FbxAnimLayer layer = new("layer")
+    FbxAnimStack stack = new("stack")
+
+    FbxTime! time = new(0)
+    FbxAnimCurveKey! key = new(time, 1.0f)
+    x.KeyAdd(time, key)
+
+    scene.ConnectSrcObject(node)
+    scene.ConnectSrcObject(acn)
+    scene.ConnectSrcObject(x)
+    scene.ConnectSrcObject(layer)
+    scene.ConnectSrcObject(stack)
+
+    layer.ConnectSrcObject(acn)
+
+    stack.ConnectSrcObject(layer)
+
+    acn.AddChannel<double>("x", 1.0)
+    acn.ConnectToChannel(x, 0U)
+
+    require
+    AssertFalse(node.LclTranslation&.IsAnimated())
+
+    when
+    node.LclTranslation&.ConnectSrcObject(acn)
+
+    then
+    AssertTrue(node.LclTranslation&.IsAnimated())
+
+test FbxProperty_HierarchicalSeparator
+    require
+    AssertEqual("|", FbxProperty::sHierarchicalSeparator)
+
+test Property_MultipleStacks_IsAnimatedOnlyWhenTheCorrectStackIsCurrent
+    given
+    FbxNode node = new("node")
+    FbxScene scene = new("scene")
+
+    FbxAnimCurveNode acn1 = new("acn1")
+    FbxAnimCurve ac1 = new("ac1")
+    FbxAnimLayer layer1 = new("layer1")
+    FbxAnimStack stack1 = new("stack1")
+
+    FbxAnimCurveNode acn2 = new("acn2")
+    FbxAnimCurve ac2 = new("ac2")
+    FbxAnimLayer layer2 = new("layer2")
+    FbxAnimStack stack2 = new("stack2")
+
+    FbxTime! time = new(0)
+    FbxAnimCurveKey! key = new(time, 1.0f)
+    ac1.KeyAdd(time, key)
+
+    FbxTime! time2 = new(0)
+    FbxAnimCurveKey! key2 = new(time2, 1.0f)
+    ac2.KeyAdd(time2, key2)
+
+    scene.ConnectSrcObject(node)
+    scene.ConnectSrcObject(acn1)
+    scene.ConnectSrcObject(ac1)
+    scene.ConnectSrcObject(layer1)
+    scene.ConnectSrcObject(stack1)
+    scene.ConnectSrcObject(acn2)
+    scene.ConnectSrcObject(ac2)
+    scene.ConnectSrcObject(layer2)
+    scene.ConnectSrcObject(stack2)
+
+    acn1.AddChannel<double>("x", 1.0)
+    acn1.ConnectToChannel(ac1, 0U)
+    layer1.ConnectSrcObject(acn1)
+    stack1.ConnectSrcObject(layer1)
+
+    acn2.AddChannel<double>("y", -1.0)
+    acn2.ConnectToChannel(ac2, 0U)
+    layer2.ConnectSrcObject(acn2)
+    stack2.ConnectSrcObject(layer2)
+
+    scene.SetCurrentAnimationStack(stack1)
+
+    node.LclTranslation&.ConnectSrcObject(acn1)
+    node.LclRotation&.ConnectSrcObject(acn2)
+
+    require
+    AssertSame(scene.GetCurrentAnimationStack(), stack1)
+    AssertTrue(node.LclTranslation&.IsAnimated())
+    AssertFalse(node.LclRotation&.IsAnimated())
+
+    when
+    scene.SetCurrentAnimationStack(stack2)
+
+    then
+    AssertFalse(node.LclTranslation&.IsAnimated())
+    AssertTrue(node.LclRotation&.IsAnimated())
+
+test Property_MultipleStacks_GetCurveNodeOnlyGetsCurvesOnTheCurrentStack
+    given
+    FbxNode node = new("node")
+    FbxScene scene = new("scene")
+
+    FbxAnimCurveNode acn1 = new("acn1")
+    FbxAnimCurve ac1 = new("ac1")
+    FbxAnimLayer layer1 = new("layer1")
+    FbxAnimStack stack1 = new("stack1")
+
+    FbxAnimCurveNode acn2 = new("acn2")
+    FbxAnimCurve ac2 = new("ac2")
+    FbxAnimLayer layer2 = new("layer2")
+    FbxAnimStack stack2 = new("stack2")
+
+    FbxTime! time = new(0)
+    FbxAnimCurveKey! key = new(time, 1.0f)
+    ac1.KeyAdd(time, key)
+
+    FbxTime! time2 = new(0)
+    FbxAnimCurveKey! key2 = new(time2, 1.0f)
+    ac2.KeyAdd(time2, key2)
+
+    scene.ConnectSrcObject(node)
+    scene.ConnectSrcObject(acn1)
+    scene.ConnectSrcObject(ac1)
+    scene.ConnectSrcObject(layer1)
+    scene.ConnectSrcObject(stack1)
+    scene.ConnectSrcObject(acn2)
+    scene.ConnectSrcObject(ac2)
+    scene.ConnectSrcObject(layer2)
+    scene.ConnectSrcObject(stack2)
+
+    acn1.AddChannel<double>("x", 1.0)
+    acn1.ConnectToChannel(ac1, 0U)
+    layer1.ConnectSrcObject(acn1)
+    stack1.ConnectSrcObject(layer1)
+
+    acn2.AddChannel<double>("y", -1.0)
+    acn2.ConnectToChannel(ac2, 0U)
+    layer2.ConnectSrcObject(acn2)
+    stack2.ConnectSrcObject(layer2)
+
+    scene.SetCurrentAnimationStack(stack1)
+
+    node.LclTranslation&.ConnectSrcObject(acn1)
+    node.LclRotation&.ConnectSrcObject(acn2)
+
+    require
+    AssertSame(stack1, scene.GetCurrentAnimationStack())
+    AssertSame(acn1, node.LclTranslation&.GetCurveNode())
+    AssertNull(node.LclRotation&.GetCurveNode())
+
+    when
+    scene.SetCurrentAnimationStack(stack2)
+
+    then
+    AssertNull(node.LclTranslation&.GetCurveNode())
+    AssertSame(acn2, node.LclRotation&.GetCurveNode())
