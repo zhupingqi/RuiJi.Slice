@@ -23,7 +23,7 @@ using System.Windows.Media.Imaging;
 using System.Windows.Media.Media3D;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
-
+using Assimp;
 
 namespace RuiJi.Slice.App
 {
@@ -44,6 +44,9 @@ namespace RuiJi.Slice.App
         {
             InitializeComponent();
             //fileDlg.InitialDirectory = "D:\\";
+
+            var context = new AssimpContext();
+            var s = context.ImportFile(@"D:\云同步\vcoded\unity3d\Warrior\Assets\Models\hero.fbx");
 
         }
 
@@ -273,7 +276,7 @@ namespace RuiJi.Slice.App
             doc.MakeCenter();
 
             var results = RuiJi.Slicer.Core.Slicer.DoSlice(doc.Facets.ToArray(), new ArrayDefine[] {
-                new ArrayDefine(new Plane(0, 1, 0, 0), ArrayType.Circle, 200,360)
+                new ArrayDefine(new System.Numerics.Plane(0, 1, 0, 0), ArrayType.Circle, 200,360)
             });
 
             IImageMould im = new LED6432P();

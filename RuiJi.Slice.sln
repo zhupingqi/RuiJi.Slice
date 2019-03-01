@@ -13,8 +13,6 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RuiJi.Slice.App", "RuiJi.Sl
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "3DTools", "3DTools\3DTools.csproj", "{5F603892-DE40-4246-A969-1C6717AFE35D}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FbxSharp", "FbxSharp\FbxSharp.csproj", "{64FAA76A-CAEA-42A3-9E23-660CFF84394B}"
-EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -41,10 +39,6 @@ Global
 		{5F603892-DE40-4246-A969-1C6717AFE35D}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{5F603892-DE40-4246-A969-1C6717AFE35D}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{5F603892-DE40-4246-A969-1C6717AFE35D}.Release|Any CPU.Build.0 = Release|Any CPU
-		{64FAA76A-CAEA-42A3-9E23-660CFF84394B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{64FAA76A-CAEA-42A3-9E23-660CFF84394B}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{64FAA76A-CAEA-42A3-9E23-660CFF84394B}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{64FAA76A-CAEA-42A3-9E23-660CFF84394B}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
