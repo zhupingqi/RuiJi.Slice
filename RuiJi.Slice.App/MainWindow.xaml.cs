@@ -46,7 +46,7 @@ namespace RuiJi.Slice.App
             //fileDlg.InitialDirectory = "D:\\";
 
             var context = new AssimpContext();
-            var s = context.ImportFile(@"D:\云同步\vcoded\RuiJi.Slice\RuiJi.Slice.App\bin\Debug\fbx\wolf.fbx", PostProcessSteps.Debone);
+            //  var s = context.ImportFile(@"D:\云同步\vcoded\unity3d\Warrior\Assets\Models\hero.fbx");
 
         }
 
@@ -251,23 +251,15 @@ namespace RuiJi.Slice.App
 
         private void WaitResposne(NetworkStream stream)
         {
-            var rb = new byte[1];
-            stream.ReadTimeout = 100;
+            var rb = new byte[2];
 
             while (true)
             {
-                try
-                {
-                    stream.Read(rb, 0, 1);
-                    if (rb[0] == 75)
-                        break;
-
-                    Thread.Sleep(10);
-                }
-                catch (Exception ex)
-                {
+                stream.Read(rb, 0, 2);
+                if (rb[0] == 79 && rb[1] == 75)
                     break;
-                }
+
+                Thread.Sleep(10);
             }
         }
         #endregion
@@ -441,7 +433,7 @@ namespace RuiJi.Slice.App
                 //var myviewer = FindName("myViewport3D") as Viewport3D;
                 //var findviewer = FindName("trackBallDec") as _3DTools.TrackballDecorator;
                 //Transform3D transfrom3D = findviewer.Transform;
-                
+
                 //myviewer.Children.Remove(stlModel.GetModelVisual3D());
                 //myviewer.Children.Add(stlModel.TransModelVisual3D(transfrom3D));
 
