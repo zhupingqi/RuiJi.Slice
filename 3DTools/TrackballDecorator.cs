@@ -43,6 +43,10 @@ namespace _3DTools
             _transform.Children.Add(_scale);
             _transform.Children.Add(new RotateTransform3D(_rotation));
 
+            _worldtransform = new Transform3DGroup();
+            _worldtransform.Children.Add(_worldscale);
+            _worldtransform.Children.Add(new RotateTransform3D(_worldrotation));
+
             // used so that we always get events while activity occurs within
             // the viewport3D
             _eventSource = new Border();
@@ -60,16 +64,31 @@ namespace _3DTools
             get { return _transform; }
         }
 
+        public Transform3D WorldTransform
+        {
+            get { return _worldtransform; }
+        }
+
         #region Event Handling
 
         protected override void OnMouseDown(MouseButtonEventArgs e)
         {
             base.OnMouseDown(e);
+            if (e.LeftButton == MouseButtonState.Pressed)
+            {
 
-            _previousPosition2D = e.GetPosition(this);
-            _previousPosition3D = ProjectToTrackball(ActualWidth,
-                                                     ActualHeight,
-                                                     _previousPosition2D);
+                _previousPosition2D = e.GetPosition(this);
+                _previousPosition3D = ProjectToTrackball(ActualWidth,
+                                                         ActualHeight,
+                                                         _previousPosition2D);
+            }
+            else if (e.RightButton == MouseButtonState.Pressed)
+            {
+                _worldpreviousPosition2D = e.GetPosition(this);
+                _worldpreviousPosition3D = ProjectToTrackball(ActualWidth,
+                                                         ActualHeight,
+                                                         _worldpreviousPosition2D);
+            }
             if (Mouse.Captured == null)
             {
                 Mouse.Capture(this, CaptureMode.Element);
@@ -98,24 +117,31 @@ namespace _3DTools
                 if (currentPosition == _previousPosition2D) return;
 
 
-                Track(currentPosition);
-
-                _previousPosition2D = currentPosition;
+                
                 // Prefer tracking to zooming if both buttons are pressed.
                 if (e.LeftButton == MouseButtonState.Pressed)
                 {
+                    Track(currentPosition);
+
+                    _previousPosition2D = currentPosition;
+
                     Viewport3D viewport3D = this.Viewport3D;
                     if (viewport3D != null)
                     {
                         if (viewport3D.Children[0] != null)
                         {
-                            viewport3D.Children[0].Transform = _transform.CloneCurrentValue();
-                            //viewport3D.Camera.Transform = viewport3D.Camera.Transform.CloneCurrentValue();
+                            if (viewport3D.Children[0].Transform != _transform)
+                            {
+                                viewport3D.Children[0].Transform = _transform;
+                            }
                         }
                     }
                 }
                 else if (e.RightButton == MouseButtonState.Pressed)
                 {
+                    TrackWorld(currentPosition);
+
+                    _worldpreviousPosition2D = currentPosition;
                     Viewport3D viewport3D = this.Viewport3D;
                     if (viewport3D != null)
                     {
@@ -126,9 +152,9 @@ namespace _3DTools
                                 viewport3D.Camera = viewport3D.Camera.Clone();
                             }
 
-                            if (viewport3D.Camera.Transform != _transform)
+                            if (viewport3D.Camera.Transform != _worldtransform)
                             {
-                                viewport3D.Camera.Transform = _transform.CloneCurrentValue() ;
+                                viewport3D.Camera.Transform = _worldtransform;
                             }
                         }
                     }
@@ -172,6 +198,35 @@ namespace _3DTools
             _previousPosition3D = currentPosition3D;
         }
 
+        private void TrackWorld(Point currentPosition)
+        {
+            Vector3D currentPosition3D = ProjectToTrackball(
+                ActualWidth, ActualHeight, currentPosition);
+
+            Vector3D axis = Vector3D.CrossProduct(_worldpreviousPosition3D, currentPosition3D);
+            double angle = Vector3D.AngleBetween(_worldpreviousPosition3D, currentPosition3D);
+
+            // quaterion will throw if this happens - sometimes we can get 3D positions that
+            // are very similar, so we avoid the throw by doing this check and just ignoring
+            // the event 
+            if (axis.Length == 0) return;
+
+            Quaternion delta = new Quaternion(axis, -angle);
+
+            // Get the current orientantion from the RotateTransform3D
+            AxisAngleRotation3D r = _worldrotation;
+            Quaternion q = new Quaternion(_worldrotation.Axis, _worldrotation.Angle);
+
+            // Compose the delta with the previous orientation
+            q *= delta;
+
+            // Write the new orientation back to the Rotation3D
+            _worldrotation.Axis = q.Axis;
+            _worldrotation.Angle = q.Angle;
+
+            _worldpreviousPosition3D = currentPosition3D;
+        }
+
         private Vector3D ProjectToTrackball(double width, double height, Point point)
         {
             double x = point.X / (width / 2);    // Scale so bounds map to [0,0] - [2,2]
@@ -196,6 +251,16 @@ namespace _3DTools
             _scale.ScaleY *= scale;
             _scale.ScaleZ *= scale;
         }
+        private void ZoomWorld(Point currentPosition)
+        {
+            double yDelta = currentPosition.Y - _worldpreviousPosition2D.Y;
+
+            double scale = Math.Exp(yDelta / 100);    // e^(yDelta/100) is fairly arbitrary.
+
+            _worldscale.ScaleX *= scale;
+            _worldscale.ScaleY *= scale;
+            _worldscale.ScaleZ *= scale;
+        }
 
         //--------------------------------------------------------------------
         //
@@ -209,6 +274,14 @@ namespace _3DTools
         private Transform3DGroup _transform;
         private ScaleTransform3D _scale = new ScaleTransform3D();
         private AxisAngleRotation3D _rotation = new AxisAngleRotation3D();
+
+
+        private Point _worldpreviousPosition2D;
+        private Vector3D _worldpreviousPosition3D = new Vector3D(0, 0, 1);
+
+        private Transform3DGroup _worldtransform;
+        private ScaleTransform3D _worldscale = new ScaleTransform3D();
+        private AxisAngleRotation3D _worldrotation = new AxisAngleRotation3D();
 
         private Border _eventSource;
     }
