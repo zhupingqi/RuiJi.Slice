@@ -6,25 +6,22 @@
         xmlns:tool3d="clr-namespace:_3DTools;assembly=3DTools"
         xmlns:local="clr-namespace:RuiJi.Slice.App"
         mc:Ignorable="d"
-        Title="RuiJi.Slice - www.ruijihg.com" Width="1000" Height="800">
+        Title="RuiJi.Slice - www.ruijihg.com" Width="1000" Height="800" WindowStartupLocation="CenterScreen" WindowState="Maximized">
     <DockPanel Name="main_panel" LastChildFill="True">
         <!--Background="Sienna"-->
         <StackPanel DockPanel.Dock="Left" Width="200" Background="#ccc" RenderTransformOrigin="0.468,0.497">
-            <Control Height="30" />
-            <StackPanel Orientation="Horizontal">
+            <StackPanel Orientation="Horizontal" Margin="0,30,0,0">
                 <TextBox Width="130" Margin="5" IsReadOnly="True" Name="path" ></TextBox>
-                <Button Click="ButtonOpenStlFile_Click" Height="20" Content="打开文件"/>
+                <Button Click="ButtonOpenFile_Click" Height="20" Content="打开文件"/>
             </StackPanel>
-            <Control Height="10" />
 
-            <GroupBox Margin="4" Header="基础" Name="base_panel" Visibility="Hidden">
+            <GroupBox Margin="4,15,4,4" Header="硬件" Name="base_panel">
                 <Grid>
                     <!--定义行,3行-->
                     <Grid.RowDefinitions>
                         <!--自动行高-->
                         <RowDefinition Height="30"></RowDefinition>
                         <!--按比例行高-->
-                        <RowDefinition Height="30"></RowDefinition>
                     </Grid.RowDefinitions>
                     <!--定义列，2列-->
                     <Grid.ColumnDefinitions>
@@ -34,30 +31,21 @@
                         <ColumnDefinition Width="*"></ColumnDefinition>
                     </Grid.ColumnDefinitions>
                     <!--定义元素，并指定单元格-->
-                    <TextBlock Grid.Row="0" Grid.Column="0" Margin="0,8,0,5" HorizontalAlignment="Right">分辨率</TextBlock>
-                    <TextBlock Grid.Row="1" Grid.Column="0" Margin="0,8,0,5" HorizontalAlignment="Right">文件格式</TextBlock>
-                    <ComboBox MinWidth="125" MaxHeight="20" Margin="3" Grid.Row="0" Grid.Column="1">
-                        <ComboBoxItem Content="128*64"/>
-                        <ComboBoxItem Content="64*64"/>
-                        <ComboBoxItem IsSelected="True" Content="64*32"/>
-                    </ComboBox>
-                    <ComboBox MinWidth="125" MaxHeight="20" Margin="3" Grid.Row="1" Grid.Column="1" >
-                        <ComboBoxItem IsSelected="True" Content=".h"/>
+                    <TextBlock Grid.Row="0" Grid.Column="0" Margin="0,8,0,0" HorizontalAlignment="Center">型号</TextBlock>
+                    <ComboBox MinWidth="125" MaxHeight="20" Margin="3,3,3,0" Grid.Row="0" Grid.Column="1">
+                        <ComboBoxItem IsSelected="True" Content="..."/>
                     </ComboBox>
                 </Grid>
             </GroupBox>
-            <Control Height="10" />
-            <Button Name="btn_searchBt" Click="ButtonSearchBt_Click" Height="20" Content="搜索蓝牙" Visibility="Hidden"/>
-            <GroupBox Margin="4" Header="蓝牙列表" Name="bt_panel"  Visibility="Hidden">
+            <Button Name="btn_searchBt" Click="ButtonSearchBt_Click" Height="20" Content="搜索蓝牙" Margin="0,15,0,0"/>
+            <GroupBox Margin="4,15,4,4" Header="蓝牙列表" Name="bt_panel">
                 <ListBox Name="lb_bt">
                 </ListBox>
             </GroupBox>
-            <Control Height="10" />
-            <Button Name="btn_send" Click="ButtonSend_Click" Margin="130,0,10,0" Visibility="Hidden">生成发送</Button>
-            <Control Height="10" />
+            <Button Name="btn_send" Click="ButtonSend_Click" Margin="130,10,10,0" IsEnabled="False">生成发送</Button>
             <Label Name="sendMsg"></Label>
         </StackPanel>
-        <tool3d:TrackballDecorator Name="trackBallDec" Visibility="Visible">
+        <tool3d:TrackballDecorator Name="trackBallDec" DockPanel.Dock="Top">
             <Viewport3D Name="myViewport3D" >
             </Viewport3D>
         </tool3d:TrackballDecorator>

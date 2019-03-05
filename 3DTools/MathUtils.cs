@@ -225,7 +225,7 @@ namespace _3DTools
             success = false;
             Matrix3D result = Matrix3D.Identity;
 
-            Camera camera = visual.Camera;
+            Camera camera = visual == null ? null : visual.Camera;
 
             if (camera == null)
             {

@@ -307,6 +307,7 @@ namespace RuiJi.Slice.App
 
             return ModelLight;
         }
+
         /*
          * 获取光源,旋转的时候，消除原来的光源，消除内存过大
          */
@@ -322,6 +323,7 @@ namespace RuiJi.Slice.App
             myModelLight.Transform = transfrom3D;
             return myModelLight;
         }
+
         public ModelVisual3D TransModelVisual3DWithoutWorld(Transform3D transfrom3D)
         {
             //myModelLight.Transform = transfrom3D;

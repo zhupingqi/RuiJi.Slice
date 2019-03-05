@@ -24,6 +24,7 @@ using System.Windows.Media.Media3D;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
 using Assimp;
+using _3DTools;
 
 namespace RuiJi.Slice.App
 {
@@ -46,8 +47,7 @@ namespace RuiJi.Slice.App
             //fileDlg.InitialDirectory = "D:\\";
 
             var context = new AssimpContext();
-            //  var s = context.ImportFile(@"D:\云同步\vcoded\unity3d\Warrior\Assets\Models\hero.fbx");
-
+            var s = context.ImportFile(@"D:\云同步\vcoded\RuiJi.Slice\RuiJi.Slice.App\bin\Debug\fbx\Boat.stl");
         }
 
         #region 蓝牙
@@ -148,7 +148,7 @@ namespace RuiJi.Slice.App
                     Dispatcher.Invoke(new Action(() =>
                     {
                         sendMsg.Content = "链接" + result.AsyncState.ToString() + "成功";
-                        btn_send.Visibility = Visibility.Visible;
+                        btn_send.IsEnabled = true;
                     }));
                 }
                 else
@@ -252,14 +252,20 @@ namespace RuiJi.Slice.App
         private void WaitResposne(NetworkStream stream)
         {
             var rb = new byte[2];
+            stream.ReadTimeout = 100;
 
             while (true)
             {
-                stream.Read(rb, 0, 2);
-                if (rb[0] == 79 && rb[1] == 75)
+                try
+                {
+                    stream.Read(rb, 0, 2);
+                    if (rb[0] == 79 && rb[1] == 75)
+                        break;
+                }
+                catch (Exception ex) {
                     break;
+                }
 
-                Thread.Sleep(10);
             }
         }
         #endregion
@@ -298,69 +304,32 @@ namespace RuiJi.Slice.App
          * 打开文件对话框按钮
          * 返回值：所选的文件的路径
          */
-        private void ButtonOpenStlFile_Click(object sender, RoutedEventArgs e)
+        private void ButtonOpenFile_Click(object sender, RoutedEventArgs e)
         {
 
-            System.Windows.Forms.OpenFileDialog fileDlg = new System.Windows.Forms.OpenFileDialog();
-            fileDlg.Filter = "STL file(*.stl)|*.stl|All files(*.*)|*.*";
+            var fileDlg = new System.Windows.Forms.OpenFileDialog();
+            fileDlg.Filter = "STL file(*.stl)|*.stl|FBX files(*.fbx)|*.fbx";
             fileDlg.FilterIndex = 0;
-            fileDlg.ShowDialog();
+            var result = fileDlg.ShowDialog();
 
-            if (!string.IsNullOrEmpty(fileDlg.FileName))
+            if(result == System.Windows.Forms.DialogResult.OK)
             {
-                Task.Run(new Action(() =>
-              {
-                  Dispatcher.Invoke(new Action(() =>
-                  {
-                      path.Text = fileDlg.FileName;
-                  }));
-                  Dispatcher.Invoke(new Action(() =>
-                  {
-                      var loading = new Loading();
-                      loading.VerticalAlignment = VerticalAlignment.Center;
-                      loading.MinWidth = 800;
-                      loading.MinHeight = 150;
-                      main_panel.Children.Insert(main_panel.Children.Count - 1, loading);
-                      main_panel.RegisterName("stl_loading", loading);
-                  }));
-                  //Thread.Sleep(2000);
+                Task.Run(() =>
+                {
+                    Dispatcher.Invoke(() =>
+                    {
+                        path.Text = fileDlg.FileName;
 
-                  if (fileDlg.FileName != null && fileDlg.FileName.ToLower().EndsWith(".stl"))
-                  {
-                      Dispatcher.Invoke(new Action(() =>
-                      {
-                          base_panel.Visibility = Visibility.Visible;
-                          btn_searchBt.Visibility = Visibility.Visible;
-                          bt_panel.Visibility = Visibility.Visible;
+                        var loading = new Loading();
+                        trackBallDec.Visibility = Visibility.Hidden;
+                        main_panel.Children.Add(loading);       
 
-                          var findviewer = FindName("trackBallDec") as _3DTools.TrackballDecorator;
-                          main_panel.Children.Remove(findviewer);
-                          main_panel.UnregisterName("trackBallDec");
+                        ShowSTLModel();
 
-                          var myviewer = FindName("myViewport3D") as Viewport3D;
-                          main_panel.Children.Remove(myviewer);
-                          main_panel.UnregisterName("myViewport3D");
-
-                          var viewer = new _3DTools.TrackballDecorator();
-                          viewer.Name = "trackBallDec";
-                          viewer.Visibility = Visibility.Visible;
-                          var view = new Viewport3D();
-                          view.Name = "myViewport3D";
-                          viewer.Content = view;
-                          main_panel.Children.Insert(main_panel.Children.Count - 1, viewer);
-                          main_panel.RegisterName("trackBallDec", viewer);
-                          main_panel.RegisterName("myViewport3D", view);
-                          ShowSTLModel();
-                      }));
-                  }
-                  Dispatcher.Invoke(new Action(() =>
-                  {
-                      var findloading = FindName("stl_loading") as Loading;
-                      main_panel.Children.Remove(findloading);
-                      main_panel.UnregisterName("stl_loading");
-                  }));
-
-              }));
+                        main_panel.Children.RemoveAt(main_panel.Children.Count-1);
+                        trackBallDec.Visibility = Visibility.Visible;
+                    });
+                });
             }
         }
 

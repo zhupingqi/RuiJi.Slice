@@ -37,9 +37,6 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="Aspose.3D, Version=19.2.0.0, Culture=neutral, PublicKeyToken=f071c641d0b4582b, processorArchitecture=MSIL">
-      <HintPath>..\..\..\..\Cache\Nuget\packages\Aspose.3D.19.2.0\lib\net46\Aspose.3D.dll</HintPath>
-    </Reference>
     <Reference Include="AssimpNet, Version=4.1.0.0, Culture=neutral, PublicKeyToken=0d51b391f59f42a6, processorArchitecture=MSIL">
       <HintPath>..\..\..\..\Cache\Nuget\packages\AssimpNet.4.1.0\lib\net40\AssimpNet.dll</HintPath>
       <Private>True</Private>
