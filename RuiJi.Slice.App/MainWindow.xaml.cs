@@ -40,14 +40,17 @@ namespace RuiJi.Slice.App
         BluetoothClient client;
         Dictionary<string, BluetoothAddress> deviceAddresses = new Dictionary<string, BluetoothAddress>();
         IAsyncResult connectResult = null;
+        SceneView sceneView = null;
 
         public MainWindow()
         {
             InitializeComponent();
             //fileDlg.InitialDirectory = "D:\\";
 
-            var context = new AssimpContext();
-            var s = context.ImportFile(@"D:\云同步\vcoded\RuiJi.Slice\RuiJi.Slice.App\bin\Debug\fbx\Boat.stl");
+            //var context = new AssimpContext();
+            //var s = context.ImportFile(@"D:\云同步\vcoded\RuiJi.Slice\RuiJi.Slice.App\bin\Debug\fbx\Boat.stl");
+
+            sceneView = new SceneView(myViewport3D);
         }
 
         #region 蓝牙

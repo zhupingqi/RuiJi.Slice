@@ -25,7 +25,8 @@ namespace RuiJi.Slice.App
 
         private Point ModelPos;
         private ModelVisual3D myModel;      //模型
-        private Point3D _center;            //设置模型中心点
+        public Point3D _center;            //设置模型中心点
+        public double radius;
         private List<Point3D> m_listPoint3D;
 
         private Rect3D rect3D;              //模型的外切矩形
@@ -372,6 +373,8 @@ namespace RuiJi.Slice.App
             rect3D = myModel.Content.Bounds;
             _center = new Point3D((rect3D.X + rect3D.SizeX / 2), (rect3D.Y + rect3D.SizeY / 2),
                                  (rect3D.Z + rect3D.SizeZ / 2));
+
+            radius = (_center - rect3D.Location).Length;
 
             var maxLenght = rect3D.SizeX;
             if (maxLenght < rect3D.SizeY)
