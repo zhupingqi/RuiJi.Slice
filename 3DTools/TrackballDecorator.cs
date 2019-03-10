@@ -130,9 +130,9 @@ namespace _3DTools
                     {
                         if (viewport3D.Children[0] != null)
                         {
-                            if (viewport3D.Children[0].Transform != _transform)
+                            if (viewport3D.Children[viewport3D.Children.Count-1].Transform != _transform)
                             {
-                                viewport3D.Children[0].Transform = _transform;
+                                viewport3D.Children[viewport3D.Children.Count - 1].Transform = _transform;
                             }
                         }
                     }
@@ -273,7 +273,7 @@ namespace _3DTools
 
         private Transform3DGroup _transform;
         private ScaleTransform3D _scale = new ScaleTransform3D();
-        private AxisAngleRotation3D _rotation = new AxisAngleRotation3D();
+        private AxisAngleRotation3D _rotation = new AxisAngleRotation3D(new System.Windows.Media.Media3D.Vector3D(1, 0, 0), -90);
 
 
         private Point _worldpreviousPosition2D;

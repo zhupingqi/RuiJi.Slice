@@ -388,8 +388,8 @@ namespace RuiJi.Slice.App
             ModelVisual3D model = new ModelVisual3D();
             Model3DGroup modelGroup = new Model3DGroup();//允许使用多个 三维 模型作为一个单元。
 
-            GeometryModel3D geomentryMode1 = new GeometryModel3D(movedModel3D(), GetMaterial());//加载3D几何模型(模型，材质)
-            geomentryMode1.BackMaterial = new DiffuseMaterial(Brushes.Brown);//3D模型的背面材质
+            GeometryModel3D geomentryMode1 = new GeometryModel3D(movedModel3D(), GetMaterial());
+            geomentryMode1.BackMaterial = new DiffuseMaterial(Brushes.Gray);
 
             modelGroup.Children.Add(geomentryMode1);
             model.Content = modelGroup;

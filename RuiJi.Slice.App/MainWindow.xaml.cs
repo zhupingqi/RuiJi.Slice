@@ -325,9 +325,10 @@ namespace RuiJi.Slice.App
 
                         var loading = new Loading();
                         trackBallDec.Visibility = Visibility.Hidden;
-                        main_panel.Children.Add(loading);       
+                        main_panel.Children.Add(loading);
 
-                        ShowSTLModel();
+                        //ShowSTLModel();
+                        sceneView.Load(fileDlg.FileName);
 
                         main_panel.Children.RemoveAt(main_panel.Children.Count-1);
                         trackBallDec.Visibility = Visibility.Visible;
@@ -377,11 +378,13 @@ namespace RuiJi.Slice.App
         {
             base.OnMouseWheel(e);
 
-            if (stlModel != null && e.LeftButton == MouseButtonState.Released)  //放大缩小
-            {
-                var myviewer = FindName("myViewport3D") as Viewport3D;
-                myviewer.Camera = stlModel.nearerCamera(e.Delta / 120 * middleSpeed * (-1));
-            }
+            //if (stlModel != null && e.LeftButton == MouseButtonState.Released)  //放大缩小
+            //{
+            //    var myviewer = FindName("myViewport3D") as Viewport3D;
+            //    myviewer.Camera = stlModel.nearerCamera(e.Delta / 120 * middleSpeed * (-1));
+            //}
+
+            sceneView.Zoom(e.Delta > 0);
         }
 
         protected override void OnMouseMove(MouseEventArgs e)
