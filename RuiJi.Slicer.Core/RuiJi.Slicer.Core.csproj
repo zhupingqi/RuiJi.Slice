@@ -36,6 +36,9 @@
     <Reference Include="AssimpNet, Version=4.1.0.0, Culture=neutral, PublicKeyToken=0d51b391f59f42a6, processorArchitecture=MSIL">
       <HintPath>..\..\..\..\Cache\Nuget\packages\AssimpNet.4.1.0\lib\net40\AssimpNet.dll</HintPath>
     </Reference>
+    <Reference Include="GlmSharp, Version=0.9.8.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\..\..\..\Cache\Nuget\packages\GlmSharp.0.9.8\lib\Net45\GlmSharp.dll</HintPath>
+    </Reference>
     <Reference Include="PresentationCore" />
     <Reference Include="PresentationFramework" />
     <Reference Include="System" />
@@ -71,6 +74,13 @@
     <Compile Include="SlicePanelInfo.cs" />
     <Compile Include="Slicer.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Viewport\AssimpAnimation.cs" />
+    <Compile Include="Viewport\BoneInfo.cs" />
+    <Compile Include="Viewport\InterpolatedHelper.cs" />
+    <Compile Include="Viewport\Camera.cs" />
+    <Compile Include="Viewport\GroundPlane.cs" />
+    <Compile Include="Viewport\MathHelper.cs" />
+    <Compile Include="Viewport\VertexBoneInfo.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />

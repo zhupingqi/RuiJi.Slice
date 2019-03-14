@@ -265,7 +265,8 @@ namespace RuiJi.Slice.App
                     if (rb[0] == 79 && rb[1] == 75)
                         break;
                 }
-                catch (Exception ex) {
+                catch (Exception ex)
+                {
                     break;
                 }
 
@@ -303,6 +304,7 @@ namespace RuiJi.Slice.App
             frame = frame.TrimStart(',');
             return frame.Split(',').Select(m => Byte.Parse(m.Replace("0x", ""), System.Globalization.NumberStyles.AllowHexSpecifier)).ToArray();
         }
+
         /*
          * 打开文件对话框按钮
          * 返回值：所选的文件的路径
@@ -311,11 +313,11 @@ namespace RuiJi.Slice.App
         {
 
             var fileDlg = new System.Windows.Forms.OpenFileDialog();
-            fileDlg.Filter = "STL file(*.stl)|*.stl|FBX files(*.fbx)|*.fbx";
+            fileDlg.Filter = "STL file(*.stl)|*.stl|FBX files(*.fbx)|*.fbx|all files(*.*)|*.*";
             fileDlg.FilterIndex = 0;
             var result = fileDlg.ShowDialog();
 
-            if(result == System.Windows.Forms.DialogResult.OK)
+            if (result == System.Windows.Forms.DialogResult.OK)
             {
                 Task.Run(() =>
                 {
@@ -330,32 +332,24 @@ namespace RuiJi.Slice.App
                         //ShowSTLModel();
                         sceneView.Load(fileDlg.FileName);
 
-                        main_panel.Children.RemoveAt(main_panel.Children.Count-1);
+                        main_panel.Children.RemoveAt(main_panel.Children.Count - 1);
                         trackBallDec.Visibility = Visibility.Visible;
+
+                        animationsList.Visibility = Visibility.Hidden;
+                        animationsList.Items.Clear();
+                        if (sceneView.HasAnimations)
+                        {
+                            sceneView.Animations.ForEach(m =>
+                            {
+                                animationsList.Items.Add(m);
+                            });
+
+                            animationsList.Visibility = Visibility.Visible;
+                        }
                     });
                 });
             }
         }
-
-        /*
-         * 生成Gcode按钮
-         * 问题：参数未配置
-         */
-        //private void ButtonMakeGcode_Click(object sender, RoutedEventArgs e)
-        //{
-        //    if (stlModel == null)
-        //    {
-        //        MessageBox.Show("请先加载STL文件", "无法生成");
-        //        return;
-        //    }
-        //    ParameterizedThreadStart threadStart = new ParameterizedThreadStart(MakeThreadProc);
-        //    Thread thread = new Thread(threadStart);
-        //    thread.Start(filePath);
-        //}
-        //public static void MakeThreadProc(object obj)
-        //{
-        //    MakeSTLGcode makeSTLGcode = new MakeSTLGcode(obj.ToString());
-        //}
 
         /*
          * 调用ShowSTL3D类，显示3D图形
@@ -384,7 +378,7 @@ namespace RuiJi.Slice.App
             //    myviewer.Camera = stlModel.nearerCamera(e.Delta / 120 * middleSpeed * (-1));
             //}
 
-            sceneView.Zoom(e.Delta > 0);
+            sceneView.Zoom(e.Delta < 0);
         }
 
         protected override void OnMouseMove(MouseEventArgs e)
@@ -425,21 +419,13 @@ namespace RuiJi.Slice.App
             }
         }
 
-        //private void btn_world_Click(object sender, RoutedEventArgs e)
-        //{
-        //    if (stlModel != null)
-        //    {
-        //        if (!m_worldArrow)
-        //        {
-        //            myViewport3D.Children.Add(stlModel.DrawWroldLine());
-        //        }
-        //        //                 else
-        //        //                 {
-        //        //                     int index = myViewport3D.Children.IndexOf(stlModel.GetWorldLine());
-        //        //                     myViewport3D.Children.RemoveAt(index);
-        //        //                 }
-        //        m_worldArrow = !m_worldArrow;
-        //    }
-        //}
+        private void animationsList_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            if (animationsList.SelectedItem != null)
+            {
+                var name = animationsList.SelectedItem.ToString();
+                sceneView.Play(name);
+            }
+        }
     }
 }

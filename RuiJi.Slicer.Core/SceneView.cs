@@ -3,25 +3,51 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media;
+using System.Windows.Media.Animation;
 using System.Windows.Media.Effects;
 using System.Windows.Media.Imaging;
 using System.Windows.Media.Media3D;
+using System.Windows.Threading;
 
 namespace RuiJi.Slicer.Core
 {
     public class SceneView
     {
         private Viewport3D viewport3D;
+        private AssimpContext assimpContext;
+        private Scene aiScene;
         private Point3D cameraResetPosition;
         private int zoomPercentage = 100;
         private DirectionalLight cameraLight;
+        private Task aniTask;
+        private Model3DGroup meshModelGroup = new Model3DGroup();
+
+        public string AnimationName { get; private set; }
+
+        public bool HasAnimations
+        {
+            get
+            {
+                return aiScene.HasAnimations;
+            }
+        }
+
+        public List<string> Animations
+        {
+            get
+            {
+                return aiScene.Animations.Select(m => m.Name).ToList();
+            }
+        }
 
         public SceneView(Viewport3D viewport3D)
         {
+            assimpContext = new AssimpContext();
             this.viewport3D = viewport3D;
 
             var modelLight = new ModelVisual3D();
@@ -41,13 +67,11 @@ namespace RuiJi.Slicer.Core
 
             var camera = new PerspectiveCamera();
             camera.FieldOfView = 60;
-            camera.Position = cameraResetPosition = new Point3D(0, 100, 200);
-            camera.LookDirection = new System.Windows.Media.Media3D.Vector3D(0, -0.5, -1);
-            camera.UpDirection = new System.Windows.Media.Media3D.Vector3D(0, 0, -1);
-            cameraLight.Direction = camera.LookDirection * camera.Transform.Value;
             camera.Changed += Camera_Changed;
 
             this.viewport3D.Camera = camera;
+
+            Lookat(new Point3D(), 100);
         }
 
         private void Camera_Changed(object sender, EventArgs e)
@@ -95,7 +119,7 @@ namespace RuiJi.Slicer.Core
             model.Freeze();
 
             var worldline = new ModelVisual3D();
-            worldline.Content = model;            
+            worldline.Content = model;
 
             viewport3D.Children.Add(worldline);
         }
@@ -115,14 +139,19 @@ namespace RuiJi.Slicer.Core
             var camera = viewport3D.Camera as PerspectiveCamera;
 
             cameraResetPosition = lookat;
-            cameraResetPosition.Z += radius * 2;
-            cameraResetPosition.Y += radius * 2;
+            cameraResetPosition.Z += radius * 3;
+            cameraResetPosition.Y += radius * 1.5;
 
             camera.Position = cameraResetPosition;
             camera.LookDirection = lookat - cameraResetPosition;
             camera.NearPlaneDistance = 0;
-            camera.FarPlaneDistance = radius * 100;
-            camera.UpDirection = new System.Windows.Media.Media3D.Vector3D(0,1,0);
+            camera.FarPlaneDistance = radius * 10000;
+            camera.UpDirection = new System.Windows.Media.Media3D.Vector3D(0, 1, 0);
+
+            var da = new Point3DAnimation();
+            da.Duration = new Duration(TimeSpan.FromSeconds(1));
+            da.To = cameraResetPosition;
+            camera.BeginAnimation(PerspectiveCamera.PositionProperty, da);
         }
 
         public void Zoom(bool zoomIn)
@@ -133,7 +162,7 @@ namespace RuiJi.Slicer.Core
             }
             else
             {
-                zoomPercentage -= zoomPercentage > 50 ? 10 : 0;
+                zoomPercentage -= zoomPercentage > 0 ? 1 : 0;
             }
 
             Zoom(zoomPercentage);
@@ -143,7 +172,11 @@ namespace RuiJi.Slicer.Core
         {
             var camera = viewport3D.Camera as PerspectiveCamera;
             var v = new System.Windows.Media.Media3D.Vector3D(cameraResetPosition.X, cameraResetPosition.Y, cameraResetPosition.Z) * zoom / 100f;
-            camera.Position = new Point3D(v.X, v.Y, v.Z);
+
+            var da = new Point3DAnimation();
+            da.Duration = new Duration(TimeSpan.FromMilliseconds(100));
+            da.To = new Point3D(v.X, v.Y, v.Z); ;
+            camera.BeginAnimation(PerspectiveCamera.PositionProperty, da);
         }
 
         public void Load(string file)
@@ -153,47 +186,108 @@ namespace RuiJi.Slicer.Core
                 viewport3D.Children.RemoveAt(i);
             }
 
-            var context = new AssimpContext();
-            var s = context.ImportFile(file);
+            aiScene = assimpContext.ImportFile(file);
+            RenderMesh();
+            if (aiScene.HasAnimations)
+            {
+                //Play();
+            }
+        }
 
-            var geoModel = new GeometryModel3D();
+        public void Play(string name = "")
+        {
+            if (string.IsNullOrEmpty(name))
+                name = aiScene.Animations[0].Name;
+
+            AnimationName = name;
+
+            if (aniTask == null)
+            {
+                aniTask = new Task(() =>
+                {
+                    var anim = new Viewport.AssimpAnimation(aiScene);
+
+                    while (true)
+                    {
+                        var ani = aiScene.Animations.First(m => m.Name == AnimationName);
+
+                        for (float tick = 0; tick < ani.DurationInTicks; tick++)
+                        {
+                            try
+                            {
+                                viewport3D.Dispatcher.Invoke(() =>
+                                {
+                                    anim.Render(meshModelGroup, ani, tick);
+                                });
+
+                                Thread.Sleep(33);
+                            }
+                            catch { }
+                        }
+                    }
+                });
+
+                aniTask.Start();
+            }
+        }
+
+        public void Stop()
+        {
+            aniTask.Dispose();
+        }
+
+        private void RenderMesh()
+        {
+            meshModelGroup.Children.Clear();
+
+            if (!aiScene.HasMeshes)
+                return;
+
             var material = new DiffuseMaterial(new SolidColorBrush(Colors.SandyBrown));
             material.AmbientColor = Colors.SaddleBrown;
-            geoModel.Material = material;
 
-            var mesh = new MeshGeometry3D();
-            s.Meshes.ForEach(mm =>
+            foreach (var aiMesh in aiScene.Meshes)
             {
-                mm.Vertices.ForEach(m =>
+                var geoModel = new GeometryModel3D();
+                geoModel.Material = material;
+                geoModel.BackMaterial = material;
+                var mesh = new MeshGeometry3D();
+
+                aiMesh.Vertices.ForEach(m =>
                 {
                     mesh.Positions.Add(new Point3D(m.X, m.Y, m.Z));
                 });
 
-                mm.Normals.ForEach(m =>
+                aiMesh.Normals.ForEach(m =>
                 {
                     mesh.Normals.Add(new System.Windows.Media.Media3D.Vector3D(m.X, m.Y, m.Z));
                 });
 
-                mm.Faces.ForEach(m => {
+                aiMesh.Faces.ForEach(m =>
+                {
                     mesh.TriangleIndices.Add(m.Indices[0]);
                     mesh.TriangleIndices.Add(m.Indices[1]);
                     mesh.TriangleIndices.Add(m.Indices[2]);
                 });
-            });
-            geoModel.Geometry = mesh;
-            
-            var center = new Point3D((mesh.Bounds.X + mesh.Bounds.SizeX / 2), (mesh.Bounds.Y + mesh.Bounds.SizeY / 2),
-                                 (mesh.Bounds.Z + mesh.Bounds.SizeZ / 2));
-            var radius = (center - mesh.Bounds.Location).Length;
 
-            Lookat(center,radius);
+                geoModel.Geometry = mesh;
+                meshModelGroup.Children.Add(geoModel);
+            };
 
             var model = new ModelVisual3D();
-            model.Content = geoModel;
-            var rotation = new RotateTransform3D();
-            rotation.Rotation = new AxisAngleRotation3D(new System.Windows.Media.Media3D.Vector3D(1, 0, 0), -90);
-            model.Transform = rotation;
+            model.Content = meshModelGroup;
             viewport3D.Children.Add(model);
+
+            var bounds = new Rect3D();
+            meshModelGroup.Children.Select(m => m.Bounds).ToList().ForEach(m =>
+            {
+                bounds.Union(m);
+            });
+
+            var center = new Point3D((bounds.X + bounds.SizeX / 2), (bounds.Z + bounds.SizeZ / 2), (bounds.Y + bounds.SizeY / 2));
+            var radius = (center - bounds.Location).Length;
+
+            Lookat(center, radius);
         }
     }
 }

@@ -14,7 +14,7 @@
                 <TextBox Width="130" Margin="5" IsReadOnly="True" Name="path" ></TextBox>
                 <Button Click="ButtonOpenFile_Click" Height="20" Content="打开文件"/>
             </StackPanel>
-
+<ListView x:Name="animationsList" Visibility="Hidden" SelectionChanged="animationsList_SelectionChanged" />
             <GroupBox Margin="4,15,4,4" Header="硬件" Name="base_panel">
                 <Grid>
                     <!--定义行,3行-->
