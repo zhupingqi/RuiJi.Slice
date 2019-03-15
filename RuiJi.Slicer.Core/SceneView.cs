@@ -25,7 +25,9 @@ namespace RuiJi.Slicer.Core
         private int zoomPercentage = 100;
         private DirectionalLight cameraLight;
         private Task aniTask;
+        private CancellationTokenSource cancellationToken;
         private Model3DGroup meshModelGroup = new Model3DGroup();
+        private bool replaceCamera = false;
 
         public string AnimationName { get; private set; }
 
@@ -162,7 +164,7 @@ namespace RuiJi.Slicer.Core
             }
             else
             {
-                zoomPercentage -= zoomPercentage > 0 ? 1 : 0;
+                zoomPercentage -= zoomPercentage > 0 ? 10 : 0;
             }
 
             Zoom(zoomPercentage);
@@ -179,19 +181,34 @@ namespace RuiJi.Slicer.Core
             camera.BeginAnimation(PerspectiveCamera.PositionProperty, da);
         }
 
-        public void Load(string file)
+        public bool Load(string file)
         {
             for (int i = 2; i < viewport3D.Children.Count; i++)
             {
                 viewport3D.Children.RemoveAt(i);
             }
 
-            aiScene = assimpContext.ImportFile(file);
-            RenderMesh();
-            if (aiScene.HasAnimations)
+            if (cancellationToken != null)
             {
-                //Play();
+                cancellationToken.Cancel();
             }
+
+            try
+            {
+                aiScene = assimpContext.ImportFile(file);
+                RenderMesh();
+                if (aiScene.HasAnimations)
+                {
+                    //Play();
+                }
+
+                return true;
+            }
+            catch (Exception ex){
+                MessageBox.Show(ex.Message);
+            }
+
+            return false;
         }
 
         public void Play(string name = "")
@@ -201,34 +218,69 @@ namespace RuiJi.Slicer.Core
 
             AnimationName = name;
 
-            if (aniTask == null)
+            if (cancellationToken != null)
             {
-                aniTask = new Task(() =>
+                cancellationToken.Cancel();
+
+                while (true)
                 {
-                    var anim = new Viewport.AssimpAnimation(aiScene);
+                    if (aniTask.Status != TaskStatus.Running)
+                        break;
 
-                    while (true)
+                    Thread.Sleep(100);
+                }
+
+                aniTask.Dispose();
+                aniTask = null;
+            }
+
+            cancellationToken = new CancellationTokenSource();
+            replaceCamera = true;
+
+            aniTask = new Task(() =>
+            {
+                var anim = new Viewport.AssimpAnimation(aiScene);
+
+                while (!cancellationToken.Token.IsCancellationRequested)
+                {
+                    var ani = aiScene.Animations.SingleOrDefault(m => m.Name == AnimationName);
+
+                    if (ani == null)
+                        break;
+
+                    for (float tick = 0; tick < ani.DurationInTicks; tick++)
                     {
-                        var ani = aiScene.Animations.First(m => m.Name == AnimationName);
+                        if (cancellationToken.Token.IsCancellationRequested)
+                            break;
 
-                        for (float tick = 0; tick < ani.DurationInTicks; tick++)
+                        viewport3D.Dispatcher.Invoke(() =>
                         {
                             try
                             {
-                                viewport3D.Dispatcher.Invoke(() =>
+                                anim.Render(meshModelGroup, ani, tick);
+
+                                if (replaceCamera)
                                 {
-                                    anim.Render(meshModelGroup, ani, tick);
-                                });
+                                    var bounds = meshModelGroup.Bounds;
+                                    var center = new Point3D((bounds.X + bounds.SizeX / 2), (bounds.Z + bounds.SizeZ / 2), (bounds.Y + bounds.SizeY / 2));
+                                    var radius = (center - bounds.Location).Length;
 
-                                Thread.Sleep(33);
+                                    Lookat(center, radius);
+
+                                    replaceCamera = false;
+                                }
                             }
-                            catch { }
-                        }
-                    }
-                });
+                            catch {
+                                cancellationToken.Cancel();                                
+                            }
+                        });                        
 
-                aniTask.Start();
-            }
+                        Thread.Sleep((int)ani.TicksPerSecond);
+                    }
+                }
+            }, cancellationToken.Token);
+
+            aniTask.Start();            
         }
 
         public void Stop()
@@ -250,7 +302,7 @@ namespace RuiJi.Slicer.Core
             {
                 var geoModel = new GeometryModel3D();
                 geoModel.Material = material;
-                geoModel.BackMaterial = material;
+                //geoModel.BackMaterial = material;
                 var mesh = new MeshGeometry3D();
 
                 aiMesh.Vertices.ForEach(m =>
@@ -268,6 +320,13 @@ namespace RuiJi.Slicer.Core
                     mesh.TriangleIndices.Add(m.Indices[0]);
                     mesh.TriangleIndices.Add(m.Indices[1]);
                     mesh.TriangleIndices.Add(m.Indices[2]);
+
+                    if (m.IndexCount == 4)
+                    {
+                        mesh.TriangleIndices.Add(m.Indices[2]);
+                        mesh.TriangleIndices.Add(m.Indices[3]);
+                        mesh.TriangleIndices.Add(m.Indices[0]);
+                    }
                 });
 
                 geoModel.Geometry = mesh;

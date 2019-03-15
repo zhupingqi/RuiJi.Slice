@@ -311,9 +311,8 @@ namespace RuiJi.Slice.App
          */
         private void ButtonOpenFile_Click(object sender, RoutedEventArgs e)
         {
-
             var fileDlg = new System.Windows.Forms.OpenFileDialog();
-            fileDlg.Filter = "STL file(*.stl)|*.stl|FBX files(*.fbx)|*.fbx|all files(*.*)|*.*";
+            fileDlg.Filter = "all files(*.*)|*.*|STL file(*.stl)|*.stl|FBX files(*.fbx)|*.fbx";
             fileDlg.FilterIndex = 0;
             var result = fileDlg.ShowDialog();
 
@@ -330,22 +329,24 @@ namespace RuiJi.Slice.App
                         main_panel.Children.Add(loading);
 
                         //ShowSTLModel();
-                        sceneView.Load(fileDlg.FileName);
+                        if (sceneView.Load(fileDlg.FileName))
+                        {
+                            animationsList.Visibility = Visibility.Hidden;
+                            animationsList.Items.Clear();
+
+                            if (sceneView.HasAnimations)
+                            {
+                                sceneView.Animations.ForEach(m =>
+                                {
+                                    animationsList.Items.Add(m);
+                                });
+
+                                animationsList.Visibility = Visibility.Visible;
+                            }
+                        }
 
                         main_panel.Children.RemoveAt(main_panel.Children.Count - 1);
-                        trackBallDec.Visibility = Visibility.Visible;
-
-                        animationsList.Visibility = Visibility.Hidden;
-                        animationsList.Items.Clear();
-                        if (sceneView.HasAnimations)
-                        {
-                            sceneView.Animations.ForEach(m =>
-                            {
-                                animationsList.Items.Add(m);
-                            });
-
-                            animationsList.Visibility = Visibility.Visible;
-                        }
+                        trackBallDec.Visibility = Visibility.Visible;                        
                     });
                 });
             }

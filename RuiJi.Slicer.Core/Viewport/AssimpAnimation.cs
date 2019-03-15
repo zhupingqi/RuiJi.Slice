@@ -15,8 +15,6 @@ namespace RuiJi.Slicer.Core.Viewport
         private Dictionary<string, BoneInfo> allBones = new Dictionary<string, BoneInfo>();
         private Dictionary<int, Dictionary<int, List<VertexBoneInfo>>> meshVertexBoneInfos = new Dictionary<int, Dictionary<int, List<VertexBoneInfo>>>();
         private mat4 globalInverseTransform;
-        private bool isCache = false;
-        private Dictionary<int, Mesh> defaultCache = new Dictionary<int, Mesh>();
 
         public AssimpAnimation(Scene scene)
         {
@@ -75,9 +73,11 @@ namespace RuiJi.Slicer.Core.Viewport
 
                         var boneTransform = mat4.Identity;
 
+                        var sum = vertexWeights.Sum(m=>m.Weight);
+
                         vertexWeights.ForEach(info =>
                         {
-                            boneTransform += allBones[info.BoneName].finalTransformation * (float)info.Weight;
+                            boneTransform += allBones[info.BoneName].finalTransformation * (float)(info.Weight / sum);
                         });
 
                         var animPosition = new vec4(ver.X, ver.Y, ver.Z, 1.0f);
