@@ -5,8 +5,6 @@ VisualStudioVersion = 15.0.26430.15
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RuiJi.Slicer.Core", "RuiJi.Slicer.Core\RuiJi.Slicer.Core.csproj", "{C4F10E0A-E12F-4B66-9F2A-C6441A286349}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RuiJi.Slice.Console", "RuiJi.Slice.Console\RuiJi.Slice.Console.csproj", "{71EB7E31-D6A5-41E6-B4F1-8CCB66F7CE80}"
-EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RuiJi.Slice.Window", "RuiJi.Slice.Window\RuiJi.Slice.Window.csproj", "{7CD27988-ABEB-4185-A214-C641D4DA1725}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RuiJi.Slice.App", "RuiJi.Slice.App\RuiJi.Slice.App.csproj", "{2C9846AD-4863-4DC0-8C01-A85C5746CCC4}"
@@ -23,10 +21,6 @@ Global
 		{C4F10E0A-E12F-4B66-9F2A-C6441A286349}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{C4F10E0A-E12F-4B66-9F2A-C6441A286349}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{C4F10E0A-E12F-4B66-9F2A-C6441A286349}.Release|Any CPU.Build.0 = Release|Any CPU
-		{71EB7E31-D6A5-41E6-B4F1-8CCB66F7CE80}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{71EB7E31-D6A5-41E6-B4F1-8CCB66F7CE80}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{71EB7E31-D6A5-41E6-B4F1-8CCB66F7CE80}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{71EB7E31-D6A5-41E6-B4F1-8CCB66F7CE80}.Release|Any CPU.Build.0 = Release|Any CPU
 		{7CD27988-ABEB-4185-A214-C641D4DA1725}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{7CD27988-ABEB-4185-A214-C641D4DA1725}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{7CD27988-ABEB-4185-A214-C641D4DA1725}.Release|Any CPU.ActiveCfg = Release|Any CPU

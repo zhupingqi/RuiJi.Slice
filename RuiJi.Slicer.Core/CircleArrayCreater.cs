@@ -46,6 +46,7 @@ namespace RuiJi.Slicer.Core
                 planes.Add(new SlicePanelInfo(p,define.Axis, angle));
             }
 
+            planes.Reverse();
             return planes.ToArray();
         }
     }

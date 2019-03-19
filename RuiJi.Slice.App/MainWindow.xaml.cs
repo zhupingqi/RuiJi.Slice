@@ -25,6 +25,7 @@ using System.Windows.Navigation;
 using System.Windows.Shapes;
 using Assimp;
 using _3DTools;
+using RuiJi.Slicer.Core.Viewport;
 
 namespace RuiJi.Slice.App
 {
@@ -180,7 +181,7 @@ namespace RuiJi.Slice.App
                 {
                     sendMsg.Content = "正在切片...";
                 }));
-                var buff = GetFrameCode();//生成文件
+                var buff = GetFrameCode2();//生成文件
                 Dispatcher.Invoke(new Action(() =>
                 {
                     sendMsg.Content = "切片完成，开始发送";
@@ -227,7 +228,12 @@ namespace RuiJi.Slice.App
                     }
                 }
 
-                wb[0] = 3;
+                //wb[0] = 3;
+                //wb[1] = 0;
+                //stream.Write(wb, 0, wb.Length);
+                //WaitResposne(stream);
+
+                wb[0] = 4;
                 wb[1] = 0;
                 stream.Write(wb, 0, wb.Length);
                 WaitResposne(stream);
@@ -294,6 +300,71 @@ namespace RuiJi.Slice.App
             foreach (var key in results.Keys)
             {
                 var images = SliceImage.ToImage(results[key], doc.Size, 64, 32, 0, 0);
+                for (int i = 0; i < images.Count; i++)
+                {
+                    var bmp = images[i];
+                    frame += "," + im.GetMould(bmp);
+                }
+            }
+
+            frame = frame.TrimStart(',');
+            return frame.Split(',').Select(m => Byte.Parse(m.Replace("0x", ""), System.Globalization.NumberStyles.AllowHexSpecifier)).ToArray();
+        }
+
+        private byte[] GetFrameCode2()
+        {
+            string stlpath = "";
+            var frame = ",";
+            var facets = new List<Facet>();
+            var size = new ModelSize(0, 0, 0);
+
+            Dispatcher.Invoke(new Action(() =>
+            {
+                stlpath = path.Text;
+                var meshGroup = sceneView.MeshGroup.Clone();
+
+                foreach (GeometryModel3D geo in meshGroup.Children)
+                {
+                    var mesh = geo.Geometry as MeshGeometry3D;
+
+                    var b = meshGroup.Bounds;
+                    var factorX = b.SizeX / 64;
+                    var factorY = b.SizeY / 32;
+                    var factorZ = b.SizeZ / 64;
+
+                    var f = Math.Max(factorX, factorY);
+                    f = Math.Max(f, factorZ);
+
+                    var ff = f >= 1 ? f : 1 / f;
+                    var scale = new ScaleTransform3D(ff, ff, ff);
+
+                    for (int i = 0; i < mesh.TriangleIndices.Count; i += 3)
+                    {
+                        var p = mesh.Positions[mesh.TriangleIndices[i]];
+                        var p0 = new Vector3((float)p.X, (float)p.Y, (float)p.Z);
+                        p = mesh.Positions[mesh.TriangleIndices[i + 1]];
+                        var p1 = new Vector3((float)p.X, (float)p.Y, (float)p.Z);
+                        p = mesh.Positions[mesh.TriangleIndices[i + 2]];
+                        var p2 = new Vector3((float)p.X, (float)p.Y, (float)p.Z);
+
+                        facets.Add(new Facet(p0, p1, p2));
+                    }
+
+                    size.Width = (float)meshGroup.Bounds.SizeX;
+                    size.Length = (float)meshGroup.Bounds.SizeZ;
+                    size.Height = (float)meshGroup.Bounds.SizeY;
+                }
+            }));
+
+            var results = RuiJi.Slicer.Core.Slicer.DoSlice(facets.ToArray(), new ArrayDefine[] {
+                new ArrayDefine(new System.Numerics.Plane(0, 1, 0, 0), ArrayType.Circle, 200,360)
+            });
+
+            IImageMould im = new LED6432P();
+
+            foreach (var key in results.Keys)
+            {
+                var images = SliceImage.ToImage(results[key], size, 64, 32, 0, 0);
                 for (int i = 0; i < images.Count; i++)
                 {
                     var bmp = images[i];
@@ -379,7 +450,7 @@ namespace RuiJi.Slice.App
             //    myviewer.Camera = stlModel.nearerCamera(e.Delta / 120 * middleSpeed * (-1));
             //}
 
-            sceneView.Zoom(e.Delta < 0);
+            sceneView.LightCamera.Zoom(e.Delta < 0);
         }
 
         protected override void OnMouseMove(MouseEventArgs e)
@@ -427,6 +498,11 @@ namespace RuiJi.Slice.App
                 var name = animationsList.SelectedItem.ToString();
                 sceneView.Play(name);
             }
+        }
+
+        private void Button_Click(object sender, RoutedEventArgs e)
+        {
+            var buff = GetFrameCode2();
         }
     }
 }

@@ -44,6 +44,7 @@
             </GroupBox>
             <Button Name="btn_send" Click="ButtonSend_Click" Margin="130,10,10,0" IsEnabled="False">生成发送</Button>
             <Label Name="sendMsg"></Label>
+            <Button Content="Button" Click="Button_Click"/>
         </StackPanel>
         <tool3d:TrackballDecorator Name="trackBallDec" DockPanel.Dock="Top">
             <Viewport3D Name="myViewport3D" >

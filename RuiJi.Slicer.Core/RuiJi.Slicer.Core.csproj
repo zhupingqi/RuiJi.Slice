@@ -68,7 +68,7 @@
     <Compile Include="ImageMould\SSD1306.cs" />
     <Compile Include="LineSegment.cs" />
     <Compile Include="ArrayDefine.cs" />
-    <Compile Include="SceneView.cs" />
+    <Compile Include="Viewport\SceneView.cs" />
     <Compile Include="SlicedPlane.cs" />
     <Compile Include="SliceImage.cs" />
     <Compile Include="SlicePanelInfo.cs" />
@@ -77,7 +77,7 @@
     <Compile Include="Viewport\AssimpAnimation.cs" />
     <Compile Include="Viewport\BoneInfo.cs" />
     <Compile Include="Viewport\InterpolatedHelper.cs" />
-    <Compile Include="Viewport\Camera.cs" />
+    <Compile Include="Viewport\DirectionalLightCamera.cs" />
     <Compile Include="Viewport\GroundPlane.cs" />
     <Compile Include="Viewport\MathHelper.cs" />
     <Compile Include="Viewport\VertexBoneInfo.cs" />
