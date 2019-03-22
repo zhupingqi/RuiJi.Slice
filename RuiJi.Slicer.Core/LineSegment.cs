@@ -50,6 +50,14 @@ namespace RuiJi.Slicer.Core
             private set;
         }
 
+        public float Lenght
+        {
+            get
+            {
+                return (Start - End).Length();
+            }
+        }
+
         public LineSegment(Vector3 a, Vector3 b)
         {
             this.Start = a;

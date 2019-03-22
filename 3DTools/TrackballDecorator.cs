@@ -36,13 +36,20 @@ namespace _3DTools
 {
     public class TrackballDecorator : Viewport3DDecorator
     {
+        private Point _previousPosition2D;
+        private Vector3D _previousPosition3D = new Vector3D(0, 0, 1);
+
+        private Point _worldpreviousPosition2D;
+        private Vector3D _worldpreviousPosition3D = new Vector3D(0, 0, 1);
+
+        private Transform3DGroup _worldtransform;
+        private ScaleTransform3D _worldscale = new ScaleTransform3D();
+        private AxisAngleRotation3D _worldrotation = new AxisAngleRotation3D();
+
+        private Border _eventSource;
+
         public TrackballDecorator()
         {
-            // the transform that will be applied to the viewport 3d's camera
-            _transform = new Transform3DGroup();
-            _transform.Children.Add(_scale);
-            _transform.Children.Add(new RotateTransform3D(_rotation));
-
             _worldtransform = new Transform3DGroup();
             _worldtransform.Children.Add(_worldscale);
             _worldtransform.Children.Add(new RotateTransform3D(_worldrotation));
@@ -55,28 +62,12 @@ namespace _3DTools
             PreViewportChildren.Add(_eventSource);
         }
 
-        /// <summary>
-        ///     A transform to move the camera or scene to the trackball's
-        ///     current orientation and scale.
-        /// </summary>
-        public Transform3D Transform
-        {
-            get { return _transform; }
-        }
-
-        public Transform3D WorldTransform
-        {
-            get { return _worldtransform; }
-        }
-
         #region Event Handling
-
         protected override void OnMouseDown(MouseButtonEventArgs e)
         {
             base.OnMouseDown(e);
             if (e.LeftButton == MouseButtonState.Pressed)
             {
-
                 _previousPosition2D = e.GetPosition(this);
                 _previousPosition3D = ProjectToTrackball(ActualWidth,
                                                          ActualHeight,
@@ -116,24 +107,20 @@ namespace _3DTools
                 // avoid any zero axis conditions
                 if (currentPosition == _previousPosition2D) return;
 
-
-                
                 // Prefer tracking to zooming if both buttons are pressed.
                 if (e.LeftButton == MouseButtonState.Pressed)
                 {
-                    Track(currentPosition);
+                    var _rotation = Track(currentPosition);
 
                     _previousPosition2D = currentPosition;
 
                     Viewport3D viewport3D = this.Viewport3D;
                     if (viewport3D != null)
                     {
-                        if (viewport3D.Children[0] != null)
+                        if (viewport3D.Children.Count > 2)
                         {
-                            if (viewport3D.Children[viewport3D.Children.Count-1].Transform != _transform)
-                            {
-                                viewport3D.Children[viewport3D.Children.Count - 1].Transform = _transform;
-                            }
+                            var m = viewport3D.Children[viewport3D.Children.Count - 1].Transform as Transform3DGroup;
+                            m.Children[2] = new RotateTransform3D(_rotation);
                         }
                     }
                 }
@@ -158,18 +145,12 @@ namespace _3DTools
                             }
                         }
                     }
-
                 }
-
-
-
-
             }
         }
-
         #endregion Event Handling
 
-        private void Track(Point currentPosition)
+        private AxisAngleRotation3D Track(Point currentPosition)
         {
             Vector3D currentPosition3D = ProjectToTrackball(
                 ActualWidth, ActualHeight, currentPosition);
@@ -180,11 +161,12 @@ namespace _3DTools
             // quaterion will throw if this happens - sometimes we can get 3D positions that
             // are very similar, so we avoid the throw by doing this check and just ignoring
             // the event 
-            if (axis.Length == 0) return;
+            if (axis.Length == 0) return new AxisAngleRotation3D();
 
             Quaternion delta = new Quaternion(axis, -angle);
 
             // Get the current orientantion from the RotateTransform3D
+            var _rotation = ((Viewport3D.Children[Viewport3D.Children.Count - 1].Transform as Transform3DGroup).Children[2] as RotateTransform3D).Rotation as AxisAngleRotation3D;
             AxisAngleRotation3D r = _rotation;
             Quaternion q = new Quaternion(_rotation.Axis, _rotation.Angle);
 
@@ -196,6 +178,8 @@ namespace _3DTools
             _rotation.Angle = q.Angle;
 
             _previousPosition3D = currentPosition3D;
+
+            return _rotation;
         }
 
         private void TrackWorld(Point currentPosition)
@@ -240,49 +224,5 @@ namespace _3DTools
 
             return new Vector3D(x, y, z);
         }
-
-        private void Zoom(Point currentPosition)
-        {
-            double yDelta = currentPosition.Y - _previousPosition2D.Y;
-
-            double scale = Math.Exp(yDelta / 100);    // e^(yDelta/100) is fairly arbitrary.
-
-            _scale.ScaleX *= scale;
-            _scale.ScaleY *= scale;
-            _scale.ScaleZ *= scale;
-        }
-        private void ZoomWorld(Point currentPosition)
-        {
-            double yDelta = currentPosition.Y - _worldpreviousPosition2D.Y;
-
-            double scale = Math.Exp(yDelta / 100);    // e^(yDelta/100) is fairly arbitrary.
-
-            _worldscale.ScaleX *= scale;
-            _worldscale.ScaleY *= scale;
-            _worldscale.ScaleZ *= scale;
-        }
-
-        //--------------------------------------------------------------------
-        //
-        // Private data
-        //
-        //--------------------------------------------------------------------
-
-        private Point _previousPosition2D;
-        private Vector3D _previousPosition3D = new Vector3D(0, 0, 1);
-
-        private Transform3DGroup _transform;
-        private ScaleTransform3D _scale = new ScaleTransform3D();
-        private AxisAngleRotation3D _rotation = new AxisAngleRotation3D(new System.Windows.Media.Media3D.Vector3D(1, 0, 0), -90);
-
-
-        private Point _worldpreviousPosition2D;
-        private Vector3D _worldpreviousPosition3D = new Vector3D(0, 0, 1);
-
-        private Transform3DGroup _worldtransform;
-        private ScaleTransform3D _worldscale = new ScaleTransform3D();
-        private AxisAngleRotation3D _worldrotation = new AxisAngleRotation3D();
-
-        private Border _eventSource;
     }
 }

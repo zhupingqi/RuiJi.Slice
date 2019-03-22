@@ -104,6 +104,7 @@ namespace RuiJi.Slicer.Core.Viewport
             {
                 var scaling = InterpolatedHelper.CalcInterpolatedScaling(time, animationChannel);
                 var scalingM = mat4.Scale(scaling.X, scaling.Y, scaling.Z);
+                scalingM = mat4.Identity;
 
                 var rotation = InterpolatedHelper.CalcInterpolatedRotation(time, animationChannel).GetMatrix();
                 var rotationM = new Assimp.Matrix4x4(rotation).ToMat4();

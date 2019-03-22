@@ -167,89 +167,6 @@ namespace RuiJi.Slice.App
             catch { }
         }
 
-        private void ButtonSend_Click(object sender, RoutedEventArgs e)
-        {
-            if (!client.Client.Connected)
-            {
-                MessageBox.Show("请先链接一个蓝牙设备");
-                return;
-            }
-            sendMsg.Content = "启动切片";
-            Task.Run(new Action(() =>
-            {
-                Dispatcher.Invoke(new Action(() =>
-                {
-                    sendMsg.Content = "正在切片...";
-                }));
-                var buff = GetFrameCode2();//生成文件
-                Dispatcher.Invoke(new Action(() =>
-                {
-                    sendMsg.Content = "切片完成，开始发送";
-                }));
-                var stream = client.GetStream();
-
-                var cmd = new byte[4];
-                var process = 0;
-                var sum = 200 * 10;
-
-                //reset led
-                var wb = ConcatCMD(cmd);
-                wb[0] = 1;
-                wb[1] = 0xC8;
-                stream.Write(wb, 0, wb.Length);
-                WaitResposne(stream);
-
-                cmd[0] = 2;
-
-                //transmit frame data
-                for (byte i = 0; i < 200; i++)
-                {
-                    cmd[1] = i;
-
-                    var data = buff.Skip(i * 320).Take(320).ToArray();
-                    wb = ConcatCMD(cmd, data).ToArray();
-
-                    try
-                    {
-                        stream.Write(wb, 0, wb.Length);
-                        WaitResposne(stream);
-
-                        process++;
-                        Dispatcher.Invoke(new Action(() =>
-                        {
-                            sendMsg.Content = "发送进度:" + (i * 100f / 200) + "%";
-                        }));
-                    }
-                    catch (Exception ex)
-                    {
-                        MessageBox.Show(ex.Message);
-                        i = 200;
-                        break;
-                    }
-                }
-
-                //wb[0] = 3;
-                //wb[1] = 0;
-                //stream.Write(wb, 0, wb.Length);
-                //WaitResposne(stream);
-
-                wb[0] = 4;
-                wb[1] = 0;
-                stream.Write(wb, 0, wb.Length);
-                WaitResposne(stream);
-
-                Dispatcher.Invoke(new Action(() =>
-                {
-                    sendMsg.Content = "发送完成";
-                }));
-            }));
-
-            //client.Client.Send(dataBuffer, System.Net.Sockets.SocketFlags.None);
-            //stream.Close();
-
-            //MessageBox.Show("发送完成");
-        }
-
         private byte[] ConcatCMD(byte[] cmd, byte[] data = null)
         {
             if (data != null)
@@ -262,6 +179,8 @@ namespace RuiJi.Slice.App
         {
             var rb = new byte[2];
             stream.ReadTimeout = 100;
+
+            Thread.Sleep(100);
 
             while (true)
             {
@@ -279,102 +198,6 @@ namespace RuiJi.Slice.App
             }
         }
         #endregion
-
-        private byte[] GetFrameCode()
-        {
-            string stlpath = "";
-            var frame = ",";
-            Dispatcher.Invoke(new Action(() =>
-            {
-                stlpath = path.Text;
-            }));
-            var doc = STLDocument.Open(stlpath);
-            doc.MakeCenter();
-
-            var results = RuiJi.Slicer.Core.Slicer.DoSlice(doc.Facets.ToArray(), new ArrayDefine[] {
-                new ArrayDefine(new System.Numerics.Plane(0, 1, 0, 0), ArrayType.Circle, 200,360)
-            });
-
-            IImageMould im = new LED6432P();
-
-            foreach (var key in results.Keys)
-            {
-                var images = SliceImage.ToImage(results[key], doc.Size, 64, 32, 0, 0);
-                for (int i = 0; i < images.Count; i++)
-                {
-                    var bmp = images[i];
-                    frame += "," + im.GetMould(bmp);
-                }
-            }
-
-            frame = frame.TrimStart(',');
-            return frame.Split(',').Select(m => Byte.Parse(m.Replace("0x", ""), System.Globalization.NumberStyles.AllowHexSpecifier)).ToArray();
-        }
-
-        private byte[] GetFrameCode2()
-        {
-            string stlpath = "";
-            var frame = ",";
-            var facets = new List<Facet>();
-            var size = new ModelSize(0, 0, 0);
-
-            Dispatcher.Invoke(new Action(() =>
-            {
-                stlpath = path.Text;
-                var meshGroup = sceneView.MeshGroup.Clone();
-
-                foreach (GeometryModel3D geo in meshGroup.Children)
-                {
-                    var mesh = geo.Geometry as MeshGeometry3D;
-
-                    var b = meshGroup.Bounds;
-                    var factorX = b.SizeX / 64;
-                    var factorY = b.SizeY / 32;
-                    var factorZ = b.SizeZ / 64;
-
-                    var f = Math.Max(factorX, factorY);
-                    f = Math.Max(f, factorZ);
-
-                    var ff = f >= 1 ? f : 1 / f;
-                    var scale = new ScaleTransform3D(ff, ff, ff);
-
-                    for (int i = 0; i < mesh.TriangleIndices.Count; i += 3)
-                    {
-                        var p = mesh.Positions[mesh.TriangleIndices[i]];
-                        var p0 = new Vector3((float)p.X, (float)p.Y, (float)p.Z);
-                        p = mesh.Positions[mesh.TriangleIndices[i + 1]];
-                        var p1 = new Vector3((float)p.X, (float)p.Y, (float)p.Z);
-                        p = mesh.Positions[mesh.TriangleIndices[i + 2]];
-                        var p2 = new Vector3((float)p.X, (float)p.Y, (float)p.Z);
-
-                        facets.Add(new Facet(p0, p1, p2));
-                    }
-
-                    size.Width = (float)meshGroup.Bounds.SizeX;
-                    size.Length = (float)meshGroup.Bounds.SizeZ;
-                    size.Height = (float)meshGroup.Bounds.SizeY;
-                }
-            }));
-
-            var results = RuiJi.Slicer.Core.Slicer.DoSlice(facets.ToArray(), new ArrayDefine[] {
-                new ArrayDefine(new System.Numerics.Plane(0, 1, 0, 0), ArrayType.Circle, 200,360)
-            });
-
-            IImageMould im = new LED6432P();
-
-            foreach (var key in results.Keys)
-            {
-                var images = SliceImage.ToImage(results[key], size, 64, 32, 0, 0);
-                for (int i = 0; i < images.Count; i++)
-                {
-                    var bmp = images[i];
-                    frame += "," + im.GetMould(bmp);
-                }
-            }
-
-            frame = frame.TrimStart(',');
-            return frame.Split(',').Select(m => Byte.Parse(m.Replace("0x", ""), System.Globalization.NumberStyles.AllowHexSpecifier)).ToArray();
-        }
 
         /*
          * 打开文件对话框按钮
@@ -399,7 +222,6 @@ namespace RuiJi.Slice.App
                         trackBallDec.Visibility = Visibility.Hidden;
                         main_panel.Children.Add(loading);
 
-                        //ShowSTLModel();
                         if (sceneView.Load(fileDlg.FileName))
                         {
                             animationsList.Visibility = Visibility.Hidden;
@@ -412,7 +234,7 @@ namespace RuiJi.Slice.App
                                     animationsList.Items.Add(m);
                                 });
 
-                                animationsList.Visibility = Visibility.Visible;
+                                animationsList.Visibility = Visibility.Visible;                               
                             }
                         }
 
@@ -421,22 +243,6 @@ namespace RuiJi.Slice.App
                     });
                 });
             }
-        }
-
-        /*
-         * 调用ShowSTL3D类，显示3D图形
-         */
-        public void ShowSTLModel()
-        {
-            stlModel = new ShowSTL3D(path.Text);
-            var myviewer = FindName("myViewport3D") as Viewport3D;
-            myviewer.Children.Clear();
-            myviewer.Children.Add(stlModel.GetMyModelVisual3D());
-            myviewer.Children.Add(stlModel.myModelVisual3D());
-
-            myviewer.Children.Add(stlModel.DrawWroldLine());
-
-            myviewer.Camera = stlModel.MyCamera();
         }
 
         //滚轮事件
@@ -495,14 +301,223 @@ namespace RuiJi.Slice.App
         {
             if (animationsList.SelectedItem != null)
             {
-                var name = animationsList.SelectedItem.ToString();
+                var name = animationsList.SelectedItem.ToString().Split('@')[0];
                 sceneView.Play(name);
             }
         }
 
-        private void Button_Click(object sender, RoutedEventArgs e)
+        private void BtnMeshSend_Click(object sender, RoutedEventArgs e)
         {
-            var buff = GetFrameCode2();
+            if (!client.Client.Connected)
+            {
+                MessageBox.Show("请先链接一个蓝牙设备");
+                return;
+            }
+
+            Task.Run(new Action(() =>
+            {
+                Dispatcher.Invoke(new Action(() =>
+                {
+                    sendMsg.Content = "正在切片...";
+                }));
+
+                var r = new AxisAngleRotation3D(new System.Windows.Media.Media3D.Vector3D(1, 0, 0), 90);
+
+                var buff = GetFrameBuff(sceneView.MeshGroup, r);
+
+                Dispatcher.Invoke(new Action(() =>
+                {
+                    sendMsg.Content = "切片完成，开始发送";
+                }));
+
+                SendData(buff, 0, true);
+
+                Dispatcher.Invoke(new Action(() =>
+                {
+                    sendMsg.Content = "发送完成";
+                }));
+            }));
+        }
+
+        private void Btn_AnimationSend_Click(object sender, RoutedEventArgs e)
+        {
+            if (animationsList.SelectedItem != null)
+            {
+                var name = animationsList.SelectedItem.ToString().Split('@')[0];
+                var ticks = sceneView.GetAnimationTicks(name);
+                if (ticks > 5)
+                    ticks = 5;
+
+                var model = sceneView.GetAnimationTick(name, 1);
+
+                Task.Run(() =>
+                {
+                    for (int i = 0; i < ticks; i++)
+                    {
+                        Dispatcher.Invoke(new Action(() =>
+                        {
+                            sendMsg.Content = "正在进行动画帧 " + i + " 切片...";
+                        }));
+                        
+                        var buff = GetFrameBuff(model);
+
+                        Dispatcher.Invoke(new Action(() =>
+                        {
+                            sendMsg.Content = "动画帧 " + i + " 切片完成，开始发送";
+                        }));
+
+                        SendData(buff, (byte)i,i == ticks - 1);
+
+                        Dispatcher.Invoke(new Action(() =>
+                        {
+                            sendMsg.Content = "动画帧 " + i + "发送完成";
+                        }));
+                    }
+
+                    Dispatcher.Invoke(new Action(() =>
+                    {
+                        sendMsg.Content = "传输完成";
+                    }));
+                });
+            }
+        }
+
+        private void SendData(byte[] buff, byte tick,bool start = false)
+        {
+            var stream = client.GetStream();
+
+            var cmd = new byte[4];
+            var process = 0;
+
+            //reset led , stop irq and timer
+            var wb = ConcatCMD(cmd);
+            wb[0] = 1;
+            wb[1] = 0xC8;
+            stream.Write(wb, 0, wb.Length);
+            WaitResposne(stream);
+
+            cmd[0] = 2;
+
+            //transmit frame data
+            for (byte i = 0; i < 200; i++)
+            {
+                cmd[1] = i;
+
+                var data = buff.Skip(i * 320).Take(320).ToArray();
+                wb = ConcatCMD(cmd, data).ToArray();
+
+                try
+                {
+                    stream.Write(wb, 0, wb.Length);
+                    WaitResposne(stream);
+
+                    process++;
+                    Dispatcher.Invoke(new Action(() =>
+                    {
+                        sendMsg.Content = "帧" + tick + "动画发送进度:" + (i * 100f / 200) + "%";
+                    }));
+                }
+                catch (Exception ex)
+                {
+                    MessageBox.Show(ex.Message);
+                    i = 200;
+                    break;
+                }
+            }
+
+            //save buff to spiflash
+            //wb[0] = 3;
+            //wb[1] = tick;
+            //stream.Write(wb, 0, wb.Length);
+            //WaitResposne(stream);
+
+            //start irq and timer
+            if (start)
+            {
+                wb[0] = 4;
+                wb[1] = 0;
+                stream.Write(wb, 0, wb.Length);
+                WaitResposne(stream);
+            }
+        }
+
+        private byte[] GetFrameBuff(Model3DGroup meshGroup, AxisAngleRotation3D rotation = null)
+        {
+            string stlpath = "";
+            var frame = ",";
+            var facets = new List<Facet>();
+            var size = new ModelSize(64, 64, 32);
+
+            var axis = new System.Windows.Media.Media3D.Vector3D(); 
+            var angle = 0d;
+            if(rotation != null)
+            {
+                axis = rotation.Axis;
+                angle = rotation.Angle;
+            }
+
+            Dispatcher.Invoke(new Action(() =>
+            {
+                stlpath = path.Text;
+                var cloneMeshGroup = meshGroup.Clone();
+
+                var transform = myViewport3D.Children[myViewport3D.Children.Count - 1].Transform.Clone() as Transform3DGroup;
+                if (rotation != null)
+                {
+                    var t = (transform.Children[2]  as RotateTransform3D).Rotation as AxisAngleRotation3D;
+
+                    var delta = new System.Windows.Media.Media3D.Quaternion(axis, angle);
+                    var q = new System.Windows.Media.Media3D.Quaternion(t.Axis, t.Angle);
+
+                    q *= delta;
+
+                    t.Axis = q.Axis;
+                    t.Angle = q.Angle;
+                }
+
+                foreach (GeometryModel3D geo in cloneMeshGroup.Children)
+                {
+                    var mesh = geo.Geometry as MeshGeometry3D;
+
+                    for (int i = 0; i < mesh.TriangleIndices.Count; i += 3)
+                    {
+                        var p = mesh.Positions[mesh.TriangleIndices[i]];
+                        p = transform.Transform(p);                        
+                        var p0 = new Vector3((float)p.X, (float)p.Y, (float)p.Z);
+
+                        p = mesh.Positions[mesh.TriangleIndices[i + 1]];
+                        p = transform.Transform(p);
+                        var p1 = new Vector3((float)p.X, (float)p.Y, (float)p.Z);
+
+                        p = mesh.Positions[mesh.TriangleIndices[i + 2]];
+                        p = transform.Transform(p);
+                        var p2 = new Vector3((float)p.X, (float)p.Y, (float)p.Z);
+
+                        facets.Add(new Facet(p0, p1, p2));
+                    }
+                }
+            }));
+
+            facets.RemoveAll(m => m.TooSmall);
+
+            var results = RuiJi.Slicer.Core.Slicer.DoSlice(facets.ToArray(), new ArrayDefine[] {
+                new ArrayDefine(new System.Numerics.Plane(0, 1, 0, 0), ArrayType.Circle, 200,360)
+            });
+
+            IImageMould im = new LED6432P();
+
+            foreach (var key in results.Keys)
+            {
+                var images = SliceImage.ToImage(results[key], size, 64, 32, 0, 0);
+                for (int i = 0; i < images.Count; i++)
+                {
+                    var bmp = images[i];
+                    frame += "," + im.GetMould(bmp);
+                }
+            }
+
+            frame = frame.TrimStart(',');
+            return frame.Split(',').Select(m => Byte.Parse(m.Replace("0x", ""), System.Globalization.NumberStyles.AllowHexSpecifier)).ToArray();
         }
     }
 }

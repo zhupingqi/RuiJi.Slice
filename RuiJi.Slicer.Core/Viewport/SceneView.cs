@@ -1,4 +1,5 @@
 ﻿using Assimp;
+using GlmSharp;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -42,7 +43,7 @@ namespace RuiJi.Slicer.Core.Viewport
         {
             get
             {
-                return aiScene.Animations.Select(m => m.Name).ToList();
+                return aiScene.Animations.Select(m => m.Name + "@" + m.DurationInTicks).ToList();
             }
         }
 
@@ -77,15 +78,24 @@ namespace RuiJi.Slicer.Core.Viewport
                 viewport3D.Children.RemoveAt(i);
             }
 
-            if (cancellationToken != null)
-            {
-                cancellationToken.Cancel();
-            }
+            Stop();
 
             try
             {
                 aiScene = assimpContext.ImportFile(file);
-                RenderMesh();
+                var rotation = new AxisAngleRotation3D();
+                if (file.EndsWith(".stl"))
+                {
+                    rotation = new AxisAngleRotation3D(new System.Windows.Media.Media3D.Vector3D(1, 0, 0), -90);
+                }
+
+                RenderMesh(rotation);
+
+                if (aiScene.HasAnimations)
+                {
+                    Play();
+                }
+
                 return true;
             }
             catch (Exception ex)
@@ -103,21 +113,7 @@ namespace RuiJi.Slicer.Core.Viewport
 
             AnimationName = name;
 
-            if (cancellationToken != null)
-            {
-                cancellationToken.Cancel();
-
-                while (true)
-                {
-                    if (aniTask.Status != TaskStatus.Running)
-                        break;
-
-                    Thread.Sleep(100);
-                }
-
-                aniTask.Dispose();
-                aniTask = null;
-            }
+            Stop();
 
             cancellationToken = new CancellationTokenSource();
             replaceCamera = true;
@@ -142,15 +138,12 @@ namespace RuiJi.Slicer.Core.Viewport
                         {
                             try
                             {
+                                var transform = viewport3D.Children[2].Transform as Transform3DGroup;
                                 anim.Render(MeshGroup, ani, tick);
 
                                 if (replaceCamera)
                                 {
-                                    var bounds = MeshGroup.Bounds;
-                                    var center = new Point3D((bounds.X + bounds.SizeX / 2), (bounds.Z + bounds.SizeZ / 2), (bounds.Y + bounds.SizeY / 2));
-                                    var radius = (center - bounds.Location).Length;
-
-                                    LightCamera.Lookat(center, radius);
+                                    LightCamera.Lookat(new Point3D(0, 0, 0), 64);
 
                                     replaceCamera = false;
                                 }
@@ -169,7 +162,39 @@ namespace RuiJi.Slicer.Core.Viewport
             aniTask.Start();
         }
 
-        private void RenderMesh()
+        public Model3DGroup GetAnimationTick(string name,int tick)
+        {
+            var anim = new Viewport.AssimpAnimation(aiScene);
+            var ani = aiScene.Animations.SingleOrDefault(m => m.Name == name);
+            var cloneMesh = MeshGroup.Clone();
+            anim.Render(cloneMesh, ani, tick);
+
+            return cloneMesh;
+        }
+
+        public int GetAnimationTicks(string name)
+        {
+            var ani = aiScene.Animations.SingleOrDefault(m => m.Name == name);
+            return (int)ani.DurationInTicks;
+        }
+
+        public void Stop()
+        {
+            if (cancellationToken != null)
+            {
+                cancellationToken.Cancel();
+
+                while (true)
+                {
+                    if (aniTask.Status != TaskStatus.Running)
+                        break;
+
+                    Thread.Sleep(100);
+                }
+            }
+        }
+
+        private void RenderMesh(Rotation3D rotation3D)
         {
             MeshGroup.Children.Clear();
 
@@ -212,21 +237,30 @@ namespace RuiJi.Slicer.Core.Viewport
 
                 geoModel.Geometry = mesh;
                 MeshGroup.Children.Add(geoModel);
-            };
+            }
+
+            var b = MeshGroup.Bounds;
+            var center = new Point3D((b.X + b.SizeX / 2), (b.Y + b.SizeY / 2), (b.Z + b.SizeZ / 2));
+            var radius = (center - b.Location).Length;
+
+            var s = 32 / radius;
+            if (b.SizeZ * s > 64)
+            {
+                s = 32 / b.SizeZ;
+            }
 
             var model = new ModelVisual3D();
             model.Content = MeshGroup;
+
+            var g = new Transform3DGroup();            
+            g.Children.Add(new TranslateTransform3D(-center.X, -center.Y, -center.Z));
+            g.Children.Add(new ScaleTransform3D(s, s, s));
+            g.Children.Add(new RotateTransform3D(rotation3D));
+
             viewport3D.Children.Add(model);
+            viewport3D.Children[2].Transform = g;
 
-            var bounds = MeshGroup.Bounds;
-
-            var center = new Point3D((bounds.X + bounds.SizeX / 2), (bounds.Z + bounds.SizeZ / 2), (bounds.Y + bounds.SizeY / 2));
-            var radius = (center - bounds.Location).Length;
-
-            var t = MeshGroup.Transform as MatrixTransform3D;
-            t.Matrix.Translate(new System.Windows.Media.Media3D.Vector3D() - new System.Windows.Media.Media3D.Vector3D(-center.X, Math.Abs(center.Y), -center.Z)); 
-
-            LightCamera.Lookat(center, radius);
+            LightCamera.Lookat(new Point3D(0, 0, 0), 64);
         }
     }
 }

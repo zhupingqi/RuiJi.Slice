@@ -61,6 +61,14 @@ namespace RuiJi.Slicer.Core
             internal set;
         }
 
+        public bool TooSmall
+        {
+            get
+            {
+                return Math.Round(Lines[0].Lenght) == 0 || Math.Round(Lines[1].Lenght) == 0 || Math.Round(Lines[2].Lenght) == 0;
+            }
+        }
+
         public Facet(Vector3 v1,Vector3 v2,Vector3 v3 )
         {
             this.Vertices = new Vector3[] {

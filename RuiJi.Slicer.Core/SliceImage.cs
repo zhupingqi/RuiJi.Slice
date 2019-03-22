@@ -98,11 +98,11 @@ namespace RuiJi.Slicer.Core
         {
             //对角线不应超出宽度
             var fd = 1f;
-            var diagonal = (float)Math.Sqrt(size.Width * size.Width + size.Length * size.Length);
-            if (diagonal > imageWidth)
-            {
-                fd = imageWidth / diagonal;
-            }
+            //var diagonal = (float)Math.Sqrt(size.Width * size.Width + size.Height * size.Height);
+            //if (diagonal > imageWidth)
+            //{
+                //fd = imageWidth / diagonal;
+            //}
 
             var fw = 1f;
             var fh = 1f;
