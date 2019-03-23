@@ -32,9 +32,9 @@ using System.Drawing;
 using System.IO;
 using RuiJi.Slicer.Core.File;
 
-namespace RuiJi.Slicer.Core
+namespace RuiJi.Slicer.Core.Slicer
 {
-    public class SliceImage
+    public class CircleSlicer
     {
         /// <summary>
         /// 切片转图片
@@ -48,19 +48,20 @@ namespace RuiJi.Slicer.Core
         /// <returns></returns>
         public static List<Bitmap> ToImage(List<SlicedPlane> slicedPlane, ModelSize size, int imageWidth, int imageHeight, int offsetX = 0, int offsetY = 0)
         {
-            var firstNormal = slicedPlane.First().Plane.Normal;
+            var firstNormal = (slicedPlane.First().SlicePlane as CircleSlicePlaneInfo).Plane.Normal;
             var images = new List<Bitmap>();
 
             foreach (var sp in slicedPlane)
             {
                 var lines = new List<Vector2[]>();
+                var info = sp.SlicePlane as CircleSlicePlaneInfo;
 
                 var origin = new Vector3(0, 0, 0);
-                if (sp.Plane.D != 0)
-                    origin = firstNormal * sp.Plane.D;
+                if (info.Plane.D != 0)
+                    origin = firstNormal * info.Plane.D;
 
-                var a = -sp.Angle;
-                var q = Matrix4x4.CreateFromAxisAngle(sp.Axis, a);
+                var a = -info.Angle;
+                var q = Matrix4x4.CreateFromAxisAngle(info.Axis, a);
                 q.Translation = -origin;
 
                 foreach (var line in sp.Lines)
@@ -72,8 +73,8 @@ namespace RuiJi.Slicer.Core
                     //var e = To2D(sp,line.End);
 
                     lines.Add(new Vector2[] {
-                        new Vector2(s.X,s.Z),
-                        new Vector2(e.X,e.Z)
+                        new Vector2(s.X,s.Y),
+                        new Vector2(e.X,e.Y)
                     });
                 }
 
@@ -140,15 +141,17 @@ namespace RuiJi.Slicer.Core
 
         public static Vector2 To2D(SlicedPlane sp, Vector3 p)
         {
+            var info = sp.SlicePlane as CircleSlicePlaneInfo;
+
             var PO = new Vector3(0, 0, 0);
-            if (sp.Plane.D != 0)
-                PO = sp.Plane.Normal * sp.Plane.D;
+            if (info.Plane.D != 0)
+                PO = info.Plane.Normal * info.Plane.D;
 
-            var n = Vector3.Cross(sp.Axis, sp.Plane.Normal);
+            var n = Vector3.Cross(info.Axis, info.Plane.Normal);
 
-            Vector3 vectorX = new Vector3(sp.Axis.X, 0, 0);
-            Vector3 vectorY = new Vector3(0, sp.Axis.Y, 0); // plane.Normal; 
-            Vector3 vectorZ = new Vector3(0, 0, sp.Axis.Z);
+            Vector3 vectorX = new Vector3(info.Axis.X, 0, 0);
+            Vector3 vectorY = new Vector3(0, info.Axis.Y, 0); // plane.Normal; 
+            Vector3 vectorZ = new Vector3(0, 0, info.Axis.Z);
 
             var q = new Matrix4x4()
             {
@@ -173,7 +176,6 @@ namespace RuiJi.Slicer.Core
             var qq = Quaternion.CreateFromRotationMatrix(q);
 
             var np = Vector3.Transform(p, qq);
-
 
             return new Vector2(np.X, np.Z);
         }

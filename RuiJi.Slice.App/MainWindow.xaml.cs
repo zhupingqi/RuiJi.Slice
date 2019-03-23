@@ -26,6 +26,8 @@ using System.Windows.Shapes;
 using Assimp;
 using _3DTools;
 using RuiJi.Slicer.Core.Viewport;
+using RuiJi.Slicer.Core.Array;
+using RuiJi.Slicer.Core.Slicer;
 
 namespace RuiJi.Slice.App
 {
@@ -341,6 +343,10 @@ namespace RuiJi.Slice.App
 
         private void Btn_AnimationSend_Click(object sender, RoutedEventArgs e)
         {
+            GetFrameBuff(sceneView.MeshGroup);
+
+            return;
+
             if (animationsList.SelectedItem != null)
             {
                 var name = animationsList.SelectedItem.ToString().Split('@')[0];
@@ -462,18 +468,6 @@ namespace RuiJi.Slice.App
                 var cloneMeshGroup = meshGroup.Clone();
 
                 var transform = myViewport3D.Children[myViewport3D.Children.Count - 1].Transform.Clone() as Transform3DGroup;
-                if (rotation != null)
-                {
-                    var t = (transform.Children[2]  as RotateTransform3D).Rotation as AxisAngleRotation3D;
-
-                    var delta = new System.Windows.Media.Media3D.Quaternion(axis, angle);
-                    var q = new System.Windows.Media.Media3D.Quaternion(t.Axis, t.Angle);
-
-                    q *= delta;
-
-                    t.Axis = q.Axis;
-                    t.Angle = q.Angle;
-                }
 
                 foreach (GeometryModel3D geo in cloneMeshGroup.Children)
                 {
@@ -500,18 +494,23 @@ namespace RuiJi.Slice.App
 
             facets.RemoveAll(m => m.TooSmall);
 
-            var results = RuiJi.Slicer.Core.Slicer.DoSlice(facets.ToArray(), new ArrayDefine[] {
-                new ArrayDefine(new System.Numerics.Plane(0, 1, 0, 0), ArrayType.Circle, 200,360)
+            //var results = SlicerHelper.DoCircleSlice(facets.ToArray(), new CircleArrayDefine[] {
+            //    new CircleArrayDefine(new System.Numerics.Plane(0, 0, 1, 0), 200,360)
+            //});
+
+            var results = SlicerHelper.DoLinearSlice(facets.ToArray(), new LinearArrayDefine[] {
+                new LinearArrayDefine(new System.Numerics.Vector3(0, 1, 0), 32,-16,16)
             });
 
-            IImageMould im = new LED6432P();
+            IImageMould im = new LED6432LP();
 
             foreach (var key in results.Keys)
             {
-                var images = SliceImage.ToImage(results[key], size, 64, 32, 0, 0);
+                var images = LinearSlicer.ToImage(results[key], size, 64, 64, 0, 0);
                 for (int i = 0; i < images.Count; i++)
                 {
                     var bmp = images[i];
+                    //bmp.Save(AppDomain.CurrentDomain.BaseDirectory + i + ".bmp");
                     frame += "," + im.GetMould(bmp);
                 }
             }

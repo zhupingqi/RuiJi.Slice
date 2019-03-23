@@ -21,6 +21,7 @@ License along with wiringPi.
 If not, see <http://www.gnu.org/licenses/>.
 */
 
+using RuiJi.Slicer.Core.Slicer;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -28,33 +29,26 @@ using System.Numerics;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace RuiJi.Slicer.Core
+namespace RuiJi.Slicer.Core.Array
 {
-    public class ArrayFactory
+    public class CircleArrayCreater : IArrayCreater<CircleArrayDefine>
     {
-        public ArrayDefine ArrayDefine
+        public ISlicePlane[] CreateArrayPlane(CircleArrayDefine define)
         {
-            get;
-            set;
-        }
+            var planes = new List<ISlicePlane>();
 
-        public ArrayFactory()
-        {
-
-        }
-
-        public SlicePanelInfo[] CreatePlane(ArrayDefine define)
-        {
-            switch (define.ArrayType)
+            var step = define.Angle / define.Count;
+            for (int i = 0; i < define.Count; i++)
             {
-                case ArrayType.Circle:
-                    {
-                        var creater = new CircleArrayCreater();
-                        return creater.CreateArrayPlane(define);
-                    }
+                var angle = i * step * (float)Math.PI / 180f;
+                var m = Matrix4x4.CreateFromAxisAngle(define.Axis,angle);
+                
+                var p = Plane.Transform(define.Plane, m);
+                planes.Add(new CircleSlicePlaneInfo(p,define.Axis, angle));
             }
 
-            return null;
+            //planes.Reverse();
+            return planes.ToArray();
         }
     }
 }

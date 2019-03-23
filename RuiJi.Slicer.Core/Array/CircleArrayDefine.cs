@@ -24,30 +24,24 @@ If not, see <http://www.gnu.org/licenses/>.
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Numerics;
 using System.Text;
 using System.Threading.Tasks;
+using System.Numerics;
 
-namespace RuiJi.Slicer.Core
+namespace RuiJi.Slicer.Core.Array
 {
-    public class SlicePanelInfo
+    /// <summary>
+    /// 阵列定义
+    /// </summary>
+    public class CircleArrayDefine : ArrayBase
     {
         /// <summary>
-        /// 初始面
+        /// 旋转面
         /// </summary>
         public Plane Plane
         {
             get;
-            private set;
-        }
-
-        /// <summary>
-        /// 旋转角度
-        /// </summary>
-        public float Angle
-        {
-            get;
-            private set;
+            set;
         }
 
         /// <summary>
@@ -56,32 +50,25 @@ namespace RuiJi.Slicer.Core
         public Vector3 Axis
         {
             get;
-            private set;
+            set;
         }
 
         /// <summary>
-        /// 面X坐标轴
+        /// 切片弧度
         /// </summary>
-        public Vector3 PlaneAxisX
+        public float Angle
         {
             get;
-            private set;
+            set;
         }
 
-        /// <summary>
-        /// 面Y坐标轴
-        /// </summary>
-        public Vector3 PlaneAxisY
-        {
-            get;
-            private set;
-        }
 
-        public SlicePanelInfo(Plane plane, Vector3 axis, float angle)
+        public CircleArrayDefine(Plane plane , int count = 50, float angle = 360f)
         {
             this.Plane = plane;
-            this.Axis = axis;
+            this.Count = count;
             this.Angle = angle;
+            this.Axis = new Vector3(0, 1, 0);
         }
     }
 }

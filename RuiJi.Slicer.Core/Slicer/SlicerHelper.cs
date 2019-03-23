@@ -21,6 +21,7 @@ License along with wiringPi.
 If not, see <http://www.gnu.org/licenses/>.
 */
 
+using RuiJi.Slicer.Core.Array;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -28,36 +29,69 @@ using System.Numerics;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace RuiJi.Slicer.Core
+namespace RuiJi.Slicer.Core.Slicer
 {
-    public class Slicer
+    public class SlicerHelper
     {
-        public static Dictionary<ArrayDefine, List<SlicedPlane>> DoSlice(Facet[] facets, ArrayDefine[] defines)
+        public static Dictionary<CircleArrayDefine, List<SlicedPlane>> DoCircleSlice(Facet[] facets, CircleArrayDefine[] defines)
         {
-            var results = new Dictionary<ArrayDefine,List<SlicedPlane>>();
+            var results = new Dictionary<CircleArrayDefine,List<SlicedPlane>>();
 
             foreach (var define in defines)
             {
                 var result = new List<SlicedPlane>();
 
-                var factory = new ArrayFactory();
-                var planes = factory.CreatePlane(define);
+                var factory = new CircleArrayCreater();
+                var planes = factory.CreateArrayPlane(define);
 
                 foreach (var p in planes)
                 {
-                    var sp = new SlicedPlane(p.Plane,p.Axis,p.Angle);
+                    var planeInfo = p as CircleSlicePlaneInfo;
+                    var sp = new SlicedPlane(planeInfo);
 
                     result.Add(sp);
 
                     foreach (var f in facets)
                     {
-                        var segs = GetPlaneCross(f, p.Plane);
+                        var segs = GetPlaneCross(f, planeInfo.Plane);
                         if(segs.Count > 0)
                             sp.Lines.AddRange(segs);
                     }
                 }
 
                 results.Add(define,result);
+            }
+
+            return results;
+        }
+
+        public static Dictionary<LinearArrayDefine, List<SlicedPlane>> DoLinearSlice(Facet[] facets, LinearArrayDefine[] defines)
+        {
+            var results = new Dictionary<LinearArrayDefine, List<SlicedPlane>>();
+
+            foreach (var define in defines)
+            {
+                var result = new List<SlicedPlane>();
+
+                var factory = new LinearArrayCreater();
+                var planes = factory.CreateArrayPlane(define);
+
+                foreach (var p in planes)
+                {
+                    var planeInfo = p as LinearSlicePlaneInfo;
+                    var sp = new SlicedPlane(planeInfo);
+
+                    result.Add(sp);
+
+                    foreach (var f in facets)
+                    {
+                        var segs = GetPlaneCross(f, planeInfo.Plane);
+                        if (segs.Count > 0)
+                            sp.Lines.AddRange(segs);
+                    }
+                }
+
+                results.Add(define, result);
             }
 
             return results;

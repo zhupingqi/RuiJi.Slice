@@ -21,27 +21,49 @@ License along with wiringPi.
 If not, see <http://www.gnu.org/licenses/>.
 */
 
+using System;
+using System.Collections.Generic;
+using System.Linq;
 using System.Numerics;
+using System.Text;
+using System.Threading.Tasks;
 
-namespace RuiJi.Slicer.Core
+namespace RuiJi.Slicer.Core.Slicer
 {
-    public interface IArrayCreater
+    public class CircleSlicePlaneInfo : ISlicePlane
     {
-        SlicePanelInfo[] CreateArrayPlane(ArrayDefine define);
-    }
+        /// <summary>
+        /// 初始面
+        /// </summary>
+        public Plane Plane
+        {
+            get;
+            private set;
+        }
 
-    /// <summary>
-    /// 阵列类型
-    /// </summary>
-    public enum ArrayType
-    {
         /// <summary>
-        /// 圆周阵列
+        /// 旋转角度
         /// </summary>
-        Circle,
+        public float Angle
+        {
+            get;
+            private set;
+        }
+
         /// <summary>
-        /// 线性阵列
+        /// 旋转轴
         /// </summary>
-        Line
+        public Vector3 Axis
+        {
+            get;
+            private set;
+        }
+
+        public CircleSlicePlaneInfo(Plane plane, Vector3 axis, float angle)
+        {
+            this.Plane = plane;
+            this.Axis = axis;
+            this.Angle = angle;
+        }
     }
 }
