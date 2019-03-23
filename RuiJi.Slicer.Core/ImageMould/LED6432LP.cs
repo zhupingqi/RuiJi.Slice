@@ -30,7 +30,6 @@ namespace RuiJi.Slicer.Core.ImageMould
 
             bmp.RotateFlip(RotateFlipType.Rotate180FlipX);
 
-            var buff = new List<string>();
             var b = new List<string>();
 
             for (int i = 0; i < height; i++)
@@ -52,7 +51,7 @@ namespace RuiJi.Slicer.Core.ImageMould
                 }
             }
 
-            return "";
+            return string.Join(",",b.ToArray());
 
             //var c = MakeBuff2(b);
 

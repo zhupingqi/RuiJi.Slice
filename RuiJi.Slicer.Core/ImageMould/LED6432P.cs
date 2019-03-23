@@ -29,7 +29,6 @@ namespace RuiJi.Slicer.Core.ImageMould
 
             bmp.RotateFlip(RotateFlipType.Rotate180FlipX);
 
-            var buff = new List<string>();
             var b = new Dictionary<int, List<string>>();
 
             for (int i = 0; i < height; i++)

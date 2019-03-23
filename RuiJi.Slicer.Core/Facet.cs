@@ -65,7 +65,7 @@ namespace RuiJi.Slicer.Core
         {
             get
             {
-                return Math.Round(Lines[0].Lenght) == 0 || Math.Round(Lines[1].Lenght) == 0 || Math.Round(Lines[2].Lenght) == 0;
+                return Math.Round(Lines[0].Lenght) == 0 && Math.Round(Lines[1].Lenght) == 0 && Math.Round(Lines[2].Lenght) == 0;
             }
         }
 
