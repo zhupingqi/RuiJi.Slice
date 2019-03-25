@@ -14,16 +14,14 @@ namespace RuiJi.Slicer.Core.Viewport
     {
         private Scene aiScene;
         private Dictionary<string, BoneInfo> allBones = new Dictionary<string, BoneInfo>();
-        private Dictionary<int, Dictionary<int, List<VertexBoneInfo>>> meshVertexBoneInfos = new Dictionary<int, Dictionary<int, List<VertexBoneInfo>>>();
+        private Dictionary<int, Dictionary<int, List<VertexBoneInfo>>> aiMeshVertexBoneInfos = new Dictionary<int, Dictionary<int, List<VertexBoneInfo>>>();
         private mat4 globalInverseTransform;
-
-        public Transform3D Transform { get; set; }
 
         public Model3DGroup BaseModel { get; private set; }
 
         public Animation animation { get; private set; }
 
-        private Dictionary<float, Model3DGroup> cache = new Dictionary<float, Model3DGroup>();
+        private Dictionary<double, Model3DGroup> cache = new Dictionary<double, Model3DGroup>();
 
         public Rect3D Bounds { get; private set; }
 
@@ -59,8 +57,8 @@ namespace RuiJi.Slicer.Core.Viewport
                         allBones.Add(b.Name, new BoneInfo(b));
                 });
 
-                meshVertexBoneInfos.Add(meshId, new Dictionary<int, List<VertexBoneInfo>>());
-                var vertexBoneInfos = meshVertexBoneInfos[meshId];
+                aiMeshVertexBoneInfos.Add(meshId, new Dictionary<int, List<VertexBoneInfo>>());
+                var vertexBoneInfos = aiMeshVertexBoneInfos[meshId];
 
                 aiMesh.Bones.ForEach(bone => {
                     bone.VertexWeights.ForEach(vertexWeight => {
@@ -102,27 +100,9 @@ namespace RuiJi.Slicer.Core.Viewport
                 geoModel.Geometry = mesh;
                 BaseModel.Children.Add(geoModel);
             }
-
-            //var b = MeshGroup.Bounds;
-            //var center = new Point3D((b.X + b.SizeX / 2), (b.Y + b.SizeY / 2), (b.Z + b.SizeZ / 2));
-            //var radius = (center - b.Location).Length;
-
-            //var s = 32 / radius;
-            //if (b.SizeZ * s > 64)
-            //{
-            //    s = 32 / b.SizeZ;
-            //}
-
-            //var model = new ModelVisual3D();
-            //model.Content = MeshGroup;
-
-            //var g = new Transform3DGroup();
-            //g.Children.Add(new TranslateTransform3D(-center.X, -center.Y, -center.Z));
-            //g.Children.Add(new ScaleTransform3D(s, s, s));
-            //g.Children.Add(new RotateTransform3D(rotation3D));
         }
 
-        public Model3DGroup Render(float time)
+        public Model3DGroup Render(double time)
         {
             var meshs = BaseModel.Clone();
 
@@ -131,12 +111,12 @@ namespace RuiJi.Slicer.Core.Viewport
 
             for (int meshId = 0; meshId < aiScene.MeshCount; meshId++)
             {
-                if (!meshVertexBoneInfos.ContainsKey(meshId))
+                if (!aiMeshVertexBoneInfos.ContainsKey(meshId))
                     continue;
 
                 var mesh = aiScene.Meshes[meshId];
                 var mesh3D = (meshs.Children[meshId] as GeometryModel3D).Geometry as MeshGeometry3D;
-                var vertextBoneWeights = meshVertexBoneInfos[meshId];
+                var vertextBoneWeights = aiMeshVertexBoneInfos[meshId];
 
                 for (int vertexId = 0; vertexId < mesh.VertexCount; vertexId++)
                 {
@@ -169,7 +149,7 @@ namespace RuiJi.Slicer.Core.Viewport
             return meshs;
         }
 
-        public Model3DGroup GetCache(float time)
+        public Model3DGroup GetCache(double time)
         {
             if (!cache.ContainsKey(time))
             {
@@ -179,11 +159,11 @@ namespace RuiJi.Slicer.Core.Viewport
             return cache[time];
         }
 
-        private void PreRender(float? time = null)
+        private void PreRender(double? time = null)
         {
             if (!time.HasValue)
             {
-                for (float tick = 0; tick < animation.DurationInTicks; tick++)
+                for (double tick = 0; tick < animation.DurationInTicks; tick++)
                 {
                     TransformNode(tick, aiScene.RootNode, globalInverseTransform);
 
@@ -204,7 +184,7 @@ namespace RuiJi.Slicer.Core.Viewport
             }
         }
 
-        private void TransformNode(float time, Node aiNode, mat4 parentTransform)
+        private void TransformNode(double time, Node aiNode, mat4 parentTransform)
         {
             var name = aiNode.Name;
             var nodeTransform = aiNode.Transform.ToMat4();
@@ -213,14 +193,13 @@ namespace RuiJi.Slicer.Core.Viewport
 
             if (animationChannel != null)
             {
-                var scaling = InterpolatedHelper.CalcInterpolatedScaling(time, animationChannel);
+                var scaling = InterpolatedHelper.CalcInterpolatedScaling((float)time, animationChannel);
                 var scalingM = mat4.Scale(scaling.X, scaling.Y, scaling.Z);
-                scalingM = mat4.Identity;
 
-                var rotation = InterpolatedHelper.CalcInterpolatedRotation(time, animationChannel).GetMatrix();
+                var rotation = InterpolatedHelper.CalcInterpolatedRotation((float)time, animationChannel).GetMatrix();
                 var rotationM = new Assimp.Matrix4x4(rotation).ToMat4();
 
-                var translation = InterpolatedHelper.CalcInterpolatedPosition(time, animationChannel);
+                var translation = InterpolatedHelper.CalcInterpolatedPosition((float)time, animationChannel);
                 var translationM = mat4.Translate(translation.X, translation.Y, translation.Z);
 
                 nodeTransform = translationM * rotationM * scalingM;

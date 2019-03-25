@@ -2,7 +2,6 @@
 using InTheHand.Net.Bluetooth;
 using InTheHand.Net.Sockets;
 using RuiJi.Slicer.Core;
-using RuiJi.Slicer.Core.File;
 using RuiJi.Slicer.Core.ImageMould;
 using System;
 using System.Collections.Generic;
@@ -36,23 +35,14 @@ namespace RuiJi.Slice.App
     /// </summary>
     public partial class MainWindow : Window
     {
-        private ShowSTL3D stlModel = null;
-
-        private int middleSpeed = 10;     //滚轮的速度
-
         BluetoothClient client;
         Dictionary<string, BluetoothAddress> deviceAddresses = new Dictionary<string, BluetoothAddress>();
-        IAsyncResult connectResult = null;
-        SceneView sceneView = null;
+        IAsyncResult connectResult;
+        SceneView sceneView;
 
         public MainWindow()
         {
             InitializeComponent();
-            //fileDlg.InitialDirectory = "D:\\";
-
-            //var context = new AssimpContext();
-            //var s = context.ImportFile(@"D:\云同步\vcoded\RuiJi.Slice\RuiJi.Slice.App\bin\Debug\fbx\Boat.stl");
-
             sceneView = new SceneView(myViewport3D);
         }
 
@@ -123,26 +113,9 @@ namespace RuiJi.Slice.App
             BluetoothAddress address = deviceAddresses[deviceName];
             var point = new BluetoothEndPoint(address, BluetoothService.SerialPort);
 
-
-            //while ((!(BluetoothSecurity.PairRequest(address, "1234"))) && count < max)
-            //{
-            //    Thread.Sleep(100);
-            //}
-
-            //if (count == max)
-            //{
-            //    MessageBox.Show("配对错误");
-            //}
-            //else
-            //{
             client.SetPin(address, "1234");
             sendMsg.Content = "正在链接...";
             connectResult = client.BeginConnect(point, RemoteDeviceConnect, deviceName);
-            //}
-
-
-            //client.Connect(address, BluetoothService.SerialPort);
-            // MessageBox.Show("已连接" + deviceName);
         }
 
         private void RemoteDeviceConnect(IAsyncResult result)// 异步连接完成
@@ -177,34 +150,51 @@ namespace RuiJi.Slice.App
                 return cmd.Concat(new byte[320]).ToArray();
         }
 
-        private void WaitResposne(NetworkStream stream)
+        private bool WaitResposne(NetworkStream stream)
         {
             var rb = new byte[2];
             stream.ReadTimeout = 100;
 
             Thread.Sleep(100);
 
-            while (true)
+            try
             {
-                try
-                {
-                    stream.Read(rb, 0, 2);
-                    if (rb[0] == 79 && rb[1] == 75)
-                        break;
-                }
-                catch (Exception ex)
-                {
-                    break;
-                }
+                stream.Read(rb, 0, 1);
+                stream.Read(rb, 1, 1);
+            }
+            catch
+            {
 
             }
+
+            if (rb[0] == 79 && rb[1] == 75)
+            {
+                return true;
+            }
+
+            return false;
         }
         #endregion
 
-        /*
-         * 打开文件对话框按钮
-         * 返回值：所选的文件的路径
-         */
+        #region 滚轮事件
+        protected override void OnMouseWheel(MouseWheelEventArgs e)
+        {
+            base.OnMouseWheel(e);
+
+            sceneView.LightCamera.Zoom(e.Delta < 0);
+        }
+
+        protected override void OnMouseMove(MouseEventArgs e)
+        {
+            base.OnMouseMove(e);
+        }
+
+        protected override void OnMouseDown(MouseButtonEventArgs e)
+        {
+            base.OnMouseDown(e);
+        } 
+        #endregion
+
         private void ButtonOpenFile_Click(object sender, RoutedEventArgs e)
         {
             var fileDlg = new System.Windows.Forms.OpenFileDialog();
@@ -244,58 +234,6 @@ namespace RuiJi.Slice.App
                         trackBallDec.Visibility = Visibility.Visible;                        
                     });
                 });
-            }
-        }
-
-        //滚轮事件
-        protected override void OnMouseWheel(MouseWheelEventArgs e)
-        {
-            base.OnMouseWheel(e);
-
-            //if (stlModel != null && e.LeftButton == MouseButtonState.Released)  //放大缩小
-            //{
-            //    var myviewer = FindName("myViewport3D") as Viewport3D;
-            //    myviewer.Camera = stlModel.nearerCamera(e.Delta / 120 * middleSpeed * (-1));
-            //}
-
-            sceneView.LightCamera.Zoom(e.Delta < 0);
-        }
-
-        protected override void OnMouseMove(MouseEventArgs e)
-        {
-            base.OnMouseMove(e);
-        }
-
-        protected override void OnMouseDown(MouseButtonEventArgs e)
-        {
-            base.OnMouseDown(e);
-            //if (e.MiddleButton == MouseButtonState.Pressed)
-            //{
-            //    middleSpeed += 5;
-            //    if (middleSpeed > 20)
-            //    {
-            //        middleSpeed = 10;
-            //    }
-            //}
-            if (e.RightButton == MouseButtonState.Pressed && stlModel != null)
-            {
-                //var myviewer = FindName("myViewport3D") as Viewport3D;
-                //var findviewer = FindName("trackBallDec") as _3DTools.TrackballDecorator;
-                //Transform3D transfrom3D = findviewer.Transform;
-
-                //myviewer.Children.Remove(stlModel.GetModelVisual3D());
-                //myviewer.Children.Add(stlModel.TransModelVisual3D(transfrom3D));
-
-            }
-            else if (e.LeftButton == MouseButtonState.Pressed && stlModel != null)
-            {
-                //var myviewer = FindName("myViewport3D") as Viewport3D;
-                //var findviewer = FindName("trackBallDec") as _3DTools.TrackballDecorator;
-
-                //Transform3D transfrom3D = findviewer.Transform;
-                //myviewer.Children.Remove(stlModel.GetModelVisual3D());
-
-                //myviewer.Children.Add(stlModel.TransModelVisual3DWithoutWorld(transfrom3D));
             }
         }
 
@@ -351,19 +289,28 @@ namespace RuiJi.Slice.App
             {
                 var name = animationsList.SelectedItem.ToString().Split('@')[0];
                 var ticks = sceneView.GetAnimationTicks(name);
-                if (ticks > 5)
-                    ticks = 5;
+                var mt = 30;
+                if (ticks < mt)
+                    mt = ticks;
+
+                var tickList = new List<double>();
+                for (double i = 0; i < mt; i++)
+                {
+                    tickList.Add(Math.Round(ticks*i/(mt-1))-1);
+                }
+
+                tickList[0] = 0;
 
                 Task.Run(() =>
                 {
-                    for (int i = 0; i < ticks; i++)
+                    for (int i = 0; i < tickList.Count; i++)
                     {
                         Dispatcher.Invoke(new Action(() =>
                         {
                             sendMsg.Content = "正在进行动画帧 " + i + " 切片...";
                         }));
 
-                        var model = sceneView.GetAnimationTick(name, i);
+                        var model = sceneView.GetAnimationTick(tickList[i]);
                         var buff = GetFrameBuff(model);
 
                         Dispatcher.Invoke(new Action(() =>
@@ -371,7 +318,7 @@ namespace RuiJi.Slice.App
                             sendMsg.Content = "动画帧 " + i + " 切片完成，开始发送";
                         }));
 
-                        SendData(buff, (byte)i,i == ticks - 1);
+                        SendData(buff, (byte)i, i == tickList.Count - 1);
 
                         Dispatcher.Invoke(new Action(() =>
                         {
@@ -430,11 +377,11 @@ namespace RuiJi.Slice.App
                 }
             }
 
-            //save buff to spiflash
-            //wb[0] = 3;
-            //wb[1] = tick;
-            //stream.Write(wb, 0, wb.Length);
-            //WaitResposne(stream);
+            //save buff to spi flash
+            wb[0] = 3;
+            wb[1] = tick;
+            stream.Write(wb, 0, wb.Length);
+            WaitResposne(stream);
 
             //start irq and timer
             if (start)
@@ -489,7 +436,7 @@ namespace RuiJi.Slice.App
                 }
             }));
 
-            facets.RemoveAll(m => m.TooSmall);
+            //facets.RemoveAll(m => m.TooSmall);
 
             var results = SlicerHelper.DoCircleSlice(facets.ToArray(), new CircleArrayDefine[] {
                 new CircleArrayDefine(new System.Numerics.Plane(0, 0, 1, 0), 200,360)
@@ -554,7 +501,7 @@ namespace RuiJi.Slice.App
                 }
             }));
 
-            facets.RemoveAll(m => m.TooSmall);
+            //facets.RemoveAll(m => m.TooSmall);
 
             var results = SlicerHelper.DoLinearSlice(facets.ToArray(), new LinearArrayDefine[] {
                 new LinearArrayDefine(new System.Numerics.Vector3(0, 1, 0), 32,-16,16)

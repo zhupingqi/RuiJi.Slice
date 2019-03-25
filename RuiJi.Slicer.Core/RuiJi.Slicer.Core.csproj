@@ -62,9 +62,7 @@
     <Compile Include="Slicer\LinearSlicePlaneInfo.cs" />
     <Compile Include="Slicer\ISlicePlane.cs" />
     <Compile Include="Facet.cs" />
-    <Compile Include="File\IDocument.cs" />
-    <Compile Include="File\STLDocument.cs" />
-    <Compile Include="File\ModelSize.cs" />
+    <Compile Include="Slicer\ModelSize.cs" />
     <Compile Include="Array\LinearArrayCreater.cs" />
     <Compile Include="ImageMould\IImageMould.cs" />
     <Compile Include="Array\IArrayCreater.cs" />

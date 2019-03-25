@@ -20,9 +20,9 @@ namespace RuiJi.Slicer.Core.Viewport
     public class SceneView
     {
         private Viewport3D viewport3D;
-        private AssimpContext assimpContext;
         private Scene aiScene;
         private Thread aniThread;
+        private AssimpAnimation assimpAnimation;
 
         public Model3DGroup MeshGroup { get; private set; }
         public DirectionalLightCamera LightCamera { get; private set; }
@@ -47,7 +47,6 @@ namespace RuiJi.Slicer.Core.Viewport
         {
             MeshGroup = new Model3DGroup();
 
-            assimpContext = new AssimpContext();
             this.viewport3D = viewport3D;
 
             LightCamera = new DirectionalLightCamera(this.viewport3D);
@@ -78,6 +77,7 @@ namespace RuiJi.Slicer.Core.Viewport
 
             try
             {
+                var assimpContext = new AssimpContext();
                 aiScene = assimpContext.ImportFile(file);
                 var rotation = new AxisAngleRotation3D();
                 if (file.EndsWith(".stl"))
@@ -115,10 +115,9 @@ namespace RuiJi.Slicer.Core.Viewport
             var replaceCamera = true;
 
             aniThread = new Thread(() => {
-                AssimpAnimation anim = null;
                 viewport3D.Dispatcher.Invoke(() =>
                 {
-                    anim = new AssimpAnimation(aiScene, name);
+                    assimpAnimation = new AssimpAnimation(aiScene, name);
                 });
 
                 while (true)
@@ -136,12 +135,12 @@ namespace RuiJi.Slicer.Core.Viewport
                             {
                                 var transform = viewport3D.Children[2].Transform as Transform3DGroup;
                                 var model = viewport3D.Children[2] as ModelVisual3D;
-                                var aniModel = anim.GetCache(tick);
+                                var aniModel = assimpAnimation.GetCache(tick);
                                 model.Content = aniModel.Clone();
 
                                 if (replaceCamera)
                                 {
-                                    viewport3D.Children[2].Transform = GetTransform(anim.Bounds, new AxisAngleRotation3D());
+                                    viewport3D.Children[2].Transform = GetTransform(assimpAnimation.Bounds, new AxisAngleRotation3D());
 
                                     LightCamera.Lookat(new Point3D(0, 0, 0), 64);
 
@@ -154,7 +153,7 @@ namespace RuiJi.Slicer.Core.Viewport
                             
                         }
 
-                        Thread.Sleep((int)ani.TicksPerSecond);
+                        Thread.Sleep((int)1000/(int)ani.TicksPerSecond);
                     }
                 }
             });
@@ -171,15 +170,9 @@ namespace RuiJi.Slicer.Core.Viewport
             }
         }
 
-        private void PreRenderAnimation(string name)
+        public Model3DGroup GetAnimationTick(double tick)
         {
-
-        }
-
-        public Model3DGroup GetAnimationTick(string name,int tick)
-        {
-            var anim = new AssimpAnimation(aiScene,name);
-            return anim.GetCache(tick);
+            return assimpAnimation.GetCache(tick);
         }
 
         public int GetAnimationTicks(string name)

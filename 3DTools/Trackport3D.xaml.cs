@@ -68,11 +68,11 @@ namespace _3DTools
             set { this.Headlight.Color = value; }
         }
 
-        public Color AmbientLightColor
-        {
-            get { return this.AmbientLight.Color; }
-            set { this.AmbientLight.Color = value; }
-        }
+        //public Color AmbientLightColor
+        //{
+        //    get { return this.AmbientLight.Color; }
+        //    set { this.AmbientLight.Color = value; }
+        //}
 
         public ViewMode ViewMode
         {

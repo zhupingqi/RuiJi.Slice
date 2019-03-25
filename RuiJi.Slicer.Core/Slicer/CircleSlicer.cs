@@ -30,7 +30,6 @@ using System.Numerics;
 using System.Drawing.Imaging;
 using System.Drawing;
 using System.IO;
-using RuiJi.Slicer.Core.File;
 
 namespace RuiJi.Slicer.Core.Slicer
 {

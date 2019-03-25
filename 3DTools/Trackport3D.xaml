@@ -45,7 +45,7 @@
           <ModelVisual3D>
             <ModelVisual3D.Content>
               <Model3DGroup>
-                <AmbientLight x:Name="AmbientLight" Color="Black" />
+                <!--<AmbientLight x:Name="AmbientLight" Color="Black" />-->
                 <DirectionalLight x:Name="Headlight" Color="White" />
               </Model3DGroup>
             </ModelVisual3D.Content>
