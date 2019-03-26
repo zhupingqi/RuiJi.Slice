@@ -47,7 +47,7 @@ namespace RuiJi.Slicer.Core.Array
                 planes.Add(new CircleSlicePlaneInfo(p,define.Axis, angle));
             }
 
-            //planes.Reverse();
+            planes.Reverse();
             return planes.ToArray();
         }
     }

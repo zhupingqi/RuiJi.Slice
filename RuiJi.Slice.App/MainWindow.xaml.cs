@@ -281,10 +281,6 @@ namespace RuiJi.Slice.App
 
         private void Btn_AnimationSend_Click(object sender, RoutedEventArgs e)
         {
-            //var b = GetLinearFrameBuff(sceneView.MeshGroup);
-
-            //return;
-
             if (animationsList.SelectedItem != null)
             {
                 var name = animationsList.SelectedItem.ToString().Split('@')[0];
@@ -450,71 +446,7 @@ namespace RuiJi.Slice.App
                 for (int i = 0; i < images.Count; i++)
                 {
                     var bmp = images[i];
-                    frame += "," + im.GetMould(bmp);
-                }
-            }
-
-            frame = frame.TrimStart(',');
-            return frame.Split(',').Select(m => Byte.Parse(m.Replace("0x", ""), System.Globalization.NumberStyles.AllowHexSpecifier)).ToArray();
-        }
-
-        private byte[] GetLinearFrameBuff(Model3DGroup meshGroup, AxisAngleRotation3D rotation = null)
-        {
-            var frame = "";
-            var facets = new List<Facet>();
-            var size = new ModelSize(64, 64, 32);
-
-            var axis = new System.Windows.Media.Media3D.Vector3D();
-            var angle = 0d;
-            if (rotation != null)
-            {
-                axis = rotation.Axis;
-                angle = rotation.Angle;
-            }
-
-            Dispatcher.Invoke(new Action(() =>
-            {
-                var cloneMeshGroup = meshGroup.Clone();
-
-                var transform = myViewport3D.Children[myViewport3D.Children.Count - 1].Transform.Clone() as Transform3DGroup;
-
-                foreach (GeometryModel3D geo in cloneMeshGroup.Children)
-                {
-                    var mesh = geo.Geometry as MeshGeometry3D;
-
-                    for (int i = 0; i < mesh.TriangleIndices.Count; i += 3)
-                    {
-                        var p = mesh.Positions[mesh.TriangleIndices[i]];
-                        p = transform.Transform(p);
-                        var p0 = new Vector3((float)p.X, (float)p.Y, (float)p.Z);
-
-                        p = mesh.Positions[mesh.TriangleIndices[i + 1]];
-                        p = transform.Transform(p);
-                        var p1 = new Vector3((float)p.X, (float)p.Y, (float)p.Z);
-
-                        p = mesh.Positions[mesh.TriangleIndices[i + 2]];
-                        p = transform.Transform(p);
-                        var p2 = new Vector3((float)p.X, (float)p.Y, (float)p.Z);
-
-                        facets.Add(new Facet(p0, p1, p2));
-                    }
-                }
-            }));
-
-            //facets.RemoveAll(m => m.TooSmall);
-
-            var results = SlicerHelper.DoLinearSlice(facets.ToArray(), new LinearArrayDefine[] {
-                new LinearArrayDefine(new System.Numerics.Vector3(0, 1, 0), 32,-16,16)
-            });
-
-            IImageMould im = new LED6432LP();
-
-            foreach (var key in results.Keys)
-            {
-                var images = LinearSlicer.ToImage(results[key], size, 64, 64, 0, 0);
-                for (int i = 0; i < images.Count; i++)
-                {
-                    var bmp = images[i];
+                    //bmp.Save(AppDomain.CurrentDomain.BaseDirectory + i + ".bmp");
                     frame += "," + im.GetMould(bmp);
                 }
             }
