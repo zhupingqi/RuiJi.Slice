@@ -27,6 +27,8 @@ using _3DTools;
 using RuiJi.Slicer.Core.Viewport;
 using RuiJi.Slicer.Core.Array;
 using RuiJi.Slicer.Core.Slicer;
+using System.Security.Cryptography;
+using System.IO;
 
 namespace RuiJi.Slice.App
 {
@@ -270,7 +272,9 @@ namespace RuiJi.Slice.App
                     sendMsg.Content = "切片完成，开始发送";
                 }));
 
-                SendData(buff, 0, true);
+                TransmitStart(1);
+                SendData(buff, 0);
+                TransmitEnd();
 
                 Dispatcher.Invoke(new Action(() =>
                 {
@@ -299,6 +303,8 @@ namespace RuiJi.Slice.App
 
                 Task.Run(() =>
                 {
+                    TransmitStart(tickList.Count);
+
                     for (int i = 0; i < tickList.Count; i++)
                     {
                         Dispatcher.Invoke(new Action(() =>
@@ -314,13 +320,15 @@ namespace RuiJi.Slice.App
                             sendMsg.Content = "动画帧 " + i + " 切片完成，开始发送";
                         }));
 
-                        SendData(buff, (byte)i, i == tickList.Count - 1);
+                        SendData(buff, (short)i);
 
                         Dispatcher.Invoke(new Action(() =>
                         {
                             sendMsg.Content = "动画帧 " + i + "发送完成";
                         }));
                     }
+
+                    TransmitEnd();
 
                     Dispatcher.Invoke(new Action(() =>
                     {
@@ -330,8 +338,34 @@ namespace RuiJi.Slice.App
             }
         }
 
-        private void SendData(byte[] buff, byte tick,bool start = false)
+        string GetHash(string path)
         {
+            //var hash = SHA256.Create();
+            //var hash = MD5.Create();
+            var hash = SHA1.Create();
+            var stream = new FileStream(path, FileMode.Open);
+            byte[] hashByte = hash.ComputeHash(stream);
+            stream.Close();
+            return BitConverter.ToString(hashByte).Replace("-", "");
+        }
+
+        private void TransmitStart(int frames)
+        {
+            var stream = client.GetStream();
+            var cmd = new byte[4];
+
+            //reset led , stop irq and timer
+            var wb = ConcatCMD(cmd);
+            wb[0] = 1;
+            wb[1] = (byte)(frames >> 8);
+            wb[2] = (byte)frames;
+            wb[3] = 0xC8;
+            stream.Write(wb, 0, wb.Length);
+            WaitResposne(stream);
+        }
+
+        private void SendData(byte[] buff, short frame)
+        {    
             var stream = client.GetStream();
 
             var cmd = new byte[4];
@@ -339,11 +373,6 @@ namespace RuiJi.Slice.App
 
             //reset led , stop irq and timer
             var wb = ConcatCMD(cmd);
-            wb[0] = 1;
-            wb[1] = 0xC8;
-            stream.Write(wb, 0, wb.Length);
-            WaitResposne(stream);
-
             cmd[0] = 2;
 
             //transmit frame data
@@ -362,7 +391,7 @@ namespace RuiJi.Slice.App
                     process++;
                     Dispatcher.Invoke(new Action(() =>
                     {
-                        sendMsg.Content = "帧" + tick + "动画发送进度:" + (i * 100f / 200) + "%";
+                        sendMsg.Content = "帧" + frame + "动画发送进度:" + (i * 100f / 200) + "%";
                     }));
                 }
                 catch (Exception ex)
@@ -375,18 +404,22 @@ namespace RuiJi.Slice.App
 
             //save buff to spi flash
             wb[0] = 3;
-            wb[1] = tick;
+            wb[1] = (byte)frame;
             stream.Write(wb, 0, wb.Length);
             WaitResposne(stream);
+        }
 
-            //start irq and timer
-            if (start)
-            {
-                wb[0] = 4;
-                wb[1] = 0;
-                stream.Write(wb, 0, wb.Length);
-                WaitResposne(stream);
-            }
+        private void TransmitEnd()
+        {
+            var stream = client.GetStream();
+            var cmd = new byte[4];
+
+            //reset led , stop irq and timer
+            var wb = ConcatCMD(cmd);
+            wb[0] = 4;
+            wb[1] = 0;
+            stream.Write(wb, 0, wb.Length);
+            WaitResposne(stream);
         }
 
         private byte[] GetFrameBuff(Model3DGroup meshGroup, AxisAngleRotation3D rotation = null)
