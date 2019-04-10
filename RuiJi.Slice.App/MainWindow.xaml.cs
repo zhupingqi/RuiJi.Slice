@@ -29,6 +29,7 @@ using RuiJi.Slicer.Core.Array;
 using RuiJi.Slicer.Core.Slicer;
 using System.Security.Cryptography;
 using System.IO;
+using Microsoft.Win32;
 
 namespace RuiJi.Slice.App
 {
@@ -186,7 +187,7 @@ namespace RuiJi.Slice.App
             sceneView.LightCamera.Zoom(e.Delta < 0);
         }
 
-        protected override void OnMouseMove(MouseEventArgs e)
+        protected override void OnMouseMove(System.Windows.Input.MouseEventArgs e)
         {
             base.OnMouseMove(e);
         }
@@ -194,7 +195,7 @@ namespace RuiJi.Slice.App
         protected override void OnMouseDown(MouseButtonEventArgs e)
         {
             base.OnMouseDown(e);
-        } 
+        }
         #endregion
 
         private void ButtonOpenFile_Click(object sender, RoutedEventArgs e)
@@ -228,12 +229,12 @@ namespace RuiJi.Slice.App
                                     animationsList.Items.Add(m);
                                 });
 
-                                animationsList.Visibility = Visibility.Visible;                               
+                                animationsList.Visibility = Visibility.Visible;
                             }
                         }
 
                         main_panel.Children.RemoveAt(main_panel.Children.Count - 1);
-                        trackBallDec.Visibility = Visibility.Visible;                        
+                        trackBallDec.Visibility = Visibility.Visible;
                     });
                 });
             }
@@ -288,31 +289,21 @@ namespace RuiJi.Slice.App
             if (animationsList.SelectedItem != null)
             {
                 var name = animationsList.SelectedItem.ToString().Split('@')[0];
-                var ticks = sceneView.GetAnimationTicks(name);
-                var mt = 30;
-                if (ticks < mt)
-                    mt = ticks;
-
-                var tickList = new List<double>();
-                for (double i = 0; i < mt; i++)
-                {
-                    tickList.Add(Math.Round(ticks*i/(mt-1))-1);
-                }
-
-                tickList[0] = 0;
+                var ani = sceneView.GetAnimationTicks(name);
+                var ticks = ani.DurationInTicks;
 
                 Task.Run(() =>
                 {
-                    TransmitStart(tickList.Count);
+                    TransmitStart((int)ticks);
 
-                    for (int i = 0; i < tickList.Count; i++)
+                    for (int i = 0; i < ticks; i++)
                     {
                         Dispatcher.Invoke(new Action(() =>
                         {
                             sendMsg.Content = "正在进行动画帧 " + i + " 切片...";
                         }));
 
-                        var model = sceneView.GetAnimationTick(tickList[i]);
+                        var model = sceneView.GetAnimationTick(i);
                         var buff = GetFrameBuff(model);
 
                         Dispatcher.Invoke(new Action(() =>
@@ -365,7 +356,7 @@ namespace RuiJi.Slice.App
         }
 
         private void SendData(byte[] buff, short frame)
-        {    
+        {
             var stream = client.GetStream();
 
             var cmd = new byte[4];
@@ -428,9 +419,9 @@ namespace RuiJi.Slice.App
             var facets = new List<Facet>();
             var size = new ModelSize(64, 64, 32);
 
-            var axis = new System.Windows.Media.Media3D.Vector3D(); 
+            var axis = new System.Windows.Media.Media3D.Vector3D();
             var angle = 0d;
-            if(rotation != null)
+            if (rotation != null)
             {
                 axis = rotation.Axis;
                 angle = rotation.Angle;
@@ -449,7 +440,7 @@ namespace RuiJi.Slice.App
                     for (int i = 0; i < mesh.TriangleIndices.Count; i += 3)
                     {
                         var p = mesh.Positions[mesh.TriangleIndices[i]];
-                        p = transform.Transform(p);                        
+                        p = transform.Transform(p);
                         var p0 = new Vector3((float)p.X, (float)p.Y, (float)p.Z);
 
                         p = mesh.Positions[mesh.TriangleIndices[i + 1]];
@@ -491,6 +482,106 @@ namespace RuiJi.Slice.App
         private void Window_Closing(object sender, System.ComponentModel.CancelEventArgs e)
         {
             sceneView.Stop();
+        }
+
+        private void Button_Click(object sender, RoutedEventArgs e)
+        {
+            if (animationsList.SelectedItem != null)
+            {
+                var sfd = new SaveFileDialog();
+                sfd.Filter = "睿吉全息文件(*.rjh)|*.*";
+                sfd.RestoreDirectory = true;
+
+                if (sfd.ShowDialog().Value)
+                {
+                    var name = animationsList.SelectedItem.ToString().Split('@')[0];
+                    var ani = sceneView.GetAnimationTicks(name);
+                    var ticks = ani.DurationInTicks;
+
+                    Task.Run(() =>
+                    {
+                        var wb = new List<byte>() { 0, 0, 0, 0 };
+                        wb[0] = (byte)((int)ticks >> 8);
+                        wb[1] = (byte)ticks;
+                        wb[2] = 0xC8;
+                        wb[3] = 0;
+
+                        for (int i = 0; i < ticks; i++)
+                        {
+                            Dispatcher.Invoke(new Action(() =>
+                            {
+                                sendMsg.Content = "正在进行动画帧 " + i + " 切片...";
+                            }));
+
+                            var model = sceneView.GetAnimationTick(i);
+                            var buff = GetFrameBuff(model);
+
+                            wb.AddRange(buff);
+
+                            Dispatcher.Invoke(new Action(() =>
+                            {
+                                sendMsg.Content = "动画帧 " + i + " 切片完成，开始发送";
+                            }));
+                        }
+
+                        var filename = sfd.FileName.EndsWith(".rjh", StringComparison.InvariantCultureIgnoreCase) ? sfd.FileName : sfd.FileName + ".RJH";
+
+                        File.WriteAllBytes(sfd.FileName + ".RJH", wb.ToArray());
+
+                        Dispatcher.Invoke(new Action(() =>
+                        {
+                            sendMsg.Content = "文件保存完成";
+                        }));
+                    });
+                }
+            }
+        }
+
+        private void Button_Click_1(object sender, RoutedEventArgs e)
+        {
+            Task.Run(new Action(() =>
+            {
+                var sfd = new SaveFileDialog();
+                sfd.Filter = "睿吉全息文件(*.rjh)|*.*";
+                sfd.RestoreDirectory = true;
+
+                if (sfd.ShowDialog().Value)
+                {
+                    Task.Run(() =>
+                    {
+                        var wb = new List<byte>() { 0, 0, 0, 0 };
+                        wb[0] = 0;
+                        wb[1] = 1;
+                        wb[2] = 0xC8;
+                        wb[3] = 0;
+
+                        Dispatcher.Invoke(new Action(() =>
+                        {
+                            sendMsg.Content = "正在切片...";
+                        }));
+
+                        var r = new AxisAngleRotation3D(new System.Windows.Media.Media3D.Vector3D(1, 0, 0), 90);
+
+                        var buff = GetFrameBuff(sceneView.MeshGroup, r);
+
+                        Dispatcher.Invoke(new Action(() =>
+                        {
+                            sendMsg.Content = "切片完成，开始发送";
+                        }));
+
+                        wb.AddRange(buff);                        
+
+                        var filename = sfd.FileName.EndsWith(".rjh", StringComparison.InvariantCultureIgnoreCase) ? sfd.FileName : sfd.FileName + ".RJH";
+
+                        File.WriteAllBytes(sfd.FileName + ".RJH", wb.ToArray());
+
+                        Dispatcher.Invoke(new Action(() =>
+                        {
+                            sendMsg.Content = "文件保存完成";
+                        }));
+                    });
+                }               
+            }));
         }
     }
 }

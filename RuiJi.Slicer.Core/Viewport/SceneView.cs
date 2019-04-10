@@ -175,10 +175,9 @@ namespace RuiJi.Slicer.Core.Viewport
             return assimpAnimation.GetCache(tick);
         }
 
-        public int GetAnimationTicks(string name)
+        public Animation GetAnimationTicks(string name)
         {
-            var ani = aiScene.Animations.SingleOrDefault(m => m.Name == name);
-            return (int)ani.DurationInTicks;
+            return aiScene.Animations.SingleOrDefault(m => m.Name == name);
         }
 
         private void RenderMesh(Rotation3D rotation3D)

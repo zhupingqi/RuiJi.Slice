@@ -14,7 +14,7 @@
                 <TextBox Width="130" Margin="5" IsReadOnly="True" Name="path" ></TextBox>
                 <Button Click="ButtonOpenFile_Click" Height="20" Content="打开文件"/>
             </StackPanel>
-<ListView x:Name="animationsList" Visibility="Hidden" SelectionChanged="animationsList_SelectionChanged" />
+            <ListView x:Name="animationsList" Visibility="Hidden" SelectionChanged="animationsList_SelectionChanged" />
             <GroupBox Margin="4,15,4,4" Header="硬件" Name="base_panel">
                 <Grid>
                     <!--定义行,3行-->
@@ -42,9 +42,11 @@
                 <ListBox Name="lb_bt">
                 </ListBox>
             </GroupBox>
-            <Button Name="btn_send" Click="BtnMeshSend_Click" Margin="130,10,10,0" IsEnabled="False">生成发送</Button>
+            <Button Name="btn_send" Click="BtnMeshSend_Click" Margin="10,10,10,0" IsEnabled="False">生成发送</Button>
             <Label Name="sendMsg"></Label>
-            <Button Content="Button" Click="Btn_AnimationSend_Click"/>
+            <Button Content="保存" Margin="10,0" Click="Button_Click_1"/>
+            <Button Content="发送动画" Click="Btn_AnimationSend_Click" Margin="10,10,10,0"/>
+            <Button Content="保存动画" Margin="10,10,10,0" Click="Button_Click"/>
         </StackPanel>
         <tool3d:TrackballDecorator Name="trackBallDec" DockPanel.Dock="Top">
             <Viewport3D Name="myViewport3D" >
