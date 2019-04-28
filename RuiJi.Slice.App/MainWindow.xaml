@@ -6,7 +6,7 @@
         xmlns:tool3d="clr-namespace:_3DTools;assembly=3DTools"
         xmlns:local="clr-namespace:RuiJi.Slice.App"
         mc:Ignorable="d"
-        Title="RuiJi.Slice - www.ruijihg.com" Width="1000" Height="800" WindowStartupLocation="CenterScreen" WindowState="Maximized" Closing="Window_Closing">
+        Title="RuiJi.Slicer - www.ruijihg.com" Width="1000" Height="800" WindowStartupLocation="CenterScreen" WindowState="Maximized" Closing="Window_Closing" Icon="ruiji.ico">
     <DockPanel Name="main_panel" LastChildFill="True">
         <!--Background="Sienna"-->
         <StackPanel DockPanel.Dock="Left" Width="200" Background="#ccc" RenderTransformOrigin="0.468,0.497">

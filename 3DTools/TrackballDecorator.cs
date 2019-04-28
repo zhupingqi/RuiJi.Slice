@@ -110,8 +110,6 @@ namespace _3DTools
                 // Prefer tracking to zooming if both buttons are pressed.
                 if (e.LeftButton == MouseButtonState.Pressed)
                 {
-                    var _rotation = Track(currentPosition);
-
                     _previousPosition2D = currentPosition;
 
                     Viewport3D viewport3D = this.Viewport3D;
@@ -119,6 +117,7 @@ namespace _3DTools
                     {
                         if (viewport3D.Children.Count > 2)
                         {
+                            var _rotation = Track(currentPosition);
                             var m = viewport3D.Children[viewport3D.Children.Count - 1].Transform as Transform3DGroup;
                             m.Children[2] = new RotateTransform3D(_rotation);
                         }
