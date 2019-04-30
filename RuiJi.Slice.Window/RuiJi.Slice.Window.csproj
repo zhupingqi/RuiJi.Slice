@@ -37,7 +37,7 @@
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="InTheHand, Version=10.2018.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\..\..\..\Cache\Nuget\packages\InTheHand.Pontoon.10.2018.3.19\lib\portable-net45+netcore45+wpa81+wp8\InTheHand.dll</HintPath>
+      <HintPath>..\..\..\..\Cache\Nuget\packages\InTheHand.Pontoon.10.2018.10.2\lib\portable-net45+netcore45+wpa81+wp8\InTheHand.dll</HintPath>
     </Reference>
     <Reference Include="InTheHand.Devices.Bluetooth, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>..\..\..\..\Cache\Nuget\packages\Network.Bluetooth.4.0.1803.22\lib\net35\InTheHand.Devices.Bluetooth.dll</HintPath>
@@ -82,7 +82,9 @@
       <DependentUpon>Resources.resx</DependentUpon>
       <DesignTime>True</DesignTime>
     </Compile>
-    <None Include="packages.config" />
+    <None Include="packages.config">
+      <SubType>Designer</SubType>
+    </None>
     <None Include="Properties\Settings.settings">
       <Generator>SettingsSingleFileGenerator</Generator>
       <LastGenOutput>Settings.Designer.cs</LastGenOutput>
