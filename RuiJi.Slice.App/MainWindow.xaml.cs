@@ -131,6 +131,7 @@ namespace RuiJi.Slice.App
                     {
                         sendMsg.Content = "链接" + result.AsyncState.ToString() + "成功";
                         btn_send.IsEnabled = true;
+                        Grid_Action.IsEnabled = true;
                     }));
                 }
                 else
@@ -582,6 +583,56 @@ namespace RuiJi.Slice.App
                     });
                 }               
             }));
+        }
+
+        private void Btn_FilePre_Click(object sender, RoutedEventArgs e)
+        {
+            var stream = client.GetStream();
+            var wb = new byte[] { 0, 0, 0, 0 };
+            stream.Write(wb, 0, wb.Length);
+            wb[0] = 12;
+            stream.Write(wb, 0, wb.Length);
+            WaitResposne(stream);
+        }
+
+        private void Btn_SliceMoveLeft_Click(object sender, RoutedEventArgs e)
+        {
+            var stream = client.GetStream();
+            var wb = new byte[] { 0, 0, 0, 0 };
+            stream.Write(wb, 0, wb.Length);
+            wb[0] = 10;
+            stream.Write(wb, 0, wb.Length);
+            WaitResposne(stream);
+        }
+
+        private void Btn_SliceReset_Click(object sender, RoutedEventArgs e)
+        {
+            var stream = client.GetStream();
+            var wb = new byte[] { 0, 0, 0, 0 };
+            stream.Write(wb, 0, wb.Length);
+            wb[0] = 14;
+            stream.Write(wb, 0, wb.Length);
+            WaitResposne(stream);
+        }
+
+        private void Btn_SliceMoveRight_Click(object sender, RoutedEventArgs e)
+        {
+            var stream = client.GetStream();
+            var wb = new byte[] { 0, 0, 0, 0 };
+            stream.Write(wb, 0, wb.Length);
+            wb[0] = 11;
+            stream.Write(wb, 0, wb.Length);
+            WaitResposne(stream);
+        }
+
+        private void Btn_FileNext_Click(object sender, RoutedEventArgs e)
+        {
+            var stream = client.GetStream();
+            var wb = new byte[] { 0, 0, 0, 0 };
+            stream.Write(wb, 0, wb.Length);
+            wb[0] = 13;
+            stream.Write(wb, 0, wb.Length);
+            WaitResposne(stream);
         }
     }
 }
