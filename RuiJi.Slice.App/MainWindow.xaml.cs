@@ -157,7 +157,7 @@ namespace RuiJi.Slice.App
         private bool WaitResposne(NetworkStream stream)
         {
             var rb = new byte[2];
-            stream.ReadTimeout = 100;
+            stream.ReadTimeout = 10000;
 
             Thread.Sleep(100);
 
@@ -521,7 +521,7 @@ namespace RuiJi.Slice.App
 
                             Dispatcher.Invoke(new Action(() =>
                             {
-                                sendMsg.Content = "动画帧 " + i + " 切片完成，开始发送";
+                                sendMsg.Content = "动画帧 " + i + " 切片完成";
                             }));
                         }
 
@@ -567,7 +567,7 @@ namespace RuiJi.Slice.App
 
                         Dispatcher.Invoke(new Action(() =>
                         {
-                            sendMsg.Content = "切片完成，开始发送";
+                            sendMsg.Content = "切片完成，正在保存文件";
                         }));
 
                         wb.AddRange(buff);                        
@@ -587,52 +587,41 @@ namespace RuiJi.Slice.App
 
         private void Btn_FilePre_Click(object sender, RoutedEventArgs e)
         {
-            var stream = client.GetStream();
-            var wb = new byte[] { 0, 0, 0, 0 };
-            stream.Write(wb, 0, wb.Length);
-            wb[0] = 12;
-            stream.Write(wb, 0, wb.Length);
-            WaitResposne(stream);
+            SendAction(12);
         }
 
         private void Btn_SliceMoveLeft_Click(object sender, RoutedEventArgs e)
         {
-            var stream = client.GetStream();
-            var wb = new byte[] { 0, 0, 0, 0 };
-            stream.Write(wb, 0, wb.Length);
-            wb[0] = 10;
-            stream.Write(wb, 0, wb.Length);
-            WaitResposne(stream);
+            SendAction(10);
         }
 
         private void Btn_SliceReset_Click(object sender, RoutedEventArgs e)
         {
-            var stream = client.GetStream();
-            var wb = new byte[] { 0, 0, 0, 0 };
-            stream.Write(wb, 0, wb.Length);
-            wb[0] = 14;
-            stream.Write(wb, 0, wb.Length);
-            WaitResposne(stream);
+            SendAction(14);
         }
 
         private void Btn_SliceMoveRight_Click(object sender, RoutedEventArgs e)
         {
-            var stream = client.GetStream();
-            var wb = new byte[] { 0, 0, 0, 0 };
-            stream.Write(wb, 0, wb.Length);
-            wb[0] = 11;
-            stream.Write(wb, 0, wb.Length);
-            WaitResposne(stream);
+            SendAction(11);
         }
 
         private void Btn_FileNext_Click(object sender, RoutedEventArgs e)
         {
+            SendAction(13);
+        }
+
+        private void SendAction(byte action)
+        {
+            Grid_Action.IsEnabled = false;
+
             var stream = client.GetStream();
             var wb = new byte[] { 0, 0, 0, 0 };
             stream.Write(wb, 0, wb.Length);
-            wb[0] = 13;
+            wb[0] = action;
             stream.Write(wb, 0, wb.Length);
             WaitResposne(stream);
+
+            Grid_Action.IsEnabled = true;
         }
     }
 }

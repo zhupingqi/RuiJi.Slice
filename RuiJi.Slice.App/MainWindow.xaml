@@ -6,16 +6,16 @@
         xmlns:tool3d="clr-namespace:_3DTools;assembly=3DTools"
         xmlns:local="clr-namespace:RuiJi.Slice.App"
         mc:Ignorable="d"
-        Title="RuiJi.Slicer - www.ruijihg.com" Width="1000" Height="800" WindowStartupLocation="CenterScreen" WindowState="Maximized" Closing="Window_Closing" Icon="ruiji.ico">
+        Title="RuiJi.Slicer" Width="1000" Height="800" WindowStartupLocation="CenterScreen" WindowState="Maximized" Closing="Window_Closing" Icon="ruiji.ico">
     <DockPanel Name="main_panel" LastChildFill="True">
         <!--Background="Sienna"-->
         <StackPanel DockPanel.Dock="Left" Width="200" Background="#ccc" RenderTransformOrigin="0.468,0.497">
             <StackPanel Orientation="Horizontal" Margin="0,30,0,0">
                 <TextBox Width="130" Margin="5" IsReadOnly="True" Name="path" ></TextBox>
-                <Button Click="ButtonOpenFile_Click" Height="20" Content="打开文件"/>
+                <Button Click="ButtonOpenFile_Click" Height="20" Content="Open"/>
             </StackPanel>
             <ListView x:Name="animationsList" Visibility="Hidden" SelectionChanged="animationsList_SelectionChanged" />
-            <GroupBox Margin="4,15,4,4" Header="硬件" Name="base_panel">
+            <GroupBox Margin="4,15,4,4" Header="Hardwire" Name="base_panel">
                 <Grid>
                     <!--定义行,3行-->
                     <Grid.RowDefinitions>
@@ -31,18 +31,18 @@
                         <ColumnDefinition Width="*"></ColumnDefinition>
                     </Grid.ColumnDefinitions>
                     <!--定义元素，并指定单元格-->
-                    <TextBlock Grid.Row="0" Grid.Column="0" Margin="0,8,0,0" HorizontalAlignment="Center">型号</TextBlock>
+                    <TextBlock Grid.Row="0" Grid.Column="0" Margin="0,8,0,0" HorizontalAlignment="Center">Device</TextBlock>
                     <ComboBox MinWidth="125" MaxHeight="20" Margin="3,3,3,0" Grid.Row="0" Grid.Column="1">
                         <ComboBoxItem IsSelected="True" Content="..."/>
                     </ComboBox>
                 </Grid>
             </GroupBox>
-            <Button Name="btn_searchBt" Click="ButtonSearchBt_Click" Height="20" Content="搜索蓝牙" Margin="0,15,0,0"/>
-            <GroupBox Margin="4,15,4,4" Header="蓝牙列表" Name="bt_panel">
+            <Button Name="btn_searchBt" Click="ButtonSearchBt_Click" Height="20" Content="Search for Bluetooth" Margin="0,15,0,0"/>
+            <GroupBox Margin="4,15,4,4" Header="Bluetooth List" Name="bt_panel">
                 <ListBox Name="lb_bt">
                 </ListBox>
             </GroupBox>
-            <Button Name="btn_send" Click="BtnMeshSend_Click" Margin="10,10,10,0" IsEnabled="False">生成发送</Button>
+            <Button Name="btn_send" Click="BtnMeshSend_Click" Margin="10,10,10,0" IsEnabled="False">Generate</Button>
             <Label Name="sendMsg"></Label>
             <Grid x:Name="Grid_Action" MinHeight="90" IsEnabled="False" >
                 <Grid.ColumnDefinitions>
@@ -60,9 +60,9 @@
                 <Button x:Name="Btn_SliceReset" Content="Reset" Margin="72,5,40,6" Grid.Row="1" Click="Btn_SliceReset_Click" />
                 <Button x:Name="Btn_SliceMoveRight" Content="Right" Margin="135,5,10,6" Grid.Row="1" Grid.ColumnSpan="2" Click="Btn_SliceMoveRight_Click" />
             </Grid>
-            <Button Content="保存" Margin="10,0" Click="Button_Click_1"/>
-            <Button Content="发送动画" Click="Btn_AnimationSend_Click" Margin="10,10,10,0"/>
-            <Button Content="保存动画" Margin="10,10,10,0" Click="Button_Click"/>
+            <Button Content="Save" Margin="10,0" Click="Button_Click_1"/>
+            <Button Content="Transmit" Click="Btn_AnimationSend_Click" Margin="10,10,10,0"/>
+            <Button Content="Save Animation" Margin="10,10,10,0" Click="Button_Click" Visibility="Hidden"/>
         </StackPanel>
         <tool3d:TrackballDecorator Name="trackBallDec" DockPanel.Dock="Top">
             <Viewport3D Name="myViewport3D" >
