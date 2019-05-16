@@ -1,0 +1,101 @@
+﻿<UserControl x:Class="RuiJi.Slice.App.CircleControl"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:local="clr-namespace:RuiJi.Slice.App"
+             mc:Ignorable="d" 
+             d:DesignHeight="200" d:DesignWidth="200">
+    <!--Background="Sienna"-->
+    <UserControl.Resources>
+        <Style TargetType="{x:Type Button}" x:Key="CenterBtn">
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="{x:Type Button}">
+                        <Path x:Name="CenterPath"
+                                  Data="M31.852501,25.974826 C31.375946,29.551942 28.312952,32.311355 24.605501,32.311355 22.440077,32.311355 20.494518,31.370023 19.155735,29.874258 L24.605501,29.874258 21.680916,26.949714 13.882,26.949714 13.882,34.748455 16.806585,37.673 16.806585,32.359996 C18.761747,34.430881 21.532654,35.723343 24.605501,35.723343 30.199278,35.723343 34.792725,31.440336 35.285286,25.974826 z M32.404415,12.326999 L32.404415,17.640001 C30.449253,15.569117 27.678347,14.276654 24.605501,14.276654 19.011723,14.276654 14.418277,18.559663 13.925715,24.025171 L17.35844,24.025171 C17.835054,20.448055 20.89805,17.688642 24.605501,17.688642 26.770926,17.688642 28.716421,18.629974 30.055204,20.12574 L24.605501,20.12574 27.530087,23.050283 35.329002,23.050283 35.328938,15.251543 z M25.207001,0 C39.128445,-3.4303503E-07 50.414001,10.692559 50.414001,23.882499 50.414001,37.072441 39.128445,47.764999 25.207001,47.764999 11.285559,47.764999 0,37.072441 0,23.882499 0,10.692559 11.285559,-3.4303503E-07 25.207001,0 z" 
+                                  Fill="#39a9dc"
+                                  RenderTransformOrigin="0.5,0.5"
+                                  Stretch="Fill" Height="101.189" Margin="-23.386,0,-27.5,0" />
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsDefaulted" Value="True">
+                                <Setter TargetName="CenterPath" Property="Fill" Value="#41b1e1" />
+                            </Trigger>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="CenterPath" Property="Fill" Value="#7ec7e8" />
+                            </Trigger>
+                            <Trigger Property="IsPressed" Value="True">
+                                <Setter TargetName="CenterPath" Property="Fill" Value="#57c0ef" />
+                            </Trigger>
+                            <Trigger Property="IsEnabled" Value="False">
+                                <Setter TargetName="CenterPath" Property="Fill" Value="#97d4ee" />
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+        <Style TargetType="{x:Type Button}" x:Key="AroundBtn">
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="{x:Type Button}">
+
+                        <Path x:Name="AroundPath"
+                                Data="M31.8155,4.6019996 L22.229,11.953838 22.229,16.983999 29.685144,11.373431 31.8155,9.8256625 33.945789,11.373431 41.402,16.983999 41.402,11.953838 z M31.7355,0 C43.196056,1.1098791E-07 54.656612,4.276379 63.471001,12.829137 L49.870071,26.292999 C38.971287,17.707331 24.499712,17.707331 13.600928,26.292999 L0,12.829137 C8.8143883,4.276379 20.274944,1.1098791E-07 31.7355,0 z" Fill="#39a9dc" Height="56.963" 
+                                  RenderTransformOrigin="0.5,0.5" 
+                                  Stretch="Fill" Margin="-35.242,0,-38.796,0"/>
+
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsDefaulted" Value="True">
+                                <Setter TargetName="AroundPath" Property="Fill" Value="#41b1e1" />
+                            </Trigger>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="AroundPath" Property="Fill" Value="#7ec7e8" />
+                            </Trigger>
+                            <Trigger Property="IsPressed" Value="True">
+                                <Setter TargetName="AroundPath" Property="Fill" Value="#57c0ef" />
+                            </Trigger>
+                            <Trigger Property="IsEnabled" Value="False">
+                                <Setter TargetName="AroundPath" Property="Fill" Value="#97d4ee" />
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+    </UserControl.Resources>
+    <StackPanel DockPanel.Dock="Left" Width="200" RenderTransformOrigin="0.5,0.5">
+        <Button Style="{StaticResource AroundBtn}" ToolTip="pre" Margin="66.189,1,70.34,-8" RenderTransformOrigin="0.5,0.5"  Click="Pre_Click"/>
+        <Button Style="{StaticResource CenterBtn}"  ToolTip="reset" Margin="72.701,0,76.885,0" RenderTransformOrigin="0.5,0.5" Click="Reset_Click"/>
+        <Button Style="{StaticResource AroundBtn}" ToolTip="right" Margin="140.189,-105,-2.66,0" RenderTransformOrigin="0.5,0.5"  Click="Right_Click">
+            <Button.RenderTransform>
+                <TransformGroup>
+                    <ScaleTransform/>
+                    <SkewTransform/>
+                    <RotateTransform Angle="90"/>
+                    <TranslateTransform/>
+                </TransformGroup>
+            </Button.RenderTransform>
+        </Button>
+        <Button Style="{StaticResource AroundBtn}" ToolTip="left" Margin="-2.66,-98,140.189,0" RenderTransformOrigin="0.5,0.5" Click="Left_Click">
+            <Button.RenderTransform>
+                <TransformGroup>
+                    <ScaleTransform/>
+                    <SkewTransform/>
+                    <RotateTransform Angle="270"/>
+                    <TranslateTransform/>
+                </TransformGroup>
+            </Button.RenderTransform>
+        </Button>
+        <Button Style="{StaticResource AroundBtn}" ToolTip="next" Margin="70.189,-8,66.34,0" RenderTransformOrigin="0.5,0.5" Click="Next_Click">
+            <Button.RenderTransform>
+                <TransformGroup>
+                    <ScaleTransform/>
+                    <SkewTransform/>
+                    <RotateTransform Angle="180"/>
+                    <TranslateTransform/>
+                </TransformGroup>
+            </Button.RenderTransform>
+        </Button>
+    </StackPanel>
+</UserControl>

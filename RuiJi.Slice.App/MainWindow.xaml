@@ -1,4 +1,7 @@
-﻿<Window x:Class="RuiJi.Slice.App.MainWindow"
+﻿<Controls:MetroWindow
+        
+        xmlns:Controls="http://metro.mahapps.com/winfx/xaml/controls" 
+        x:Class="RuiJi.Slice.App.MainWindow"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
@@ -6,13 +9,30 @@
         xmlns:tool3d="clr-namespace:_3DTools;assembly=3DTools"
         xmlns:local="clr-namespace:RuiJi.Slice.App"
         mc:Ignorable="d"
-        Title="RuiJi.Slicer" Width="1000" Height="800" WindowStartupLocation="CenterScreen" WindowState="Maximized" Closing="Window_Closing" Icon="ruiji.ico">
+        Title="RuiJi.Slicer" Width="1000" Height="800" 
+        WindowStartupLocation="CenterScreen" 
+        WindowState="Maximized" 
+        Closing="Window_Closing" 
+        Icon="icon48.png" 
+        BorderThickness="0" 
+        GlowBrush="Black"
+        ResizeMode="CanResizeWithGrip"
+        WindowTransitionsEnabled="False">
+    <Controls:MetroWindow.RightWindowCommands>
+        <Controls:WindowCommands >
+            <TextBlock Margin="0,8,5,0">Language</TextBlock>
+            <ComboBox  MaxHeight="20">
+                <ComboBoxItem Content="中文"/>
+                <ComboBoxItem Content="English" IsSelected="True"/>
+            </ComboBox>
+        </Controls:WindowCommands>
+    </Controls:MetroWindow.RightWindowCommands>
     <DockPanel Name="main_panel" LastChildFill="True">
         <!--Background="Sienna"-->
-        <StackPanel DockPanel.Dock="Left" Width="200" Background="#ccc" RenderTransformOrigin="0.468,0.497">
+        <StackPanel DockPanel.Dock="Left" Width="220" Background="#fff" RenderTransformOrigin="0.468,0.497">
             <StackPanel Orientation="Horizontal" Margin="0,30,0,0">
-                <TextBox Width="130" Margin="5" IsReadOnly="True" Name="path" ></TextBox>
-                <Button Click="ButtonOpenFile_Click" Height="20" Content="Open"/>
+                <TextBox Width="165" Margin="5" IsReadOnly="True" Name="path" ></TextBox>
+                <Button Click="ButtonOpenFile_Click" Content="Open"/>
             </StackPanel>
             <ListView x:Name="animationsList" Visibility="Hidden" SelectionChanged="animationsList_SelectionChanged" />
             <GroupBox Margin="4,15,4,4" Header="Hardwire" Name="base_panel">
@@ -37,14 +57,16 @@
                     </ComboBox>
                 </Grid>
             </GroupBox>
-            <Button Name="btn_searchBt" Click="ButtonSearchBt_Click" Height="20" Content="Search for Bluetooth" Margin="0,15,0,0"/>
+            <Button Name="btn_searchBt" Click="ButtonSearchBt_Click" Content="Search for Bluetooth" Margin="10,10,10,0" Style="{DynamicResource AccentedSquareButtonStyle}"/>
             <GroupBox Margin="4,15,4,4" Header="Bluetooth List" Name="bt_panel">
                 <ListBox Name="lb_bt">
                 </ListBox>
             </GroupBox>
-            <Button Name="btn_send" Click="BtnMeshSend_Click" Margin="10,10,10,0" IsEnabled="False">Generate</Button>
+            <Button Name="btn_send" Click="BtnMeshSend_Click" Margin="10,10,10,0" IsEnabled="False" Style="{DynamicResource AccentedSquareButtonStyle}">Generate</Button>
             <Label Name="sendMsg"></Label>
-            <Grid x:Name="Grid_Action" MinHeight="90" IsEnabled="False" >
+            <local:CircleControl x:Name="circleControl" Margin="0,0,0,20" IsEnabled="False">
+            </local:CircleControl>
+            <!--<Grid x:Name="Grid_Action" MinHeight="90" IsEnabled="False" >
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="167*"/>
                     <ColumnDefinition Width="33*"/>
@@ -59,14 +81,13 @@
                 <Button x:Name="Btn_SliceMoveLeft" Content="Left" Margin="10,4.76,102,0" Grid.Row="1" Height="19" VerticalAlignment="Top" Click="Btn_SliceMoveLeft_Click" />
                 <Button x:Name="Btn_SliceReset" Content="Reset" Margin="72,5,40,6" Grid.Row="1" Click="Btn_SliceReset_Click" />
                 <Button x:Name="Btn_SliceMoveRight" Content="Right" Margin="135,5,10,6" Grid.Row="1" Grid.ColumnSpan="2" Click="Btn_SliceMoveRight_Click" />
-            </Grid>
-            <Button Content="Save" Margin="10,0" Click="Button_Click_1"/>
-            <Button Content="Transmit" Click="Btn_AnimationSend_Click" Margin="10,10,10,0"/>
-            <Button Content="Save Animation" Margin="10,10,10,0" Click="Button_Click" Visibility="Hidden"/>
+            </Grid>-->
+            <Button Content="Save" Margin="10,0" Click="Button_Click_1" Style="{DynamicResource AccentedSquareButtonStyle}"/>
+            <Button Content="Transmit" Click="Btn_AnimationSend_Click" Margin="10,10,10,0" Style="{DynamicResource AccentedSquareButtonStyle}"/>
+            <Button Content="Save Animation" Margin="10,10,10,0" Click="Button_Click" Visibility="Hidden" Style="{DynamicResource AccentedSquareButtonStyle}"/>
         </StackPanel>
         <tool3d:TrackballDecorator Name="trackBallDec" DockPanel.Dock="Top">
-            <Viewport3D Name="myViewport3D" >
-            </Viewport3D>
+            <Viewport3D Name="myViewport3D"/>
         </tool3d:TrackballDecorator>
     </DockPanel>
-</Window>
+</Controls:MetroWindow>

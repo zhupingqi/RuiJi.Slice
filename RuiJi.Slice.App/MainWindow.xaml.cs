@@ -30,13 +30,15 @@ using RuiJi.Slicer.Core.Slicer;
 using System.Security.Cryptography;
 using System.IO;
 using Microsoft.Win32;
+using MahApps.Metro.Controls;
+using MahApps.Metro.Controls.Dialogs;
 
 namespace RuiJi.Slice.App
 {
     /// <summary>
     /// MainWindow.xaml 的交互逻辑
     /// </summary>
-    public partial class MainWindow : Window
+    public partial class MainWindow : MetroWindow
     {
         BluetoothClient client;
         Dictionary<string, BluetoothAddress> deviceAddresses = new Dictionary<string, BluetoothAddress>();
@@ -47,10 +49,11 @@ namespace RuiJi.Slice.App
         {
             InitializeComponent();
             sceneView = new SceneView(myViewport3D);
+            InitCircleControlEvent();
         }
 
         #region 蓝牙
-        private void ButtonSearchBt_Click(object sender, RoutedEventArgs e)
+        private async void ButtonSearchBt_Click(object sender, RoutedEventArgs e)
         {
             if (client != null)
             {
@@ -65,17 +68,20 @@ namespace RuiJi.Slice.App
 
             client = new BluetoothClient();
 
-            btn_searchBt.Content = "...";
-            btn_searchBt.IsEnabled = false;
+            //btn_searchBt.Content = "...";
+            //btn_searchBt.IsEnabled = false;
 
-            sendMsg.Content = "正在搜索...";
-            Task.Run(new Action(() =>
+            var controller = await this.ShowProgressAsync("Please wait...", "Progress message");
+
+            await Task.Run(new Action(() =>
             {
                 BluetoothRadio BuleRadio = BluetoothRadio.PrimaryRadio;
                 BuleRadio.Mode = RadioMode.Connectable;
                 BluetoothDeviceInfo[] Devices = client.DiscoverDevices();
-
-
+                var percentage = 0.5;
+                controller.SetProgress(percentage);
+                controller.SetMessage(percentage * 100 + "%");
+                Thread.Sleep(1000);
                 deviceAddresses.Clear();
                 Dispatcher.Invoke(new Action(() =>
                 {
@@ -100,12 +106,17 @@ namespace RuiJi.Slice.App
                         lb_bt.Items.Add(item);
                     }));
                 }
-                Dispatcher.Invoke(new Action(() =>
-                {
-                    btn_searchBt.Content = "搜索蓝牙";
-                    btn_searchBt.IsEnabled = true;
-                    sendMsg.Content = "搜索完成,请选择";
-                }));
+                percentage = 1;
+                controller.SetProgress(percentage);
+                controller.SetMessage(percentage * 100 + "%");
+                Thread.Sleep(1000);
+                controller.CloseAsync();
+                //Dispatcher.Invoke(new Action(() =>
+                //{
+                //    btn_searchBt.Content = "搜索蓝牙";
+                //    btn_searchBt.IsEnabled = true;
+                //    sendMsg.Content = "搜索完成,请选择";
+                //}));
             }));
         }
 
@@ -131,7 +142,7 @@ namespace RuiJi.Slice.App
                     {
                         sendMsg.Content = "链接" + result.AsyncState.ToString() + "成功";
                         btn_send.IsEnabled = true;
-                        Grid_Action.IsEnabled = true;
+                        circleControl.IsEnabled = true;
                     }));
                 }
                 else
@@ -570,7 +581,7 @@ namespace RuiJi.Slice.App
                             sendMsg.Content = "切片完成，正在保存文件";
                         }));
 
-                        wb.AddRange(buff);                        
+                        wb.AddRange(buff);
 
                         var filename = sfd.FileName.EndsWith(".rjh", StringComparison.InvariantCultureIgnoreCase) ? sfd.FileName : sfd.FileName + ".RJH";
 
@@ -581,38 +592,56 @@ namespace RuiJi.Slice.App
                             sendMsg.Content = "文件保存完成";
                         }));
                     });
-                }               
+                }
             }));
+        }
+
+        private void InitCircleControlEvent()
+        {
+            circleControl.ResetClick += new RoutedEventHandler(Btn_SliceReset_Click);
+            circleControl.PreClick += new RoutedEventHandler(Btn_FilePre_Click);
+            circleControl.NextClick += new RoutedEventHandler(Btn_FileNext_Click);
+            circleControl.LeftClick += new RoutedEventHandler(Btn_SliceMoveLeft_Click);
+            circleControl.RightClick += new RoutedEventHandler(Btn_SliceMoveRight_Click);
         }
 
         private void Btn_FilePre_Click(object sender, RoutedEventArgs e)
         {
-            SendAction(12);
+
+            MessageBox.Show("pre");
+            // SendAction(12);
         }
 
         private void Btn_SliceMoveLeft_Click(object sender, RoutedEventArgs e)
         {
-            SendAction(10);
+
+            MessageBox.Show("left");
+            // SendAction(10);
         }
 
-        private void Btn_SliceReset_Click(object sender, RoutedEventArgs e)
+        private async void Btn_SliceReset_Click(object sender, RoutedEventArgs e)
         {
-            SendAction(14);
+            await this.ShowMessageAsync("Reset", "");
+            //  SendAction(14);
         }
 
         private void Btn_SliceMoveRight_Click(object sender, RoutedEventArgs e)
         {
-            SendAction(11);
+
+            MessageBox.Show("right");
+            // SendAction(11);
         }
 
         private void Btn_FileNext_Click(object sender, RoutedEventArgs e)
         {
-            SendAction(13);
+
+            MessageBox.Show("next");
+            //SendAction(13);
         }
 
         private void SendAction(byte action)
         {
-            Grid_Action.IsEnabled = false;
+            circleControl.IsEnabled = false;
 
             var stream = client.GetStream();
             var wb = new byte[] { 0, 0, 0, 0 };
@@ -621,7 +650,7 @@ namespace RuiJi.Slice.App
             stream.Write(wb, 0, wb.Length);
             WaitResposne(stream);
 
-            Grid_Action.IsEnabled = true;
+            circleControl.IsEnabled = true;
         }
     }
 }
