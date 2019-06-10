@@ -105,6 +105,21 @@ namespace RuiJi.Slicer.Core.Viewport
             return false;
         }
 
+        public void Rotate(System.Windows.Media.Media3D.Vector3D axis, double angle)
+        {
+            var m = viewport3D.Children[viewport3D.Children.Count - 1].Transform as Transform3DGroup;
+            var _rotation = (m.Children[2] as RotateTransform3D).Rotation as AxisAngleRotation3D;
+
+            var q = new System.Windows.Media.Media3D.Quaternion(_rotation.Axis, _rotation.Angle);
+            var delta = new System.Windows.Media.Media3D.Quaternion(axis, angle);
+            q *= delta;
+
+            _rotation.Axis = q.Axis;
+            _rotation.Angle = q.Angle;
+
+            m.Children[2] = new RotateTransform3D(_rotation);
+        }
+
         public void Play(string name = "")
         {
             if (string.IsNullOrEmpty(name))

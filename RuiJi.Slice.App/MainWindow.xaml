@@ -35,31 +35,24 @@
                 <TextBox Width="165" Margin="5" IsReadOnly="True" Name="path" ></TextBox>
                 <Button Click="ButtonOpenFile_Click" Content="Open"/>
             </StackPanel>
+            <StackPanel Margin="10,5,10,0" >
+                <StackPanel Margin="0" Orientation="Horizontal" HorizontalAlignment="Center" >
+                    <Button x:Name="RotateX_Add" Content="X+" Margin="0" Height="27" VerticalAlignment="Top" Click="RotateX_Add_Click"/>
+                    <Button x:Name="RotateX_Sub" Content="X-" Height="27" RenderTransformOrigin="2.087,-0.593" Click="RotateX_Sub_Click"/>
+                    <Button x:Name="RotateY_Add" Content="Y+" Height="27" Margin="20,0,0,0" HorizontalAlignment="Center" Click="RotateY_Add_Click"/>
+                    <Button x:Name="RotateY_Sub" Content="Y-" Height="27" HorizontalAlignment="Center" Margin="0,0,20,0" Click="RotateY_Sub_Click"/>
+                    <Button x:Name="RotateZ_Add" Content="Z+" Height="27" Margin="0" Click="RotateZ_Add_Click"/>
+                    <Button x:Name="RotateZ_Sub" Content="Z-" Height="27" Click="RotateZ_Sub_Click"/>
+                </StackPanel>
+                <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" Margin="0,10,0,0">
+                    <Button Content="Reset Model" HorizontalAlignment="Center"/>
+                    <Button Content="Reset World" HorizontalAlignment="Center" Margin="20,0,0,0"/>
+                </StackPanel>
+            </StackPanel>
+
             <ListView x:Name="animationsList" Visibility="Hidden" SelectionChanged="animationsList_SelectionChanged" />
-            <GroupBox Margin="4,15,4,4" Header="Hardwire" Controls:ControlsHelper.ContentCharacterCasing="Normal" Name="base_panel">
-                <Grid>
-                    <!--定义行,3行-->
-                    <Grid.RowDefinitions>
-                        <!--自动行高-->
-                        <RowDefinition Height="30"></RowDefinition>
-                        <!--按比例行高-->
-                    </Grid.RowDefinitions>
-                    <!--定义列，2列-->
-                    <Grid.ColumnDefinitions>
-                        <!--按比例列宽-->
-                        <ColumnDefinition Width="50"></ColumnDefinition>
-                        <!--固定列宽-->
-                        <ColumnDefinition Width="*"></ColumnDefinition>
-                    </Grid.ColumnDefinitions>
-                    <!--定义元素，并指定单元格-->
-                    <TextBlock Grid.Row="0" Grid.Column="0" Margin="0,8,0,0" HorizontalAlignment="Center">Device</TextBlock>
-                    <ComboBox MinWidth="125" MaxHeight="20" Margin="3,3,3,0" Grid.Row="0" Grid.Column="1">
-                        <ComboBoxItem IsSelected="True" Content="..."/>
-                    </ComboBox>
-                </Grid>
-            </GroupBox>
             <Button Name="btn_searchBt" Click="ButtonSearchBt_Click" Controls:ControlsHelper.ContentCharacterCasing="Normal" Content="Search for Bluetooth" Margin="10,10,10,0" Style="{DynamicResource AccentedSquareButtonStyle}"/>
-            <GroupBox Margin="4,15,4,4" Controls:ControlsHelper.ContentCharacterCasing="Normal" Header="Bluetooth List" Name="bt_panel">
+            <GroupBox Margin="10,15,10,4" Controls:ControlsHelper.ContentCharacterCasing="Normal" Header="Bluetooth List" Name="bt_panel">
                 <ListBox Name="lb_bt">
                 </ListBox>
             </GroupBox>

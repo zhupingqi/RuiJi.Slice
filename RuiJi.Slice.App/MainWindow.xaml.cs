@@ -652,5 +652,35 @@ namespace RuiJi.Slice.App
 
             circleControl.IsEnabled = true;
         }
+
+        private void RotateX_Add_Click(object sender, RoutedEventArgs e)
+        {
+            sceneView.Rotate(new System.Windows.Media.Media3D.Vector3D(1, 0, 0), 90);
+        }
+
+        private void RotateX_Sub_Click(object sender, RoutedEventArgs e)
+        {
+            sceneView.Rotate(new System.Windows.Media.Media3D.Vector3D(1, 0, 0), -90);
+        }
+
+        private void RotateY_Add_Click(object sender, RoutedEventArgs e)
+        {
+            sceneView.Rotate(new System.Windows.Media.Media3D.Vector3D(0, 1, 0), 90);
+        }
+
+        private void RotateY_Sub_Click(object sender, RoutedEventArgs e)
+        {
+            sceneView.Rotate(new System.Windows.Media.Media3D.Vector3D(0, 1, 0), -90);
+        }
+
+        private void RotateZ_Add_Click(object sender, RoutedEventArgs e)
+        {
+            sceneView.Rotate(new System.Windows.Media.Media3D.Vector3D(0, 0, 1), 90);
+        }
+
+        private void RotateZ_Sub_Click(object sender, RoutedEventArgs e)
+        {
+            sceneView.Rotate(new System.Windows.Media.Media3D.Vector3D(0, 0, 1), -90);
+        }
     }
 }
