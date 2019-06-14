@@ -608,35 +608,35 @@ namespace RuiJi.Slice.App
         private void Btn_FilePre_Click(object sender, RoutedEventArgs e)
         {
 
-            MessageBox.Show("pre");
-            // SendAction(12);
+            //MessageBox.Show("pre");
+            SendAction(12);
         }
 
         private void Btn_SliceMoveLeft_Click(object sender, RoutedEventArgs e)
         {
 
-            MessageBox.Show("left");
-            // SendAction(10);
+            //MessageBox.Show("left");
+            SendAction(10);
         }
 
         private async void Btn_SliceReset_Click(object sender, RoutedEventArgs e)
         {
-            await this.ShowMessageAsync("Reset", "");
-            //  SendAction(14);
+            //await this.ShowMessageAsync("Reset", "");
+            SendAction(14);
         }
 
         private void Btn_SliceMoveRight_Click(object sender, RoutedEventArgs e)
         {
 
-            MessageBox.Show("right");
-            // SendAction(11);
+           // MessageBox.Show("right");
+            SendAction(11);
         }
 
         private void Btn_FileNext_Click(object sender, RoutedEventArgs e)
         {
 
-            MessageBox.Show("next");
-            //SendAction(13);
+           // MessageBox.Show("next");
+            SendAction(13);
         }
 
         private void SendAction(byte action)
