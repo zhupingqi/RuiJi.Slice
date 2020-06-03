@@ -1,18 +1,10 @@
-# RuiJi.Slice
+RuiJi.Slice
+RuiJi.Slice 是一个三维模型切片切片软件
 
-RuiJi.Slice 是一个三维模型切片类库，暂时支持STL文件格式
+切片结果使用蓝牙传输给RuiJiHG全息投影设备
 
-切片结果可以导出为BMP图片
+RuiJiHG全息投影设备是利用LED旋转屏，形成立体视觉的一个解决方案
 
-也可以生成旋转屏使用的bitmap array
+演示效果：
 
-暂时仅支持SSD1306
-
- 
-RuiJi.Slice is a three dimensional model slicing class library that supports STL file formats for the time being
-
-The slice results can be exported as BMP pictures
-
-You can also generate the bitmap array for the rotating screen
-
-Just support SSD1306 for the time being
+https://www.bilibili.com/video/av50186992/
