@@ -24,8 +24,8 @@ namespace RuiJi.Slicer.Core.ImageMould
             int width = bmp.Width;
             int height = bmp.Height;
 
-            if (width != 64 || height != 32)
-                throw new Exception("bitmap must be 64*32");
+            /*if (width != 64 || height != 32)
+                throw new Exception("bitmap must be 64*32");*/
 
             bmp.RotateFlip(RotateFlipType.Rotate180FlipX);
 

@@ -27,6 +27,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Numerics;
+using System.Windows.Media.Media3D;
 
 namespace RuiJi.Slicer.Core
 {
@@ -50,7 +51,7 @@ namespace RuiJi.Slicer.Core
             private set;
         }
 
-        public float Lenght
+        public double Lenght
         {
             get
             {
@@ -63,7 +64,19 @@ namespace RuiJi.Slicer.Core
             this.Start = a;
             this.End = b;
 
-            this.Normal = Vector3.Normalize(End - Start);
+            var p = End - Start;
+
+            this.Normal = new Vector3((float)p.X, (float)p.Y, (float)p.Z);
+        }
+
+        public LineSegment(Point3D a, Point3D b)
+        {
+            this.Start = new Vector3((float)a.X, (float)a.Y, (float)a.Z);
+            this.End = new Vector3((float)b.X, (float)b.Y, (float)b.Z);
+
+            var p = End - Start;
+
+            this.Normal = new Vector3((float)p.X, (float)p.Y, (float)p.Z);
         }
     }
 }

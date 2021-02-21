@@ -21,12 +21,37 @@ namespace RuiJi.Slicer.Core.Slicer
                 foreach (var line in sp.Lines)
                 {
                     lines.Add(new Vector2[] {
-                        new Vector2(line.Start.X,line.Start.Z),
-                        new Vector2(line.End.X,line.End.Z)
+                        new Vector2((float)line.Start.X,(float)line.Start.Z),
+                        new Vector2((float)line.End.X,(float)line.End.Z)
                     });
                 }
 
                 var img = ToImage(lines, size, imageWidth, imageHeight, offsetX, offsetY);
+                images.Add(img);
+            }
+
+            return images;
+        }
+
+        public static List<Bitmap> ToImage(List<SlicedPlane> slicedPlane, int imageWidth, int imageHeight)
+        {
+            var firstNormal = (slicedPlane.First().SlicePlane as LinearSlicePlaneInfo).Plane.Normal;
+            var images = new List<Bitmap>();
+
+            foreach (var sp in slicedPlane)
+            {
+                var lines = new List<Vector2[]>();
+                var info = sp.SlicePlane as LinearSlicePlaneInfo;
+
+                foreach (var line in sp.Lines)
+                {
+                    lines.Add(new Vector2[] {
+                        new Vector2((float)line.Start.X,(float)line.Start.Z),
+                        new Vector2((float)line.End.X,(float)line.End.Z)
+                    });
+                }
+
+                var img = ToImage(lines,imageWidth, imageHeight);
                 images.Add(img);
             }
 
@@ -69,5 +94,33 @@ namespace RuiJi.Slicer.Core.Slicer
             bmp.RotateFlip(RotateFlipType.Rotate180FlipX);
             return bmp;
         }
+
+        public static Bitmap ToImage(List<Vector2[]> lines, int imageWidth, int imageHeight)
+        {
+            var bmp = new Bitmap(imageWidth, imageHeight);
+            var g = Graphics.FromImage(bmp);
+            g.FillRectangle(new SolidBrush(Color.White), new Rectangle(0, 0, imageWidth, imageHeight));
+
+            var ow = imageWidth / 2f;
+            var oh = imageHeight / 2f;
+
+            foreach (var line in lines)
+            {
+                int x1 = Convert.ToInt32(line[0].X + ow);
+                int y1 = Convert.ToInt32(line[0].Y + oh);
+
+                int x2 = Convert.ToInt32(line[1].X + ow);
+                int y2 = Convert.ToInt32(line[1].Y + oh);
+
+                Point p1 = new Point(x1, y1);
+                Point p2 = new Point(x2, y2);
+
+                g.DrawLine(new Pen(new SolidBrush(Color.Red)), p1, p2);
+            }
+
+            bmp.RotateFlip(RotateFlipType.Rotate180FlipX);
+            return bmp;
+        }
+
     }
 }

@@ -1,14 +1,14 @@
-﻿using System;
+﻿using RuiJi.Slicer.Core.Array;
+using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Numerics;
 using System.Text;
 using System.Threading.Tasks;
 
 namespace RuiJi.Slicer.Core.Slicer
 {
-    public interface ISlicePlane
+    public class CNDSlicer
     {
-        Plane Plane { get; }
+       
     }
 }

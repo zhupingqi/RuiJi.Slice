@@ -27,6 +27,7 @@ using System.Linq;
 using System.Numerics;
 using System.Text;
 using System.Threading.Tasks;
+using System.Windows.Media.Media3D;
 
 namespace RuiJi.Slicer.Core
 {
@@ -82,6 +83,15 @@ namespace RuiJi.Slicer.Core
                 new LineSegment(v1,v3),
                 new LineSegment(v2,v3)
             };
+        }
+
+        public Facet(Point3D p1, Point3D p2, Point3D p3):this(
+            new Vector3((float)p1.X, (float)p1.Y, (float)p1.Z),
+            new Vector3((float)p2.X, (float)p2.Y, (float)p2.Z),
+            new Vector3((float)p3.X, (float)p3.Y, (float)p3.Z)
+            )
+        {
+ 
         }
 
         public Facet(IList<Vector3> vs) : this(vs[0],vs[1],vs[2])

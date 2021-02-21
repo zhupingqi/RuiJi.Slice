@@ -44,6 +44,14 @@ namespace RuiJi.Slicer.Core.Slicer
             set;
         }
 
+        public float D
+        {
+            get
+            {
+                return this.SlicePlane.Plane.D;
+            }
+        }
+
         public SlicedPlane(ISlicePlane slicePlane)
         {
             this.Lines = new List<LineSegment>();

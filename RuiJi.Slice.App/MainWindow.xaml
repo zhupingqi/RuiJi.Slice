@@ -37,12 +37,12 @@
             </StackPanel>
             <StackPanel Margin="10,5,10,0" >
                 <StackPanel Margin="0" Orientation="Horizontal" HorizontalAlignment="Center" >
-                    <Button x:Name="RotateX_Add" Content="X+" Margin="0" Height="27" VerticalAlignment="Top" Click="RotateX_Add_Click"/>
                     <Button x:Name="RotateX_Sub" Content="X-" Height="27" RenderTransformOrigin="2.087,-0.593" Click="RotateX_Sub_Click"/>
                     <Button x:Name="RotateY_Add" Content="Y+" Height="27" Margin="20,0,0,0" HorizontalAlignment="Center" Click="RotateY_Add_Click"/>
                     <Button x:Name="RotateY_Sub" Content="Y-" Height="27" HorizontalAlignment="Center" Margin="0,0,20,0" Click="RotateY_Sub_Click"/>
                     <Button x:Name="RotateZ_Add" Content="Z+" Height="27" Margin="0" Click="RotateZ_Add_Click"/>
                     <Button x:Name="RotateZ_Sub" Content="Z-" Height="27" Click="RotateZ_Sub_Click"/>
+                    <Button x:Name="RotateX_Add" Content="X+" Margin="0" Height="27" VerticalAlignment="Top" Click="RotateX_Add_Click"/>
                 </StackPanel>
                 <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" Margin="0,10,0,0">
                     <Button Content="Reset Model" HorizontalAlignment="Center"/>
@@ -78,6 +78,7 @@
             </Grid>-->
             <Button Content="Save" Margin="10,0" Click="Button_Click_1" Controls:ControlsHelper.ContentCharacterCasing="Normal" Style="{DynamicResource AccentedSquareButtonStyle}"/>
             <Button Content="Transmit" Click="Btn_AnimationSend_Click" Margin="10,10,10,0" Controls:ControlsHelper.ContentCharacterCasing="Normal" Style="{DynamicResource AccentedSquareButtonStyle}"/>
+            <Button Content="CNC" Click="Btn_CNC_Click" Margin="10,10,10,0" Controls:ControlsHelper.ContentCharacterCasing="Normal" Style="{DynamicResource AccentedSquareButtonStyle}"/>
             <Button Content="Save Animation" Margin="10,10,10,0" Click="Button_Click" Visibility="Hidden" Controls:ControlsHelper.ContentCharacterCasing="Normal" Style="{DynamicResource AccentedSquareButtonStyle}"/>
         </StackPanel>
         <tool3d:TrackballDecorator Name="trackBallDec" DockPanel.Dock="Top">

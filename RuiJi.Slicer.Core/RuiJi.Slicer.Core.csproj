@@ -68,6 +68,8 @@
     <Compile Include="Array\CircleArrayCreater.cs" />
     <Compile Include="Array\LinearArrayDefine.cs" />
     <Compile Include="ImageMould\LED6432LP.cs" />
+    <Compile Include="Line.cs" />
+    <Compile Include="Slicer\CNDSlicer.cs" />
     <Compile Include="Slicer\LinearSlicePlaneInfo.cs" />
     <Compile Include="Slicer\ISlicePlane.cs" />
     <Compile Include="Facet.cs" />

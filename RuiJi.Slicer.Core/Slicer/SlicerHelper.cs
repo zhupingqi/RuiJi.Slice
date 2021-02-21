@@ -28,6 +28,7 @@ using System.Linq;
 using System.Numerics;
 using System.Text;
 using System.Threading.Tasks;
+using System.Windows.Media.Media3D;
 
 namespace RuiJi.Slicer.Core.Slicer
 {
@@ -97,6 +98,31 @@ namespace RuiJi.Slicer.Core.Slicer
             return results;
         }
 
+        public static Dictionary<float,List<SlicedPlane>> DoLinearSlice(Facet[] facets, LinearArrayDefine define)
+        {
+            var result = new List<SlicedPlane>();
+
+            var factory = new LinearArrayCreater();
+            var planes = factory.CreateArrayPlane(define);
+
+            foreach (var p in planes)
+            {
+                var planeInfo = p as LinearSlicePlaneInfo;
+                var sp = new SlicedPlane(planeInfo);
+
+                result.Add(sp);
+
+                foreach (var f in facets)
+                {
+                    var segs = GetPlaneCross(f, planeInfo.Plane);
+                    if (segs.Count > 0)
+                        sp.Lines.AddRange(segs);
+                }
+            }
+
+            return result.OrderBy(m => m.D).GroupBy(m => m.D).ToDictionary(m => m.Key, n => n.ToList());
+        }
+
         public static List<LineSegment> GetPlaneCross(Facet facet, Plane plane)
         {
             var n1 = facet.Plane.Normal;
@@ -159,6 +185,26 @@ namespace RuiJi.Slicer.Core.Slicer
                 return null;
 
             return point;
+        }
+
+        public static float ScaleWeight(Size3D currentBound, Size3D targetbound)
+        {
+            if(currentBound.X > targetbound.X || currentBound.Y > targetbound.Y || currentBound.Z > targetbound.Z)
+            {
+                var fx = targetbound.X / currentBound.X;
+                var fy = targetbound.Y / currentBound.Y;
+                var fz = targetbound.Z / currentBound.Z;
+
+                return (float)Math.Min(fz, Math.Min(fx, fy));
+            }
+            else
+            {
+                var fx = targetbound.X / currentBound.X;
+                var fy = targetbound.Y / currentBound.Y;
+                var fz = targetbound.Z / currentBound.Z;
+
+                return (float)Math.Min(fz, Math.Min(fx, fy));
+            }
         }
     }
 }

@@ -452,16 +452,13 @@ namespace RuiJi.Slice.App
                     for (int i = 0; i < mesh.TriangleIndices.Count; i += 3)
                     {
                         var p = mesh.Positions[mesh.TriangleIndices[i]];
-                        p = transform.Transform(p);
-                        var p0 = new Vector3((float)p.X, (float)p.Y, (float)p.Z);
+                        var p0 = transform.Transform(p);
 
                         p = mesh.Positions[mesh.TriangleIndices[i + 1]];
-                        p = transform.Transform(p);
-                        var p1 = new Vector3((float)p.X, (float)p.Y, (float)p.Z);
+                        var p1 = transform.Transform(p);
 
                         p = mesh.Positions[mesh.TriangleIndices[i + 2]];
-                        p = transform.Transform(p);
-                        var p2 = new Vector3((float)p.X, (float)p.Y, (float)p.Z);
+                        var p2 = transform.Transform(p);
 
                         facets.Add(new Facet(p0, p1, p2));
                     }
@@ -628,14 +625,14 @@ namespace RuiJi.Slice.App
         private void Btn_SliceMoveRight_Click(object sender, RoutedEventArgs e)
         {
 
-           // MessageBox.Show("right");
+            // MessageBox.Show("right");
             SendAction(11);
         }
 
         private void Btn_FileNext_Click(object sender, RoutedEventArgs e)
         {
 
-           // MessageBox.Show("next");
+            // MessageBox.Show("next");
             SendAction(13);
         }
 
@@ -681,6 +678,69 @@ namespace RuiJi.Slice.App
         private void RotateZ_Sub_Click(object sender, RoutedEventArgs e)
         {
             sceneView.Rotate(new System.Windows.Media.Media3D.Vector3D(0, 0, 1), -90);
+        }
+
+        private void Btn_CNC_Click(object sender, RoutedEventArgs e)
+        {
+            var facets = new List<Facet>();
+            var cloneMeshGroup = sceneView.MeshGroup.Clone();
+
+            Dispatcher.Invoke(new Action(() =>
+            {
+                var transform = myViewport3D.Children[myViewport3D.Children.Count - 1].Transform.Clone() as Transform3DGroup;
+                var bb = cloneMeshGroup.Bounds;
+                var f = SlicerHelper.ScaleWeight(new Size3D(bb.SizeX, bb.SizeY, bb.SizeZ), new Size3D(800, 800, 2000));//1500,2000
+                var s = (transform.Children[1] as ScaleTransform3D);
+                s.ScaleX = f;
+                s.ScaleY = f;
+                s.ScaleZ = f;
+
+                foreach (GeometryModel3D geo in cloneMeshGroup.Children)
+                {
+                    var mesh = geo.Geometry as MeshGeometry3D;
+
+                    for (int i = 0; i < mesh.TriangleIndices.Count; i += 3)
+                    {
+                        var p = mesh.Positions[mesh.TriangleIndices[i]];
+                        var p0 = transform.Transform(p);
+                        mesh.Positions[mesh.TriangleIndices[i]] = p0;
+
+                        p = mesh.Positions[mesh.TriangleIndices[i + 1]];
+                        var p1 = transform.Transform(p);
+                        mesh.Positions[mesh.TriangleIndices[i + 1]] = p1;
+
+                        p = mesh.Positions[mesh.TriangleIndices[i + 2]];
+                        var p2 = transform.Transform(p);
+                        mesh.Positions[mesh.TriangleIndices[i + 2]] = p2;
+
+                        if (p0 != p1 && p0 != p2 && p1 != p2)
+                        {
+                            var face = new Facet(p0, p1, p2);
+                            facets.Add(face);
+                        }
+                    }
+                }
+
+                var b = cloneMeshGroup.Bounds;
+                var c = (int)Math.Round((b.SizeY - b.Y)/10.0);
+                var d = new LinearArrayDefine(new Vector3(0, 1, 0), c, (float)b.Y, (float)(b.Y + b.SizeY));
+                var result = SlicerHelper.DoLinearSlice(facets.ToArray(), d);
+
+                var form = new CNCForm(result);
+                form.ShowDialog();
+
+                /*
+                var images = LinearSlicer.ToImage(result, 1600, 1600);
+                for (int i = 0; i < images.Count; i++)
+                {
+                    var bmp = images[i];
+                    bmp.Save(AppDomain.CurrentDomain.BaseDirectory + @"1\" + i + ".bmp");
+                    bmp.Dispose();
+                }
+                */
+
+
+            }));
         }
     }
 }
