@@ -35,7 +35,7 @@ In XAML, the Interactive3DDecorator is used as follows:
 
 <local:Interactive3DDecorator>
 	<Viewport3D>
-		…
+		?
 	</Viewport3D>
 </local:Interactive3DDecorator>
 
@@ -46,14 +46,14 @@ and also to signal to the Interactive3DDecorator that this Visual3D is intended 
 be interacted with.  InteractiveVisual3D is a subclass of ModelVisual3D and provides 
 the following dependency properties:
 
-•	Geometry      - The Geometry3D that is to become the content of the InteractiveVisual3D.
-•	Visual        – The Visual that is to be used in a VisualBrush, which will then 
+?Geometry      - The Geometry3D that is to become the content of the InteractiveVisual3D.
+?Visual        ?The Visual that is to be used in a VisualBrush, which will then 
 					be used in a material for the geometry for the InteractiveVisual3D.
-•	Material      – A user specified material, with the IsInteractiveMaterial attached 
+?Material      ?A user specified material, with the IsInteractiveMaterial attached 
 					property being used to mark the locations where the user wants the 
 					VisualBrush used to represent the Visual, to be placed.  By default, 
 					a DiffuseMaterial is used.
-•	IsBackVisible – Indicates whether the material used for the front face should also be 
+?IsBackVisible ?Indicates whether the material used for the front face should also be 
 					mirrored on the back face.
 
 The first two properties, Geometry and Visual, are the primary ones needed.  They allow 
@@ -67,7 +67,7 @@ a user to create their own material for the object.  Because there potentially n
 things added above the Visual specified by the user, and because parameters of the 
 VisualBrush are modified, the user does not directly specify the VisualBrush used.  Instead, 
 they specify using the IsInteractiveMaterial attached property, which material they wish to 
-make “interactive” (i.e. set the VisualBrush created using the passed in Visual as the 
+make “interactive?(i.e. set the VisualBrush created using the passed in Visual as the 
 Brush for that material).  As an example, the following code sets the material to be composed 
 of a DiffuseMaterial, which will contain the visual brush, and a SpecularMaterial.
 
@@ -100,15 +100,15 @@ How does it work:
 At a very high level, the interaction with 2D on 3D is achieved by really interacting 
 with a hidden version of that 2D content in 2D.  The 2D is positioned such that the 
 point in 3D the mouse is over is the exact same point as the mouse is over on the 
-hidden 2D version.  Then, when the user clicks, etc… they are interacting with exactly 
-the same location.  If you want to see this for yourself, you can set the “Debug” 
+hidden 2D version.  Then, when the user clicks, etc?they are interacting with exactly 
+the same location.  If you want to see this for yourself, you can set the “Debug?
 property on Interactive3DDecorator to true, which makes the hidden layer partially visible.
 
 The Interactive3DDecorator then consists of two elements: the 3D content that is displayed 
 within it and a hidden layer that is used to position and display the 2D content that is 
 being interacted with.  Depending on what 2D content on 3D is being interacted with, the 
 hidden layer changes to hold that 2D content.  For example, consider a simple case of a
-button, with text "Button", placed on a sphere.  When the mouse moves over the “B” in 
+button, with text "Button", placed on a sphere.  When the mouse moves over the “B?in 
 the button on the sphere, the hidden layer (the button) is moved such that the mouse is 
 over the same point in the hidden layer as it is in the 3D scene.   
   
@@ -118,12 +118,12 @@ If it hit an object, and it is an InteractiveVisual3D, we can use the return par
 from the intersection to compute the texture coordinate that was hit.  Then from these, 
 we can map from the (u,v) value of the texture coordinate, on to an x,y point on the 2D 
 visual, which is the point we need to place under the mouse.  More specifically, the code 
-assumes texture coordinates are all in the range (0,0) to (1,1) – i.e. upper left to lower 
+assumes texture coordinates are all in the range (0,0) to (1,1) ?i.e. upper left to lower 
 right of the image (this is important to know, since your texture coordinates need to 
 be within this range to enable interaction with the 2D content).  Then the point on the 
 2D object that was hit is simply (u * Width, v * Height). 
 
-There’s one very interesting “gotcha” though: what happens when one of the 2D objects grabs 
+There’s one very interesting “gotcha?though: what happens when one of the 2D objects grabs 
 capture and then you move off the 3D mesh it is on?  For example, you select some text, and 
 then move the mouse above that selected text, or click and hold on a button, and then move 
 away from it.  Correct hidden content positioning becomes more complicated in this case.  
@@ -151,7 +151,7 @@ been projected to screen space, is computed, and then the mouse is positioned ba
 this projection. 
     
 After the outline is available, The closest point on this outline to the mouse position 
-is computed, and then this point on the outline is considered what was “hit” and it is 
+is computed, and then this point on the outline is considered what was “hit?and it is 
 placed under the moue position.  Since we place the mouse by the closest edge point, 
 the interaction tends to behave as it would in 2D, since we position the hidden content 
 based on what the mouse is closest to on the 2D content on 3D.  By placing it at the 
@@ -164,14 +164,14 @@ happens with the closest point on the object with capture to the mouse.
 -------------
 Known Issues:
 -------------
-•	Inking support:  
+?Inking support:  
 Inking is possible with the 2D on 3D code, but it requires you to set the ContainsInk 
 dependency property on Interactive3DDecorator to true.  This then causes an InvalidateArrange
 to occur whenever the mouse is moved. Because the InvalidateArrange could potentially be 
 computationally costly, this property is set to false by default.  See the Channel9Demo included 
 in the Samples directory, for an example of how to set this dependency property.
 
-•	Styles and Triggers
+?Styles and Triggers
 Because the Interactive3DDecorator is changing the hidden content based on what 2D on 3D 
 object the mouse is over, certain styling issues can appear.  This is due to the fact that 
 the 2D Visuals that appears on the 3D objects are being added and removed from the Visual 

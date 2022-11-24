@@ -1,13 +1,15 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 15
-VisualStudioVersion = 15.0.26430.15
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.30503.244
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RuiJi.Slicer.Core", "RuiJi.Slicer.Core\RuiJi.Slicer.Core.csproj", "{C4F10E0A-E12F-4B66-9F2A-C6441A286349}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RuiJi.Slice.App", "RuiJi.Slice.App\RuiJi.Slice.App.csproj", "{2C9846AD-4863-4DC0-8C01-A85C5746CCC4}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "3DTools", "3DTools\3DTools.csproj", "{5F603892-DE40-4246-A969-1C6717AFE35D}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RuiJi.Robotic", "RuiJi.Robotic\RuiJi.Robotic.csproj", "{CBB0A9F5-47CE-4042-9D3E-3A27D231E2BB}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -27,6 +29,10 @@ Global
 		{5F603892-DE40-4246-A969-1C6717AFE35D}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{5F603892-DE40-4246-A969-1C6717AFE35D}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{5F603892-DE40-4246-A969-1C6717AFE35D}.Release|Any CPU.Build.0 = Release|Any CPU
+		{CBB0A9F5-47CE-4042-9D3E-3A27D231E2BB}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{CBB0A9F5-47CE-4042-9D3E-3A27D231E2BB}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{CBB0A9F5-47CE-4042-9D3E-3A27D231E2BB}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{CBB0A9F5-47CE-4042-9D3E-3A27D231E2BB}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
