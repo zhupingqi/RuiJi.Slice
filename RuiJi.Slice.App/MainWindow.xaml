@@ -82,7 +82,7 @@
             <Button Content="Save Animation" Margin="10,10,10,0" Click="Button_Click" Visibility="Hidden" Controls:ControlsHelper.ContentCharacterCasing="Normal" Style="{DynamicResource AccentedSquareButtonStyle}"/>
         </StackPanel>
         <tool3d:TrackballDecorator Name="trackBallDec" DockPanel.Dock="Top">
-            <Viewport3D Name="myViewport3D"/>
+            <Viewport3D Name="myViewport3D" OpacityMask="Black"/>
         </tool3d:TrackballDecorator>
     </DockPanel>
 </Controls:MetroWindow>
