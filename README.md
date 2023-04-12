@@ -1,4 +1,12 @@
-RuiJi.Slice
+[广告]
+
+年级大了, 熬不动了，卖卖茶叶，喜欢喝茶的猿人们，来看看如何泡出一杯美味的茶吧 
+![泡泡茶](https://www.paopaocha.top/images/ad/paopaocha.jpg "泡泡茶")
+
+[泡泡茶 https://www.paopaocha.top/](https://www.paopaocha.top/)
+
+[RuiJi.Slice]
+
 RuiJi.Slice 是一个三维模型切片切片软件
 
 切片结果使用蓝牙传输给RuiJiHG全息投影设备
