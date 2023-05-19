@@ -28,11 +28,16 @@
             </ComboBox>
         </Controls:WindowCommands>
     </Controls:MetroWindow.RightWindowCommands>
-    <DockPanel Name="main_panel" LastChildFill="True">
-        <!--Background="Sienna"-->
-        <StackPanel DockPanel.Dock="Left" Width="220" Background="#fff" RenderTransformOrigin="0.468,0.497">
+    <Grid Name="main_panel">
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="Auto"/>
+            <ColumnDefinition Width="1*"/>
+            <ColumnDefinition Width="1*"/>
+        </Grid.ColumnDefinitions>
+        <StackPanel Grid.Column="0" Width="220" Background="#fff" RenderTransformOrigin="0.468,0.497">
+            
             <StackPanel Orientation="Horizontal" Margin="0,30,0,0">
-                <TextBox Width="165" Margin="5" IsReadOnly="True" Name="path" ></TextBox>
+                <TextBox Width="165" Margin="5" IsReadOnly="True" x:Name="path" />
                 <Button Click="ButtonOpenFile_Click" Content="Open"/>
             </StackPanel>
             <StackPanel Margin="10,5,10,0" >
@@ -51,38 +56,39 @@
             </StackPanel>
 
             <ListView x:Name="animationsList" Visibility="Hidden" SelectionChanged="animationsList_SelectionChanged" />
-            <Button Name="btn_searchBt" Click="ButtonSearchBt_Click" Controls:ControlsHelper.ContentCharacterCasing="Normal" Content="Search for Bluetooth" Margin="10,10,10,0" Style="{DynamicResource AccentedSquareButtonStyle}"/>
-            <GroupBox Margin="10,15,10,4" Controls:ControlsHelper.ContentCharacterCasing="Normal" Header="Bluetooth List" Name="bt_panel">
-                <ListBox Name="lb_bt">
-                </ListBox>
+            <Button x:Name="btn_searchBt" Click="ButtonSearchBt_Click" Controls:ControlsHelper.ContentCharacterCasing="Normal" Content="Search for Bluetooth" Margin="10,10,10,0" Style="{DynamicResource AccentedSquareButtonStyle}"/>
+            <GroupBox Margin="10,15,10,4" Controls:ControlsHelper.ContentCharacterCasing="Normal" Header="Bluetooth List" x:Name="bt_panel">
+                <ListBox x:Name="lb_bt"/>
             </GroupBox>
-            <Button Name="btn_send" Click="BtnMeshSend_Click" Content="Generate" Controls:ControlsHelper.ContentCharacterCasing="Normal" Margin="10,10,10,0" IsEnabled="False" Style="{DynamicResource AccentedSquareButtonStyle}" />
-            <Label Name="sendMsg"></Label>
-            <local:CircleControl x:Name="circleControl" Margin="0,0,0,20" IsEnabled="False">
-            </local:CircleControl>
-            <!--<Grid x:Name="Grid_Action" MinHeight="90" IsEnabled="False" >
-                <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="167*"/>
-                    <ColumnDefinition Width="33*"/>
-                </Grid.ColumnDefinitions>
-                <Grid.RowDefinitions>
-                    <RowDefinition Height="30*"/>
-                    <RowDefinition Height="30*"/>
-                    <RowDefinition Height="30*"/>
-                </Grid.RowDefinitions>
-                <Button x:Name="Btn_FilePre" Content="Pre" Margin="10,10,10,1" Grid.ColumnSpan="2" Click="Btn_FilePre_Click" />
-                <Button x:Name="Btn_FileNext" Content="Next" Margin="10,1,10,10" Grid.Row="2" Grid.ColumnSpan="2" Click="Btn_FileNext_Click" />
-                <Button x:Name="Btn_SliceMoveLeft" Content="Left" Margin="10,4.76,102,0" Grid.Row="1" Height="19" VerticalAlignment="Top" Click="Btn_SliceMoveLeft_Click" />
-                <Button x:Name="Btn_SliceReset" Content="Reset" Margin="72,5,40,6" Grid.Row="1" Click="Btn_SliceReset_Click" />
-                <Button x:Name="Btn_SliceMoveRight" Content="Right" Margin="135,5,10,6" Grid.Row="1" Grid.ColumnSpan="2" Click="Btn_SliceMoveRight_Click" />
-            </Grid>-->
+            <Button x:Name="btn_send" Click="BtnMeshSend_Click" Content="Generate" Controls:ControlsHelper.ContentCharacterCasing="Normal" Margin="10,10,10,0" IsEnabled="False" Style="{DynamicResource AccentedSquareButtonStyle}" />
+            <Label x:Name="sendMsg"/>
+            <local:CircleControl x:Name="circleControl" Margin="0,0,0,20" IsEnabled="False"/>
             <Button Content="Save" Margin="10,0" Click="Button_Click_1" Controls:ControlsHelper.ContentCharacterCasing="Normal" Style="{DynamicResource AccentedSquareButtonStyle}"/>
             <Button Content="Transmit" Click="Btn_AnimationSend_Click" Margin="10,10,10,0" Controls:ControlsHelper.ContentCharacterCasing="Normal" Style="{DynamicResource AccentedSquareButtonStyle}"/>
             <Button Content="CNC" Click="Btn_CNC_Click" Margin="10,10,10,0" Controls:ControlsHelper.ContentCharacterCasing="Normal" Style="{DynamicResource AccentedSquareButtonStyle}"/>
             <Button Content="Save Animation" Margin="10,10,10,0" Click="Button_Click" Visibility="Hidden" Controls:ControlsHelper.ContentCharacterCasing="Normal" Style="{DynamicResource AccentedSquareButtonStyle}"/>
+            <StackPanel Height="28" Orientation="Horizontal">
+                <Label Content="Y偏移" Width="50"/>
+                <TextBox x:Name="offsetYTextBox" TextWrapping="Wrap" Text="0" Width="125"/>
+            </StackPanel>
         </StackPanel>
-        <tool3d:TrackballDecorator Name="trackBallDec" DockPanel.Dock="Top">
+        <tool3d:TrackballDecorator Name="trackBallDec" Width="422" Grid.Column="1">
             <Viewport3D Name="myViewport3D" OpacityMask="Black"/>
         </tool3d:TrackballDecorator>
-    </DockPanel>
+        <GridSplitter Grid.Column="2" Width="3" HorizontalAlignment="Left" VerticalContentAlignment="Stretch" />
+        <StackPanel Grid.Column="2">
+            <StackPanel Orientation="Horizontal" Margin="5,5,5,5">
+                <Label Content="宽" />
+                <TextBox x:Name="paperWidth" Text="300" Width="50"  />
+                <Label Content="高" />
+                <TextBox x:Name="paperHeight" Text="300" Width="50"  />
+                <Label Content="绘制深度" />
+                <TextBox x:Name="drawDeep" Text="-1" Width="50"  />
+                <Button Content="展开" Controls:ControlsHelper.ContentCharacterCasing="Normal" Style="{DynamicResource AccentedSquareButtonStyle}" Click="Button_Click_2" Margin="5,0,0,0"/>
+            </StackPanel>
+            <ScrollViewer VerticalContentAlignment="Stretch" HorizontalContentAlignment="Stretch" HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Auto">
+                <Image x:Name="boxImage" Source="/icon48.png" Stretch="None" />
+            </ScrollViewer>
+        </StackPanel>
+    </Grid>
 </Controls:MetroWindow>

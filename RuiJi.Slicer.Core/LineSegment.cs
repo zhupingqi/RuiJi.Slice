@@ -33,22 +33,29 @@ namespace RuiJi.Slicer.Core
 {
     public class LineSegment
     {
+        public PlaneFacet ChildFacet { get; set; }
+
+        public bool Outter { get; set; }
+
         public Vector3 Start
         {
             get;
-            private set;
+            set;
         }
 
         public Vector3 End
         {
             get;
-            private set;
+            set;
         }
 
         public Vector3 Normal
         {
-            get;
-            private set;
+            get {
+                var p = End - Start;
+
+                return new Vector3((float)p.X, (float)p.Y, (float)p.Z);
+            }
         }
 
         public double Lenght
@@ -63,20 +70,20 @@ namespace RuiJi.Slicer.Core
         {
             this.Start = a;
             this.End = b;
-
-            var p = End - Start;
-
-            this.Normal = new Vector3((float)p.X, (float)p.Y, (float)p.Z);
         }
 
         public LineSegment(Point3D a, Point3D b)
         {
             this.Start = new Vector3((float)a.X, (float)a.Y, (float)a.Z);
             this.End = new Vector3((float)b.X, (float)b.Y, (float)b.Z);
+        }
 
-            var p = End - Start;
-
-            this.Normal = new Vector3((float)p.X, (float)p.Y, (float)p.Z);
+        public bool Equals(LineSegment line)
+        {
+            return this.Start.X == line.Start.X && this.Start.Y == line.Start.Y && this.Start.Z == line.Start.Z
+                && this.End.X == line.End.X && this.End.Y == line.End.Y && this.End.Z == line.End.Z ||
+                this.End.X == line.Start.X && this.End.Y == line.Start.Y && this.End.Z == line.Start.Z
+                && this.Start.X == line.End.X && this.Start.Y == line.End.Y && this.Start.Z == line.End.Z;
         }
     }
 }

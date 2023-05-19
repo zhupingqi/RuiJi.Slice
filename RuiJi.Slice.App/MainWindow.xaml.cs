@@ -32,6 +32,9 @@ using System.IO;
 using Microsoft.Win32;
 using MahApps.Metro.Controls;
 using MahApps.Metro.Controls.Dialogs;
+using System.Drawing;
+using ControlzEx.Standard;
+using static System.Windows.Forms.LinkLabel;
 
 namespace RuiJi.Slice.App
 {
@@ -75,8 +78,6 @@ namespace RuiJi.Slice.App
 
             await Task.Run(new Action(() =>
             {
-                BluetoothRadio BuleRadio = BluetoothRadio.PrimaryRadio;
-                BuleRadio.Mode = RadioMode.Connectable;
                 BluetoothDeviceInfo[] Devices = client.DiscoverDevices();
                 var percentage = 0.5;
                 controller.SetProgress(percentage);
@@ -99,7 +100,7 @@ namespace RuiJi.Slice.App
                         radio.Checked += ButtonCheckBt_Click;
 
                         var item = new ListBoxItem();
-                        Brush brush = (Brush)brushConverter.ConvertFromString("#cccccc");
+                        var brush = (System.Windows.Media.Brush)brushConverter.ConvertFromString("#cccccc");
                         item.Background = brush;
                         item.Content = radio;
 
@@ -276,14 +277,14 @@ namespace RuiJi.Slice.App
                     sendMsg.Content = "正在切片...";
                 }));
 
-                var r = new AxisAngleRotation3D(new System.Windows.Media.Media3D.Vector3D(1, 0, 0), 90);
 
-                var buff = GetFrameBuff(sceneView.MeshGroup, r);
+                var buff = GetFrameBuff(sceneView.MeshGroup);
 
                 Dispatcher.Invoke(new Action(() =>
                 {
                     sendMsg.Content = "切片完成，开始发送";
                 }));
+
 
                 TransmitStart(1);
                 SendData(buff, 0);
@@ -389,7 +390,11 @@ namespace RuiJi.Slice.App
                 try
                 {
                     stream.Write(wb, 0, wb.Length);
-                    WaitResposne(stream);
+                    var r = WaitResposne(stream);
+                    while (!r)
+                    {
+                        r = WaitResposne(stream);
+                    }
 
                     process++;
                     Dispatcher.Invoke(new Action(() =>
@@ -425,45 +430,40 @@ namespace RuiJi.Slice.App
             WaitResposne(stream);
         }
 
-        private byte[] GetFrameBuff(Model3DGroup meshGroup, AxisAngleRotation3D rotation = null)
+        private byte[] GetFrameBuff(Model3DGroup meshGroup)
         {
             var frame = ",";
             var facets = new List<Facet>();
             var size = new ModelSize(64, 64, 32);
-
-            var axis = new System.Windows.Media.Media3D.Vector3D();
-            var angle = 0d;
-            if (rotation != null)
-            {
-                axis = rotation.Axis;
-                angle = rotation.Angle;
-            }
+            var offsetX = 0;
+            var offsetY = 0;
 
             Dispatcher.Invoke(new Action(() =>
-            {
-                var cloneMeshGroup = meshGroup.Clone();
-
-                var transform = myViewport3D.Children[myViewport3D.Children.Count - 1].Transform.Clone() as Transform3DGroup;
-
-                foreach (GeometryModel3D geo in cloneMeshGroup.Children)
                 {
-                    var mesh = geo.Geometry as MeshGeometry3D;
+                    offsetY = Convert.ToInt32(offsetYTextBox.Text);
+                    var cloneMeshGroup = meshGroup.Clone();
 
-                    for (int i = 0; i < mesh.TriangleIndices.Count; i += 3)
+                    var transform = myViewport3D.Children[myViewport3D.Children.Count - 1].Transform.Clone() as Transform3DGroup;
+
+                    foreach (GeometryModel3D geo in cloneMeshGroup.Children)
                     {
-                        var p = mesh.Positions[mesh.TriangleIndices[i]];
-                        var p0 = transform.Transform(p);
+                        var mesh = geo.Geometry as MeshGeometry3D;
 
-                        p = mesh.Positions[mesh.TriangleIndices[i + 1]];
-                        var p1 = transform.Transform(p);
+                        for (int i = 0; i < mesh.TriangleIndices.Count; i += 3)
+                        {
+                            var p = mesh.Positions[mesh.TriangleIndices[i]];
+                            var p0 = transform.Transform(p);
 
-                        p = mesh.Positions[mesh.TriangleIndices[i + 2]];
-                        var p2 = transform.Transform(p);
+                            p = mesh.Positions[mesh.TriangleIndices[i + 1]];
+                            var p1 = transform.Transform(p);
 
-                        facets.Add(new Facet(p0, p1, p2));
+                            p = mesh.Positions[mesh.TriangleIndices[i + 2]];
+                            var p2 = transform.Transform(p);
+
+                            facets.Add(new Facet(p0, p1, p2));
+                        }
                     }
-                }
-            }));
+                }));
 
             //facets.RemoveAll(m => m.TooSmall);
 
@@ -475,7 +475,7 @@ namespace RuiJi.Slice.App
 
             foreach (var key in results.Keys)
             {
-                var images = CircleSlicer.ToImage(results[key], size, 64, 32, 0, 0);
+                var images = CircleSlicer.ToImage(results[key], size, 64, 32, offsetX, offsetY);
                 for (int i = 0; i < images.Count; i++)
                 {
                     var bmp = images[i];
@@ -569,9 +569,8 @@ namespace RuiJi.Slice.App
                             sendMsg.Content = "正在切片...";
                         }));
 
-                        var r = new AxisAngleRotation3D(new System.Windows.Media.Media3D.Vector3D(1, 0, 0), 90);
 
-                        var buff = GetFrameBuff(sceneView.MeshGroup, r);
+                        var buff = GetFrameBuff(sceneView.MeshGroup);
 
                         Dispatcher.Invoke(new Action(() =>
                         {
@@ -722,7 +721,7 @@ namespace RuiJi.Slice.App
                 }
 
                 var b = cloneMeshGroup.Bounds;
-                var c = (int)Math.Round((b.SizeY - b.Y)/10.0);
+                var c = (int)Math.Round((b.SizeY - b.Y) / 10.0);
                 var d = new LinearArrayDefine(new Vector3(0, 1, 0), c, (float)b.Y, (float)(b.Y + b.SizeY));
                 var result = SlicerHelper.DoLinearSlice(facets.ToArray(), d);
 
@@ -738,9 +737,182 @@ namespace RuiJi.Slice.App
                     bmp.Dispose();
                 }
                 */
-
-
             }));
+        }
+
+        private void Button_Click_2(object sender, RoutedEventArgs e)
+        {
+            Dispatcher.Invoke(() => {
+                var facets = new List<Facet>();
+                var cloneMeshGroup = sceneView.MeshGroup.Clone();
+                var transform = myViewport3D.Children[myViewport3D.Children.Count - 1].Transform.Clone() as Transform3DGroup;
+
+                foreach (GeometryModel3D geo in cloneMeshGroup.Children)
+                {
+                    var mesh = geo.Geometry as MeshGeometry3D;
+
+                    for (int i = 0; i < mesh.TriangleIndices.Count; i += 3)
+                    {
+                        var p = mesh.Positions[mesh.TriangleIndices[i]];
+                        var p0 = transform.Transform(p);
+                        mesh.Positions[mesh.TriangleIndices[i]] = p0;
+
+                        p = mesh.Positions[mesh.TriangleIndices[i + 1]];
+                        var p1 = transform.Transform(p);
+                        mesh.Positions[mesh.TriangleIndices[i + 1]] = p1;
+
+                        p = mesh.Positions[mesh.TriangleIndices[i + 2]];
+                        var p2 = transform.Transform(p);
+                        mesh.Positions[mesh.TriangleIndices[i + 2]] = p2;
+
+                        if (p0 != p1 && p0 != p2 && p1 != p2)
+                        {
+                            var face = new Facet(p0, p1, p2);
+                            facets.Add(face);
+                        }
+                    }
+                }
+
+                var fs = new List<PlaneFacet>();
+
+                foreach (var f  in facets)
+                {
+                    var find = fs.SingleOrDefault(m=>m.Plane == f.Plane); 
+                    if (find != null)
+                    {
+                        find.AddFacet(f);
+                    }
+                    else
+                    {
+                        fs.Add(new PlaneFacet(f));
+                    }
+                }
+
+                if (fs.Count == 0)
+                    return;
+
+                fs = fs.OrderByDescending(f => f.Area).ToList();
+
+                var pri = fs.First();
+                pri.Deep = 0;
+
+                BuildIntersecteFacet(fs.Skip(1).ToList(),pri);
+
+                var axis = new Vector3(pri.Center.X - 1, pri.Center.Y, pri.Center.Z) - pri.Center;
+                axis = Vector3.Normalize(axis);
+                pri.Transform(axis, (float) (90 * Math.PI/180.0));
+                pri.Flatten();
+
+                var pageW = Convert.ToInt32(paperWidth.Text);
+                var pageH = Convert.ToInt32(paperHeight.Text);
+
+                //(毫米数/25.4)*DPI
+                var width = (int)(pageW / 25.4 * 72);
+                var height = (int)(pageH / 25.4 * 72);
+
+                var bitmap = new Bitmap(width, height);
+                var g = Graphics.FromImage(bitmap);
+                g.FillRectangle(System.Drawing.Brushes.White,0,0, width, height);
+                //DrawTriangleFacet(g, pri, pageW / 2, pageH / 2);
+                DrawFacet(g,pri, pageW / 2, pageH / 2);
+
+                var ms = new MemoryStream();
+                bitmap.Save(ms, System.Drawing.Imaging.ImageFormat.Bmp);
+                var bytes = ms.GetBuffer();
+                ms.Close();
+                bitmap.Dispose();
+                bitmap = null;
+
+                var image = new BitmapImage();
+                image.BeginInit();
+                image.StreamSource = new MemoryStream(bytes);
+                image.EndInit();
+
+                boxImage.Source = image;
+            });
+        }
+
+        private void DrawFacet(Graphics g, PlaneFacet planeFacet, int offsetX = 0, int offsetY = 0)
+        {
+            var deep = Convert.ToInt32(drawDeep.Text);
+            if (deep == -1)
+                deep = int.MaxValue;
+
+            if (deep < planeFacet.Deep)
+                return;
+
+            //var fs = planeFacet.FlatFacets.Where(m => m.Deep <= deep).OrderBy(m => m.Deep).ToList();
+
+            //foreach (var p in planeFacet.FlatFacets)
+            //{
+                foreach (var line in planeFacet.AroundLines)
+                {
+                    var start = line.Start;
+                    var end = line.End;
+
+                    var x0 = (float)((start.X + offsetX) / 25.4 * 72);
+                    var y0 = (float)((start.Y + offsetY) / 25.4 * 72);
+                    var x1 = (float)((end.X + offsetX) / 25.4 * 72);
+                    var y1 = (float)((end.Y + offsetY) / 25.4 * 72);
+
+                    var pen = new System.Drawing.Pen(System.Drawing.Color.Black, 1);
+                    g.DrawLine(pen, x0, y0, x1, y1);
+
+                    if (line.ChildFacet != null)
+                        DrawFacet(g, line.ChildFacet, offsetX, offsetY);
+                }
+            //}
+        }
+
+        private void DrawTriangleFacet(Graphics g, PlaneFacet planeFacet, int offsetX = 0, int offsetY = 0)
+        {
+            var origin = new Vector3(0, 0, 0);
+            if (planeFacet.Plane.D != 0)
+                origin = planeFacet.Plane.Normal * planeFacet.Plane.D;
+
+            var q = System.Numerics.Matrix4x4.CreateLookAt(planeFacet.Center, origin, new Vector3(0, 0, 1));
+
+            foreach (var line in planeFacet.AroundLines)
+            {
+                var start = Vector3.Transform(line.Start, q);
+                var end = Vector3.Transform(line.End, q);
+
+                var x0 = (float)((start.X + offsetX) / 25.4 * 72);
+                var y0 = (float)((start.Y + offsetY) / 25.4 * 72);
+                var x1 = (float)((end.X + offsetX) / 25.4 * 72);
+                var y1 = (float)((end.Y + offsetY) / 25.4 * 72);
+
+                var pen = new System.Drawing.Pen(System.Drawing.Color.Black, 1);
+                g.DrawLine(pen, x0, y0, x1, y1);
+
+                if (line.ChildFacet != null)
+                {
+                    DrawTriangleFacet(g, line.ChildFacet, offsetX, offsetY);
+                }
+            }
+        }
+
+        private void BuildIntersecteFacet(List<PlaneFacet> facets,PlaneFacet planeFacet)
+        {
+            foreach (var facet in facets)
+            {
+                if (facet.ParentLineSegment != null)
+                    continue;
+
+                var line = planeFacet.Collinear(facet);
+
+                if (line != null)
+                {
+                    line.ChildFacet = facet;
+                    facet.ParentLineSegment = line;
+                    facet.Parent = planeFacet;
+                    facet.Deep = planeFacet.Deep + 1;
+
+                    BuildIntersecteFacet(facets, facet);
+
+                    //var q = System.Numerics.Matrix4x4.CreateFromAxisAngle(line.Normal, facet.Angle);
+                }
+            }
         }
     }
 }
